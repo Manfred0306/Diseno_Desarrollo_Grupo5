@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using Proyecto_Diseno_Desarrollo_Grupo5.EF;
-using System.Data.Entity;
+using Proyecto_Diseno_Desarrollo_Grupo5.Models;
 using System;
 
 namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
@@ -10,110 +10,105 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
-        private bool IsAdmin()
-        {
-            return (Session["Rol"] ?? "").ToString() == "ADMINISTRADOR";
-        }
-
-        // Listado de categorías (todas)
         public ActionResult Index()
         {
             try
             {
-                var categorias = db.CATEGORIAS.Include("ESTADO").ToList();
-                return View(categorias);
+                var vm = new CategoriaCrudVM
+                {
+                    Categorias = db.CATEGORIAS
+                        .OrderBy(c => c.NOMBRE)
+                        .Select(c => new CategoriaFilaVM
+                        {
+                            ID_CATEGORIA = c.ID_CATEGORIA,
+                            NOMBRE = c.NOMBRE,
+                            DESCRIPCION = c.DESCRIPCION,
+                            ID_ESTADO = c.ID_ESTADO,
+                            ESTADO = c.ESTADO.NOMBRE
+                        })
+                        .ToList(),
+
+                    Estados = db.ESTADO
+                        .OrderBy(e => e.ID_ESTADO)
+                        .ToList()
+                        .Select(e => new SelectListItem
+                        {
+                            Value = e.ID_ESTADO.ToString(),
+                            Text = e.NOMBRE
+                        })
+                        .ToList()
+                };
+
+                return View(vm);
             }
             catch (Exception ex)
             {
-                // Si la base de datos no está disponible, devolver una lista vacía y mostrar mensaje.
                 TempData["Mensaje"] = "No se pudo conectar a la base de datos. " + ex.Message;
-                return View(Enumerable.Empty<CATEGORIAS>());
+                var vm = new CategoriaCrudVM
+                {
+                    Categorias = new System.Collections.Generic.List<CategoriaFilaVM>(),
+                    Estados = new System.Collections.Generic.List<SelectListItem>()
+                };
+                return View(vm);
             }
         }
 
-        // GET: Crear
-        [HttpGet]
-        public ActionResult Create()
-        {
-            if (!IsAdmin()) return new HttpStatusCodeResult(403);
-            return View(new CATEGORIAS());
-        }
-
-        // POST: Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(CATEGORIAS model)
+        public ActionResult Create(CategoriaCrudVM vm)
         {
-            if (!IsAdmin()) return new HttpStatusCodeResult(403);
-
-            if (string.IsNullOrWhiteSpace(model.NOMBRE))
+            if (string.IsNullOrWhiteSpace(vm.NOMBRE))
             {
-                ModelState.AddModelError("NOMBRE", "El nombre es requerido.");
+                TempData["Mensaje"] = "El nombre es requerido.";
+                return RedirectToAction("Index");
             }
 
-            // Validar nombre único
-            var existe = db.CATEGORIAS.Any(c => c.NOMBRE == model.NOMBRE);
+            var existe = db.CATEGORIAS.Any(c => c.NOMBRE == vm.NOMBRE.Trim());
             if (existe)
             {
-                ModelState.AddModelError("NOMBRE", "Ya existe una categoría con ese nombre.");
+                TempData["Mensaje"] = "Ya existe una categoría con ese nombre.";
+                return RedirectToAction("Index");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            // Por defecto marcar como Activo (si existe el estado 'Activo' se usa su ID, si no se usa 1)
             var estadoActivo = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Activo");
-            model.ID_ESTADO = estadoActivo != null ? estadoActivo.ID_ESTADO : 1;
 
-            db.CATEGORIAS.Add(model);
+            var cat = new CATEGORIAS
+            {
+                NOMBRE = vm.NOMBRE.Trim(),
+                DESCRIPCION = (vm.DESCRIPCION ?? "").Trim(),
+                ID_ESTADO = estadoActivo != null ? estadoActivo.ID_ESTADO : 1
+            };
+
+            db.CATEGORIAS.Add(cat);
             db.SaveChanges();
 
             TempData["OK"] = "Categoría registrada correctamente.";
             return RedirectToAction("Index");
         }
 
-        // GET: Editar
-        [HttpGet]
-        public ActionResult Edit(int id)
-        {
-            if (!IsAdmin()) return new HttpStatusCodeResult(403);
-
-            var categoria = db.CATEGORIAS.Find(id);
-            if (categoria == null) return HttpNotFound();
-            return View(categoria);
-        }
-
-        // POST: Editar
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(CATEGORIAS model)
+        public ActionResult Edit(CategoriaCrudVM vm)
         {
-            if (!IsAdmin()) return new HttpStatusCodeResult(403);
+            var cat = db.CATEGORIAS.Find(vm.ID_CATEGORIA);
+            if (cat == null) return RedirectToAction("Index");
 
-            if (string.IsNullOrWhiteSpace(model.NOMBRE))
+            if (string.IsNullOrWhiteSpace(vm.NOMBRE))
             {
-                ModelState.AddModelError("NOMBRE", "El nombre es requerido.");
+                TempData["Mensaje"] = "El nombre es requerido.";
+                return RedirectToAction("Index");
             }
 
-            var existe = db.CATEGORIAS.Any(c => c.NOMBRE == model.NOMBRE && c.ID_CATEGORIA != model.ID_CATEGORIA);
+            var existe = db.CATEGORIAS.Any(c => c.NOMBRE == vm.NOMBRE.Trim() && c.ID_CATEGORIA != vm.ID_CATEGORIA);
             if (existe)
             {
-                ModelState.AddModelError("NOMBRE", "Ya existe otra categoría con ese nombre.");
+                TempData["Mensaje"] = "Ya existe otra categoría con ese nombre.";
+                return RedirectToAction("Index");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            var categoria = db.CATEGORIAS.Find(model.ID_CATEGORIA);
-            if (categoria == null) return HttpNotFound();
-
-            categoria.NOMBRE = model.NOMBRE;
-            categoria.DESCRIPCION = model.DESCRIPCION;
-            // No tocar ID_ESTADO aquí (editar no cambia estado)
+            cat.NOMBRE = vm.NOMBRE.Trim();
+            cat.DESCRIPCION = (vm.DESCRIPCION ?? "").Trim();
+            cat.ID_ESTADO = vm.ID_ESTADO;
 
             db.SaveChanges();
 
@@ -121,18 +116,15 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return RedirectToAction("Index");
         }
 
-        // POST: Desactivar (no borra físicamente)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Deactivate(int id)
         {
-            if (!IsAdmin()) return new HttpStatusCodeResult(403);
-
-            var categoria = db.CATEGORIAS.Find(id);
-            if (categoria == null) return HttpNotFound();
+            var cat = db.CATEGORIAS.Find(id);
+            if (cat == null) return RedirectToAction("Index");
 
             var estadoInactivo = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Inactivo");
-            categoria.ID_ESTADO = estadoInactivo != null ? estadoInactivo.ID_ESTADO : 2;
+            cat.ID_ESTADO = estadoInactivo != null ? estadoInactivo.ID_ESTADO : 2;
 
             db.SaveChanges();
 
@@ -140,7 +132,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return RedirectToAction("Index");
         }
 
-        // Endpoint para obtener categorías activas (uso en productos, ventas, etc.)
         public ActionResult GetActiveCategories()
         {
             var activoId = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Activo")?.ID_ESTADO ?? 1;

@@ -1,201 +1,204 @@
-@model IEnumerable<Proyecto_Diseno_Desarrollo_Grupo5.EF.CATEGORIAS>
+@model Proyecto_Diseno_Desarrollo_Grupo5.Models.CategoriaCrudVM
 @{
     ViewBag.Title = "Categorías";
     Layout = "~/Views/Shared/_LayoutCliente.cshtml";
-
-    var nombre = (Session["NombreUsuario"] ?? "Usuario").ToString();
-    var rol = (Session["Rol"] ?? "CLIENTE").ToString();
 }
 
 @section styles {
     <link rel="stylesheet" href="~/StaticFiles/css/Index.css" />
+    <link rel="stylesheet" href="~/StaticFiles/css/Productos.css" />
 }
 
-<div class="lp-nav">
-    <div class="lp-nav__inner">
-        <div class="lp-brand">
-            <img src="~/StaticFiles/img/AlphaStockLogo.png" alt="AlphaStock" />
-            <div class="lp-brand__text">
-                <b>AlphaStock</b>
-                <span>Sistema de Inventarios · Granito & Mármol</span>
-            </div>
-        </div>
-
-        <nav class="lp-menu">
-            <div class="lp-dd">
-                <a class="lp-dd__btn" href="javascript:void(0)">Inventario <span class="caret"></span></a>
-                <div class="lp-dd__menu">
-                    <a class="lp-dd__item" href="#"><b>Materiales</b><span>Catálogo y costos</span></a>
-                    <a class="lp-dd__item" href="#"><b>Movimientos</b><span>Entradas / salidas</span></a>
-                    <a class="lp-dd__item" href="#"><b>Cortes</b><span>Registro de cortes</span></a>
-                </div>
-            </div>
-
-            <div class="lp-dd">
-                <a class="lp-dd__btn" href="javascript:void(0)">Ventas <span class="caret"></span></a>
-                <div class="lp-dd__menu">
-                    <a class="lp-dd__item" href="#"><b>Nueva venta</b><span>Factura y detalle</span></a>
-                    <a class="lp-dd__item" href="#"><b>Devoluciones</b><span>Gestión y motivo</span></a>
-                    <a class="lp-dd__item" href="#"><b>Clientes</b><span>Consulta rápida</span></a>
-                </div>
-            </div>
-
-            <div class="lp-dd">
-                <a class="lp-dd__btn" href="javascript:void(0)">Reportes <span class="caret"></span></a>
-                <div class="lp-dd__menu">
-                    <a class="lp-dd__item" href="#"><b>Mensual</b><span>Ventas por período</span></a>
-                    <a class="lp-dd__item" href="#"><b>Inventario</b><span>Existencias y alertas</span></a>
-                    <a class="lp-dd__item" href="#"><b>Cortes</b><span>Resumen de producción</span></a>
-                </div>
-            </div>
-
-            @if (rol == "ADMINISTRADOR")
-            {
-                <div class="lp-dd">
-                    <a class="lp-dd__btn" href="javascript:void(0)">Administración <span class="caret"></span></a>
-                    <div class="lp-dd__menu">
-                        <a class="lp-dd__item" href="#"><b>Usuarios</b><span>Roles y estado</span></a>
-                        <a class="lp-dd__item" href="#"><b>Parámetros</b><span>Configuración general</span></a>
-                        <a class="lp-dd__item" href="#"><b>Bitácora</b><span>Auditoría del sistema</span></a>
-                        <a class="lp-dd__item" href="@Url.Action("Index","Categorias")"><b>Categorías</b><span>Crear y administrar categorías</span></a>
-                    </div>
-                </div>
-            }
-        </nav>
-
-        <div class="lp-nav__right">
-            <span class="lp-pill">Hola, @nombre</span>
-            <a class="lp-btn" href="@Url.Action("Logout","Autenticacion")">Salir</a>
-        </div>
-    </div>
-</div>
-
-<section class="lp-hero">
+<section class="page-hero">
     <div class="lp-wrap">
-        <div class="hero">
-            <div class="hero__left">
-                <span class="hero__kicker">Administración · Categorías</span>
-                <h1>Gestión de categorías</h1>
+        <div class="hero" style="grid-template-columns: 1fr;">
+            <div class="hero__left" style="padding: 34px 34px;">
+                <span class="hero__kicker">Módulo</span>
+                <h1>Categorías</h1>
                 <p>
-                    Desde aquí podés crear, editar y desactivar las categorías que usarán los productos en el sistema.
+                    Registrar, editar y desactivar categorías rápidamente.
+                    Seleccioná una fila para editar o desactivar.
                 </p>
 
                 <div class="hero__cta">
-                    @if (rol == "ADMINISTRADOR") { <a class="lp-btn" href="@Url.Action("Create","Categorias")">Nueva categoría</a> }
-                    <a class="btn2" href="@Url.Action("Index","Home")">Volver al inicio</a>
+                    <a href="@Url.Action("Index","Home")"
+                       style="display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;border-radius:14px;font-weight:950;font-size:13px;background:linear-gradient(135deg,rgba(182,128,68,.98),rgba(215,176,122,.95));color:#1d1712;border:1px solid rgba(182,128,68,.28);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;">
+                        Volver al inicio
+                    </a>
+                    <a href="#panel-form"
+                       style="display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;border-radius:14px;font-weight:950;font-size:13px;background:rgba(255,255,255,.55);color:rgba(36,31,26,.90);border:1px solid rgba(70,60,50,.12);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;">
+                        Ir al formulario
+                    </a>
                 </div>
             </div>
-
-            <div class="hero__right">
-                <div class="stats">
-                    <div class="stat">
-                        <b>Total categorías</b>
-                        <span>@(Model != null ? Model.Count() : 0)</span>
-                    </div>
-                    <div class="stat">
-                        <b>Activas</b>
-                        <span>@(Model != null ? Model.Count(c => c.ESTADO != null && c.ESTADO.NOMBRE == "Activo") : 0)</span>
-                    </div>
-                    <div class="stat">
-                        <b>Inactivas</b>
-                        <span>@(Model != null ? Model.Count(c => c.ESTADO == null || c.ESTADO.NOMBRE != "Activo") : 0)</span>
-                    </div>
-                    <div class="stat">
-                        <b>Última acción</b>
-                        <span>—</span>
-                    </div>
-                </div>
-                <div class="hero__hint">
-                    Asegurate de no eliminar categorías que estén en uso; podés desactivarlas si ya no se usan.
-                </div>
-            </div>
-        </div }
+        </div>
     </div>
 </section>
 
 <section class="lp-section">
     <div class="lp-wrap">
-        @if (TempData["OK"] != null) {
-            <div class="alert alert-success">@TempData["OK"]</div>
+
+        @if (TempData["OK"] != null)
+        {
+            <div class="alert alert-success" style="margin-bottom:12px;">@TempData["OK"]</div>
         }
-        @if (TempData["Mensaje"] != null) {
-            <div class="alert alert-warning">@TempData["Mensaje"]</div>
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-warning" style="margin-bottom:12px;">@TempData["Mensaje"]</div>
         }
 
-        <div class="panel">
-            <div class="panel__head">
-                <b>Listado de categorías</b>
-                <span class="muted">Administrá los registros</span>
+        <div class="panel p-panel" id="panel-form">
+            <div class="p-head">
+                <div class="p-title">
+                    <h2>Registro y mantenimiento</h2>
+                    <span class="muted">Click en una fila para cargar datos y editar.</span>
+                </div>
+                <span class="p-chip">CRUD</span>
             </div>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.ID_CATEGORIA</td>
-                        <td>@item.NOMBRE</td>
-                        <td>@item.DESCRIPCION</td>
-                        <td>@item.ESTADO?.NOMBRE</td>
-                        <td>
-                            @if (rol == "ADMINISTRADOR")
-                            {
-                                @Html.ActionLink("Editar", "Edit", new { id = item.ID_CATEGORIA }, new { @class = "btn btn-sm btn-secondary" })
+            <div class="p-search">
+                <input id="txtBuscar" placeholder="Buscar por ID, nombre o descripción..." />
+            </div>
 
-                                <form action='@Url.Action("Deactivate","Categorias")' method="post" style="display:inline;" class="confirm-deactivate">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@item.ID_CATEGORIA" />
-                                    <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
-                                </form>
-                            }
-                            else
+            @using (Html.BeginForm("Create", "Categorias", FormMethod.Post, new { id = "frmCategoria" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" id="ID_CATEGORIA" name="ID_CATEGORIA" value="0" />
+
+                <div class="p-form" style="grid-template-columns: 1.2fr 2fr 1fr;">
+                    <div class="p-field">
+                        <label>Nombre</label>
+                        <input id="NOMBRE" name="NOMBRE" required />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Descripción</label>
+                        <input id="DESCRIPCION" name="DESCRIPCION" />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Estado</label>
+                        <select id="ID_ESTADO" name="ID_ESTADO" required>
+                            @foreach (var e in Model.Estados)
                             {
-                                <span class="muted">Sin permisos</span>
+                                <option value="@e.Value">@e.Text</option>
                             }
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-actions">
+                    <button type="submit" id="btnGuardar" class="lp-btn">Guardar</button>
+                    <button type="button" id="btnCancelar" class="btn2">Cancelar</button>
+                    <button type="button" id="btnDesactivar" class="lp-btn p-danger" disabled>Desactivar</button>
+                </div>
+            }
         </div>
+
+        <div class="panel p-panel" style="margin-top:12px;">
+            <div class="p-head">
+                <div class="p-title">
+                    <h2>Lista general</h2>
+                    <span class="muted">Se actualiza cuando guardás, editás o desactivás.</span>
+                </div>
+                <span class="p-chip">@Model.Categorias.Count registros</span>
+            </div>
+
+            <div class="p-tableWrap">
+                <table id="tblCategorias" class="p-table">
+                    <thead>
+                        <tr>
+                            <th>ID (Código)</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.Categorias)
+                        {
+                            <tr class="rowCat"
+                                data-id="@c.ID_CATEGORIA"
+                                data-nombre="@c.NOMBRE"
+                                data-descripcion="@c.DESCRIPCION"
+                                data-estado="@c.ID_ESTADO">
+
+                                <td class="colId">@c.ID_CATEGORIA</td>
+                                <td class="colNombre">@c.NOMBRE</td>
+                                <td class="colDescripcion">@c.DESCRIPCION</td>
+                                <td>@c.ESTADO</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @using (Html.BeginForm("Deactivate", "Categorias", FormMethod.Post, new { id = "frmDeactivate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="deactivateId" name="id" value="0" />
+            }
+        </div>
+
     </div>
 </section>
 
-<footer class="lp-footer">
-    <div class="lp-wrap footer">
-        <div>© @DateTime.Now.Year AlphaStock</div>
-        <div class="lp-muted">info@alphastock.com · +506 8888-8888</div>
-    </div>
-</footer>
+<script>
+    var txtBuscar = document.getElementById("txtBuscar");
+    var filas = function() { return document.querySelectorAll("#tblCategorias tbody tr"); };
 
-@section scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var forms = document.querySelectorAll('form.confirm-deactivate');
-            forms.forEach(function(f) {
-                f.addEventListener('submit', function(e) {
-                    var ok = confirm('¿Confirma desactivar esta categoría? Esta acción la pondrá como Inactiva.');
-                    if (!ok) {
-                        e.preventDefault();
-                        return false;
-                    }
-                    // evitar doble envío
-                    var btn = f.querySelector('button[type="submit"]');
-                    if (btn) {
-                        btn.disabled = true;
-                        btn.innerText = 'Procesando...';
-                    }
-                });
-            });
+    txtBuscar.addEventListener("keyup", function () {
+        var q = txtBuscar.value.toLowerCase().trim();
+
+        filas().forEach(function(tr) {
+            var id = (tr.querySelector(".colId") ? tr.querySelector(".colId").innerText : "").toLowerCase();
+            var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
+            var desc = (tr.querySelector(".colDescripcion") ? tr.querySelector(".colDescripcion").innerText : "").toLowerCase();
+
+            tr.style.display = (id.indexOf(q) >= 0 || nombre.indexOf(q) >= 0 || desc.indexOf(q) >= 0) ? "" : "none";
         });
-    </script>
-}
+    });
+
+    var frm = document.getElementById("frmCategoria");
+    var btnDesactivar = document.getElementById("btnDesactivar");
+
+    function limpiar() {
+        document.getElementById("ID_CATEGORIA").value = 0;
+        document.getElementById("NOMBRE").value = "";
+        document.getElementById("DESCRIPCION").value = "";
+        document.getElementById("ID_ESTADO").value = "1";
+
+        frm.action = "@Url.Action("Create", "Categorias")";
+        btnDesactivar.disabled = true;
+
+        filas().forEach(function(x) { x.classList.remove("p-selected"); });
+    }
+
+    document.getElementById("btnCancelar").addEventListener("click", limpiar);
+
+    filas().forEach(function(tr) {
+        tr.addEventListener("click", function () {
+            filas().forEach(function(x) { x.classList.remove("p-selected"); });
+            tr.classList.add("p-selected");
+
+            document.getElementById("ID_CATEGORIA").value = tr.dataset.id;
+            document.getElementById("NOMBRE").value = tr.dataset.nombre;
+            document.getElementById("DESCRIPCION").value = tr.dataset.descripcion;
+            document.getElementById("ID_ESTADO").value = tr.dataset.estado;
+
+            frm.action = "@Url.Action("Edit", "Categorias")";
+            btnDesactivar.disabled = false;
+        });
+    });
+
+    btnDesactivar.addEventListener("click", function () {
+        var id = document.getElementById("ID_CATEGORIA").value;
+        if (id == 0) return;
+
+        if (confirm("¿Confirma desactivar esta categoría? Esta acción la pondrá como Inactiva.")) {
+            document.getElementById("deactivateId").value = id;
+            document.getElementById("frmDeactivate").submit();
+        }
+    });
+</script>
