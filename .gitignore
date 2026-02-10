@@ -1,16 +1,76 @@
-# Visual Studio / IIS Express
-.vs/
-
-# Build outputs
-bin/
-obj/
+############################################
+# Visual Studio / ASP.NET MVC (Full .gitignore)
+############################################
 
 # User-specific files
-*.user
+*.rsuser
 *.suo
-*.cache
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio 2015+ cache/options
+.vs/
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# ASP.NET / IIS Express
+.vsconfig
+*.iisExpress
+.applicationhost.config
+
+# NuGet
+# (Recomendado: NO versionar packages/ y sí versionar packages.config)
+packages/
+# si usan "packages" dentro de proyectos antiguos, esto lo ignora todo:
+**/packages/
+
+# NuGet artifacts
+*.nupkg
+*.snupkg
+*.nuspec
+.nuget/
+.nuget/NuGet.exe
+.nuget/NuGet.targets
+
+# Web deploy / publish
+PublishProfiles/
+*.Publish.xml
+*.pubxml
+*.pubxml.user
+App_Data/
+wwwroot/
+
+# Resharper / Rider / other IDEs
+_ReSharper*/
+*.ReSharper
+.idea/
+
+# Windows / OS junk
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Logs
 *.log
 
-# Visual Studio cache anywhere
-*.cache
-*.vsidx
+# Node (si algún día agregan frontend tooling)
+node_modules/
+
+############################################
+# Safety: ignore generated db files if any
+############################################
+*.mdf
+*.ldf
