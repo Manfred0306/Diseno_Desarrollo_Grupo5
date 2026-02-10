@@ -15,7 +15,7 @@
         <EntityTypeShape EntityType="Model1.ESTADO" Width="1.5" PointX="0.75" PointY="14.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Model1.GARANTIAS" Width="1.5" PointX="7.5" PointY="13.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Model1.MATERIALES" Width="1.5" PointX="5.25" PointY="20.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="Model1.MOVIMIENTOS_INVENTARIO" Width="1.5" PointX="7.5" PointY="25.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model1.MOVIMIENTOS_INVENTARIO" Width="2.625" PointX="6.875" PointY="25.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Model1.PERMISOS" Width="1.5" PointX="0.75" PointY="20.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Model1.PRODUCTO_MATERIAL" Width="1.5" PointX="10.5" PointY="18.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Model1.PRODUCTOS" Width="1.5" PointX="5.25" PointY="12.875" IsExpanded="true" />

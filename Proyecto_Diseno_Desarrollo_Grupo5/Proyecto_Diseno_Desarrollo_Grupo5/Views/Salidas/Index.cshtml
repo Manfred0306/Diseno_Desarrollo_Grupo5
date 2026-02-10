@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Proyecto_Diseno_Desarrollo_Grupo5.EF.MOVIMIENTOS_INVENTARIO>
+
+@{
+    ViewBag.Title = "Salidas de Inventario";
+}
+
+<h2>Salidas de Inventario</h2>
+
+<p>
+    @Html.ActionLink("Registrar nueva salida", "Create", null, new { @class = "btn btn-primary" })
+</p>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Material</th>
+            <th>Cantidad</th>
+            <th>Observación</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.FECHA.ToString("dd/MM/yyyy")</td>
+                <td>@item.MATERIALES.NOMBRE</td>
+                <td>@item.CANTIDAD</td>
+                <td>@item.OBSERVACION</td>
+                <td>
+                    @Html.ActionLink(
+                        "Detalles",
+                        "Details",
+                        new { id = item.ID_MOVIMIENTO },
+                        new { @class = "btn btn-sm btn-info" }
+                    )
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

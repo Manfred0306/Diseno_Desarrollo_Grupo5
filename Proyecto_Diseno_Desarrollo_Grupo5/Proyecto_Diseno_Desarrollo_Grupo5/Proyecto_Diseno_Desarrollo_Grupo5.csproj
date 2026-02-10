@@ -133,7 +133,11 @@
     <Compile Include="Controllers\AutenticacionController.cs" />
     <Compile Include="Controllers\CategoriasController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+<<<<<<< HEAD
     <Compile Include="Controllers\ProductosController.cs" />
+=======
+    <Compile Include="Controllers\SalidasController.cs" />
+>>>>>>> jhults
     <Compile Include="EF\BITACORA.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -316,9 +320,14 @@
     <Content Include="Views\Shared\_LayoutVendedor.cshtml" />
     <Content Include="Views\Autenticacion\Login.cshtml" />
     <Content Include="Views\Autenticacion\Registro.cshtml" />
+<<<<<<< HEAD
     <Content Include="Views\Categorias\Index.cshtml" />
     <Content Include="Views\Productos\Index.cshtml" />
     <Content Include="Views\Roles\Index.cshtml" />
+=======
+    <Content Include="Views\Salidas\Index.cshtml" />
+    <Content Include="Views\Salidas\Create.cshtml" />
+>>>>>>> jhults
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
