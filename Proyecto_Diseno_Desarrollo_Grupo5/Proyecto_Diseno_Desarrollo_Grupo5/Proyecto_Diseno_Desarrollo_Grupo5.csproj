@@ -273,6 +273,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="StaticFiles\css\Footer.css" />
     <Content Include="StaticFiles\css\NuestraHistoria.css" />
     <Content Include="StaticFiles\css\Productos.css" />
     <Content Include="StaticFiles\css\Index.css" />
