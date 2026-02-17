@@ -1,0 +1,195 @@
+﻿@model System.Collections.Generic.List<Proyecto_Diseno_Desarrollo_Grupo5.Models.UsuariosModel>
+
+@{
+    ViewBag.Title = "Control de Usuarios";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+
+    var q = (ViewBag.Q ?? "").ToString();
+    var rol = (int)(ViewBag.Rol ?? 0);
+    var estado = (int)(ViewBag.Estado ?? 0);
+
+    var roles = ViewBag.Roles as System.Collections.Generic.List<Proyecto_Diseno_Desarrollo_Grupo5.EF.ROLES>;
+}
+
+@section styles{
+    <link rel="stylesheet" href="~/StaticFiles/css/Usuarios.css" />
+}
+
+<main class="usuarios-page">
+    <div class="container py-4">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h2 class="mb-0">Control de Usuarios</h2>
+                <small class="text-muted">Gestión de usuarios (crear, editar, activar/inactivar)</small>
+            </div>
+
+            <button id="btnNuevoUsuario" class="btn btn-primary btn-icon" type="button">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo Usuario
+            </button>
+        </div>
+
+        <!-- Filtros -->
+        <form method="get" class="usuarios-filtros card p-3 mb-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-5">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" name="q" class="form-control" value="@q" placeholder="Nombre o correo..." />
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Rol</label>
+                    <select class="form-select" name="rol">
+                        <option value="0" @(rol == 0 ? "selected" : "")>Todos</option>
+                        @if (roles != null)
+                        {
+                            foreach (var r in roles)
+                            {
+                                <option value="@r.ID_ROL" @(rol == r.ID_ROL ? "selected" : "")>@r.NOMBRE</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" name="estado">
+                        <option value="0" @(estado == 0 ? "selected" : "")>Todos</option>
+                        <option value="1" @(estado == 1 ? "selected" : "")>Activo</option>
+                        <option value="2" @(estado == 2 ? "selected" : "")>Inactivo</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-2 d-grid">
+                    <button class="btn btn-dark" type="submit">
+                        <i class="bi bi-search me-1"></i> Filtrar
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Tabla -->
+        <div class="card usuarios-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:70px;">ID</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th style="width:160px;">Rol</th>
+                            <th style="width:120px;">Estado</th>
+                            <th class="text-end" style="width:210px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            foreach (var u in Model)
+                            {
+                                var esActivo = (u.IdEstado == 1);
+
+                                <tr>
+                                    <td>@u.IdUsuario</td>
+                                    <td>@u.Nombre</td>
+                                    <td>@u.Correo</td>
+                                    <td>@(string.IsNullOrWhiteSpace(u.ROL_NOMBRE) ? "-" : u.ROL_NOMBRE)</td>
+
+                                    <td>
+                                        <span class="badge @(esActivo ? "bg-success" : "bg-secondary")">
+                                            @(string.IsNullOrWhiteSpace(u.ESTADO_NOMBRE)
+                                                ? (esActivo ? "Activo" : "Inactivo")
+                                                : u.ESTADO_NOMBRE)
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+                                        <button class="btn btn-outline-primary btn-sm me-1 btnEditar"
+                                                data-id="@u.IdUsuario"
+                                                data-nombre="@u.Nombre"
+                                                data-correo="@u.Correo"
+                                                data-rol="@u.IdRol">
+                                            <i class="bi bi-pencil-square me-1"></i> Editar
+                                        </button>
+
+                                        <button class="btn btn-outline-danger btn-sm btnToggle"
+                                                data-id="@u.IdUsuario"
+                                                data-estado="@(esActivo ? 1 : 2)">
+                                            <i class="bi @(esActivo ? "bi-person-x" : "bi-person-check") me-1"></i>
+                                            @(esActivo ? "Inactivar" : "Activar")
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    No hay usuarios para mostrar.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content usuarios-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalUsuarioTitle">Nuevo Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="uId" value="0" />
+
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="uNombre" maxlength="80" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Correo</label>
+                        <input type="email" class="form-control" id="uCorreo" maxlength="120" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Rol</label>
+                        <select class="form-select" id="uRol">
+                            <option value="0">Seleccione...</option>
+                            @if (roles != null)
+                            {
+                                foreach (var r in roles)
+                                {
+                                    <option value="@r.ID_ROL">@r.NOMBRE</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label">Contraseña <small class="text-muted">(obligatoria al crear)</small></label>
+                        <input type="password" class="form-control" id="uPass" maxlength="200" />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" type="button" id="btnGuardarUsuario">
+                        <i class="bi bi-save2 me-1"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section scripts{
+    <script src="~/StaticFiles/js/Usuarios.js"></script>
+}

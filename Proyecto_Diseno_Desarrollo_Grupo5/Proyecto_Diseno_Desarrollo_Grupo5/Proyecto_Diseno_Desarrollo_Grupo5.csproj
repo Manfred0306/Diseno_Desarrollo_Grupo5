@@ -129,6 +129,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
     <Compile Include="Controllers\AutenticacionController.cs" />
     <Compile Include="Controllers\CategoriasController.cs" />
@@ -201,6 +202,18 @@
     <Compile Include="EF\ROLES.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="EF\sp_helpdiagramdefinition_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EF\sp_helpdiagrams_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EF\SP_USUARIOS_LISTAR_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EF\sysdiagrams.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="EF\USUARIOS.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -214,6 +227,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CategoriaCrudVM.cs" />
+    <Compile Include="Models\UsuariosModel.cs" />
     <Compile Include="Models\RolesModel.cs" />
     <Compile Include="Models\ProductoCrudVM.cs" />
     <Compile Include="Models\AutenticacionModel.cs" />
@@ -283,6 +297,7 @@
     <Content Include="StaticFiles\css\normalize.css" />
     <Content Include="StaticFiles\css\normalize2.css" />
     <Content Include="StaticFiles\css\Autenticacion.css" />
+    <Content Include="StaticFiles\css\Usuarios.css" />
     <Content Include="StaticFiles\css\Roles.css" />
     <Content Include="StaticFiles\img\AlphaStockLogo.png" />
     <Content Include="StaticFiles\js\Autenticacion.js" />
@@ -290,6 +305,7 @@
     <Content Include="StaticFiles\js\Index.js" />
     <Content Include="StaticFiles\js\jquery-1.11.2.min.js" />
     <Content Include="StaticFiles\js\jquery.mCustomScrollbar.concat.min.js" />
+    <Content Include="StaticFiles\js\Usuarios.js" />
     <Content Include="StaticFiles\js\Roles.js" />
     <Content Include="StaticFiles\js\scrollReveal.js" />
     <Content Include="Web.config" />
@@ -314,6 +330,7 @@
     <Content Include="Views\Roles\Index.cshtml" />
     <Content Include="Views\Salidas\Index.cshtml" />
     <Content Include="Views\Salidas\Create.cshtml" />
+    <Content Include="Views\Usuarios\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
