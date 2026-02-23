@@ -129,6 +129,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
     <Compile Include="Controllers\AutenticacionController.cs" />
@@ -226,6 +227,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ClienteCrudVM.cs" />
     <Compile Include="Models\CategoriaCrudVM.cs" />
     <Compile Include="Models\UsuariosModel.cs" />
     <Compile Include="Models\RolesModel.cs" />
@@ -287,6 +289,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="StaticFiles\css\Cliente.css" />
     <Content Include="StaticFiles\css\Footer.css" />
     <Content Include="StaticFiles\css\NuestraHistoria.css" />
     <Content Include="StaticFiles\css\Productos.css" />
@@ -331,6 +334,7 @@
     <Content Include="Views\Salidas\Index.cshtml" />
     <Content Include="Views\Salidas\Create.cshtml" />
     <Content Include="Views\Usuarios\Index.cshtml" />
+    <Content Include="Views\Clientes\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
