@@ -1,0 +1,234 @@
+﻿@using System.Web
+@model Proyecto_Diseno_Desarrollo_Grupo5.Models.ClienteCrudVM
+
+@section styles{
+    <link rel="stylesheet" href="~/StaticFiles/css/Cliente.css" />
+}
+
+<div class="container" style="max-width:1100px; padding-top:30px;">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="page-title">Control de Clientes</h2>
+            <div class="page-subtitle">
+                Gestión de clientes (crear, editar, activar/inactivar)
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-primary"
+                data-bs-toggle="modal" data-bs-target="#modalCrear">
+            + Nuevo Cliente
+        </button>
+    </div>
+
+    @if (TempData["OK"] != null)
+    {
+        <div class="alert alert-success cardx" style="padding:12px 14px;">@TempData["OK"]</div>
+    }
+    @if (TempData["ERR"] != null)
+    {
+        <div class="alert alert-danger cardx" style="padding:12px 14px;">@TempData["ERR"]</div>
+    }
+
+
+    <div class="page-section">
+        <div class="page-section mb-3">
+            @using (Html.BeginForm("Index", "Clientes", FormMethod.Get))
+            {
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-9">
+                        <label class="form-label" style="font-weight:600;">Buscar</label>
+                        <input type="text" name="q" value="@Model.Q"
+                               class="form-control" placeholder="Nombre o ID..." />
+                    </div>
+
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-dark w-100"
+                                style="height:44px; border-radius:10px; font-weight:600;">
+                            🔍 Buscar
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+    <div class="page-section mt-3">
+        <div class="cardx table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width:80px;">
+                            <a class="sort-link" href="@Url.Action("Index", new { q = Model.Q, sortOrder = ViewBag.IdSortParm })">
+                                ID <span class="sort-ico">@(Request["sortOrder"] == "id_desc" ? "⬇" : "⬆")</span>
+                            </a>
+                        </th>
+                        <th>Cliente</th>
+                        <th style="width:150px;">Teléfono</th>
+                        <th>Correo</th>
+                        <th>Dirección</th>
+                        <th style="width:240px; text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.Clientes)
+                    {
+                        var inicial = string.IsNullOrWhiteSpace(c.NOMBRE) ? "?" : c.NOMBRE.Trim().Substring(0, 1).ToUpper();
+
+                        <tr>
+                            <td>@c.ID_CLIENTE</td>
+
+                            <td>
+                                <div class="chip">
+                                    <div>
+                                        <div style="font-weight:900;">@c.NOMBRE</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>@c.TELEFONO</td>
+                            <td>@c.CORREO</td>
+                            <td>@c.DIRECCION</td>
+
+                            <td style="text-align:right;">
+                                <div class="actions">
+
+                                    <button type="button"
+                                            class="btn-soft btn-soft-edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalEditar"
+                                            onclick="cargarClienteEditar('@c.ID_CLIENTE',
+                          '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.NOMBRE ?? ""))',
+                          '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.TELEFONO ?? ""))',
+                          '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.CORREO ?? ""))',
+                          '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.DIRECCION ?? ""))',
+                          '@c.ID_ESTADO')">
+                                        ✏ Editar
+                                    </button>
+
+                                    @using (Html.BeginForm("ToggleEstado", "Clientes", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@c.ID_CLIENTE" />
+
+                                        <button type="submit" class="btn-soft btn-soft-toggle">
+                                            @(c.ID_ESTADO == 1 ? "👤 Inactivar" : "👤 Activar")
+                                        </button>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" style="font-weight:900;">Nuevo cliente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    @using (Html.BeginForm("Create", "Clientes", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label class="form-label">Nombre</label>
+                                <input class="form-control" name="NOMBRE" required />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Teléfono</label>
+                                <input class="form-control" name="TELEFONO" />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Correo</label>
+                                <input class="form-control" name="CORREO" type="email" />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Dirección</label>
+                                <input class="form-control" name="DIRECCION" />
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary btn-primary-pill" style="box-shadow:none;">Guardar</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" style="font-weight:900;">Editar cliente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    @using (Html.BeginForm("Edit", "Clientes", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="modal-body">
+                            <input type="hidden" name="ID_CLIENTE" id="edit_ID_CLIENTE" />
+                            <input type="hidden" name="Q" value="@Model.Q" />
+
+                            <div class="mb-2">
+                                <label class="form-label">Nombre</label>
+                                <input class="form-control" name="NOMBRE" id="edit_NOMBRE" required />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Teléfono</label>
+                                <input class="form-control" name="TELEFONO" id="edit_TELEFONO" />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Correo</label>
+                                <input class="form-control" name="CORREO" id="edit_CORREO" type="email" />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Dirección</label>
+                                <input class="form-control" name="DIRECCION" id="edit_DIRECCION" />
+                            </div>
+
+                            <input type="hidden" name="ID_ESTADO" id="edit_ID_ESTADO" />
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary btn-primary-pill" style="box-shadow:none;">Guardar cambios</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+
+<script>
+    function cargarClienteEditar(id, nombre, telefono, correo, direccion, idEstado) {
+        document.getElementById("edit_ID_CLIENTE").value = id;
+        document.getElementById("edit_NOMBRE").value = nombre;
+        document.getElementById("edit_TELEFONO").value = telefono;
+        document.getElementById("edit_CORREO").value = correo;
+        document.getElementById("edit_DIRECCION").value = direccion;
+        document.getElementById("edit_ID_ESTADO").value = idEstado;
+    }
+</script>
