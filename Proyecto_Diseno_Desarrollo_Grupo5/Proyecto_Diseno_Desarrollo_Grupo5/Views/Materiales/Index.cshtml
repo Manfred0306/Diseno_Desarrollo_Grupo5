@@ -1,0 +1,379 @@
+@model Proyecto_Diseno_Desarrollo_Grupo5.Models.MaterialCrudVM
+@{
+    ViewBag.Title = "Materiales";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/StaticFiles/css/Index.css" />
+    <link rel="stylesheet" href="~/StaticFiles/css/Footer.css" />
+    <link rel="stylesheet" href="~/StaticFiles/css/Productos.css" />
+}
+
+<section class="page-hero">
+    <div class="lp-wrap">
+        <div class="hero" style="grid-template-columns: 1fr;">
+            <div class="hero__left" style="padding: 34px 34px;">
+                <span class="hero__kicker">Módulo</span>
+                <h1>Materiales</h1>
+                <p>
+                    Registrar, editar, eliminar y consultar existencias de materiales.
+                    Seleccioná una fila para editar, eliminar o ajustar stock.
+                </p>
+
+                <div class="hero__cta">
+                    <a href="@Url.Action("Index","Home")"
+                       style="display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;border-radius:14px;font-weight:950;font-size:13px;background:linear-gradient(135deg,rgba(182,128,68,.98),rgba(215,176,122,.95));color:#1d1712;border:1px solid rgba(182,128,68,.28);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;">
+                        Volver al inicio
+                    </a>
+                    <a href="#panel-form"
+                       style="display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;border-radius:14px;font-weight:950;font-size:13px;background:rgba(255,255,255,.55);color:rgba(36,31,26,.90);border:1px solid rgba(70,60,50,.12);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;">
+                        Ir al formulario
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section">
+    <div class="lp-wrap">
+
+        @if (TempData["OK"] != null)
+        {
+            <div class="alert alert-success" style="margin-bottom:12px;">@TempData["OK"]</div>
+        }
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-warning" style="margin-bottom:12px;">@TempData["Mensaje"]</div>
+        }
+
+        <!-- FORMULARIO DE REGISTRO / EDICIÓN -->
+        <div class="panel p-panel" id="panel-form">
+            <div class="p-head">
+                <div class="p-title">
+                    <h2 id="formTitle">Registro de material</h2>
+                    <span class="muted">Click en una fila para cargar datos y editar.</span>
+                </div>
+                <span class="p-chip">CRUD</span>
+            </div>
+
+            <div class="p-search">
+                <input id="txtBuscar" placeholder="Buscar por ID, nombre o tipo..." />
+            </div>
+
+            @using (Html.BeginForm("Create", "Materiales", FormMethod.Post, new { id = "frmMaterial" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" id="ID_MATERIAL" name="ID_MATERIAL" value="0" />
+
+                <div class="p-form" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="p-field">
+                        <label>Nombre (Código)</label>
+                        <input id="NOMBRE" name="NOMBRE" required placeholder="Ej: Mármol Carrara" />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Tipo de material</label>
+                        <select id="TIPO" name="TIPO" required>
+                            <option value="">-- Seleccione tipo --</option>
+                            <option value="Granito">Granito</option>
+                            <option value="Mármol">Mármol</option>
+                            <option value="Cuarzo">Cuarzo</option>
+                            <option value="Piedra Natural">Piedra Natural</option>
+                            <option value="Cerámica">Cerámica</option>
+                            <option value="Porcelanato">Porcelanato</option>
+                            <option value="Herramienta">Herramienta</option>
+                            <option value="Insumo">Insumo</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="p-field">
+                        <label>Unidad de medida</label>
+                        <select id="UNIDAD_MEDIDA" name="UNIDAD_MEDIDA">
+                            <option value="m²">m² (metro cuadrado)</option>
+                            <option value="m³">m³ (metro cúbico)</option>
+                            <option value="ml">ml (metro lineal)</option>
+                            <option value="kg">kg (kilogramo)</option>
+                            <option value="unidad">Unidad</option>
+                            <option value="litro">Litro</option>
+                            <option value="galón">Galón</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-form" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 0;">
+                    <div class="p-field">
+                        <label>Stock actual</label>
+                        <input id="STOCK" name="STOCK" type="number" step="0.01" min="0" value="0" required />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Costo unitario (?)</label>
+                        <input id="COSTO_UNITARIO" name="COSTO_UNITARIO" type="number" step="0.01" min="0" required />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Proveedor</label>
+                        <select id="ID_PROVEEDOR" name="ID_PROVEEDOR" required>
+                            <option value="">-- Seleccione --</option>
+                            @foreach (var p in Model.Proveedores)
+                            {
+                                <option value="@p.Value">@p.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-form" style="grid-template-columns: 1fr; margin-top: 0; display: none;" id="estadoContainer">
+                    <div class="p-field">
+                        <label>Estado</label>
+                        <select id="ID_ESTADO" name="ID_ESTADO" required>
+                            @foreach (var e in Model.Estados)
+                            {
+                                <option value="@e.Value">@e.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-actions">
+                    <button type="submit" id="btnGuardar" class="lp-btn">Guardar</button>
+                    <button type="button" id="btnCancelar" class="btn2">Cancelar</button>
+                    <button type="button" id="btnEliminar" class="lp-btn p-danger" disabled>Eliminar</button>
+                </div>
+            }
+        </div>
+
+        <!-- PANEL AJUSTE DE STOCK -->
+        <div class="panel p-panel" style="margin-top:12px; display:none;" id="panel-ajuste">
+            <div class="p-head">
+                <div class="p-title">
+                    <h2>Ajuste manual de existencias</h2>
+                    <span class="muted">Seleccione un material de la tabla para ajustar su stock.</span>
+                </div>
+                <span class="p-chip">AJUSTE</span>
+            </div>
+
+            @using (Html.BeginForm("AjustarStock", "Materiales", FormMethod.Post, new { id = "frmAjuste" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="ajuste_ID_MATERIAL" name="ID_MATERIAL" value="0" />
+
+                <div class="p-form" style="grid-template-columns: 1fr 1fr 2fr;">
+                    <div class="p-field">
+                        <label>Material seleccionado</label>
+                        <input id="ajuste_nombre" readonly style="background:rgba(0,0,0,.04);" />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Cantidad de ajuste (+/-)</label>
+                        <input id="AJUSTE_CANTIDAD" name="AJUSTE_CANTIDAD" type="number" step="0.01" required placeholder="Ej: 5 o -3" />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Observación del ajuste</label>
+                        <input id="AJUSTE_OBSERVACION" name="AJUSTE_OBSERVACION" placeholder="Motivo del ajuste..." />
+                    </div>
+                </div>
+
+                <div class="p-actions">
+                    <button type="submit" class="lp-btn">Aplicar ajuste</button>
+                    <button type="button" id="btnCerrarAjuste" class="btn2">Cerrar</button>
+                </div>
+            }
+        </div>
+
+        <!-- TABLA DE MATERIALES / EXISTENCIAS -->
+        <div class="panel p-panel" style="margin-top:12px;">
+            <div class="p-head">
+                <div class="p-title">
+                    <h2>Existencias y lista general</h2>
+                    <span class="muted">Se actualiza al guardar, editar o eliminar. Filas en rojo indican stock bajo.</span>
+                </div>
+                <span class="p-chip">@Model.Materiales.Count registros</span>
+            </div>
+
+            <div class="p-tableWrap">
+                <table id="tblMateriales" class="p-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Stock</th>
+                            <th>Costo Unit.</th>
+                            <th>Proveedor</th>
+                            <th>Estado</th>
+                            <th>Alerta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model.Materiales)
+                        {
+                            <tr class="rowMat"
+                                data-id="@m.ID_MATERIAL"
+                                data-nombre="@m.NOMBRE"
+                                data-tipo="@m.TIPO"
+                                data-stock="@m.STOCK"
+                                data-costo="@m.COSTO_UNITARIO"
+                                data-proveedor="@m.ID_PROVEEDOR"
+                                data-estado="@m.ID_ESTADO"
+                                data-stockbajo="@m.STOCK_BAJO.ToString().ToLower()"
+                                style="@(m.STOCK_BAJO ? "background:rgba(220,53,69,.08);" : "")">
+
+                                <td class="colId">@m.ID_MATERIAL</td>
+                                <td class="colNombre">@m.NOMBRE</td>
+                                <td class="colTipo">@m.TIPO</td>
+                                <td style="@(m.STOCK_BAJO ? "color:#dc3545;font-weight:950;" : "")">@m.STOCK</td>
+                                <td>?@m.COSTO_UNITARIO.ToString("N2")</td>
+                                <td class="colProveedor">@m.PROVEEDOR</td>
+                                <td>@m.ESTADO</td>
+                                <td>
+                                    @if (m.STOCK_BAJO)
+                                    {
+                                        <span style="color:#dc3545;font-weight:950;font-size:12px;">? Stock bajo</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:#28a745;font-size:12px;">? OK</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @using (Html.BeginForm("Delete", "Materiales", FormMethod.Post, new { id = "frmDelete" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="deleteId" name="id" value="0" />
+            }
+        </div>
+
+    </div>
+</section>
+
+<script>
+    var txtBuscar = document.getElementById("txtBuscar");
+    var filas = function () { return document.querySelectorAll("#tblMateriales tbody tr"); };
+
+    // Búsqueda en tiempo real
+    txtBuscar.addEventListener("keyup", function () {
+        var q = txtBuscar.value.toLowerCase().trim();
+
+        filas().forEach(function (tr) {
+            var id = (tr.querySelector(".colId") ? tr.querySelector(".colId").innerText : "").toLowerCase();
+            var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
+            var tipo = (tr.querySelector(".colTipo") ? tr.querySelector(".colTipo").innerText : "").toLowerCase();
+
+            tr.style.display = (id.indexOf(q) >= 0 || nombre.indexOf(q) >= 0 || tipo.indexOf(q) >= 0) ? "" : "none";
+        });
+    });
+
+    var frm = document.getElementById("frmMaterial");
+    var btnEliminar = document.getElementById("btnEliminar");
+    var panelAjuste = document.getElementById("panel-ajuste");
+
+    function limpiar() {
+        document.getElementById("ID_MATERIAL").value = 0;
+        document.getElementById("NOMBRE").value = "";
+        document.getElementById("TIPO").value = "";
+        document.getElementById("STOCK").value = "0";
+        document.getElementById("COSTO_UNITARIO").value = "";
+        document.getElementById("ID_PROVEEDOR").value = "";
+        document.getElementById("ID_ESTADO").value = "1";
+
+        frm.action = "@Url.Action("Create", "Materiales")";
+        btnEliminar.disabled = true;
+
+        document.getElementById("estadoContainer").style.display = "none";
+        document.getElementById("formTitle").innerText = "Registro de material";
+
+        panelAjuste.style.display = "none";
+
+        filas().forEach(function (x) { x.classList.remove("p-selected"); });
+    }
+
+    document.getElementById("btnCancelar").addEventListener("click", limpiar);
+    document.getElementById("btnCerrarAjuste").addEventListener("click", function () {
+        panelAjuste.style.display = "none";
+    });
+
+    filas().forEach(function (tr) {
+        tr.addEventListener("click", function () {
+            filas().forEach(function (x) { x.classList.remove("p-selected"); });
+            tr.classList.add("p-selected");
+
+            document.getElementById("ID_MATERIAL").value = tr.dataset.id;
+            document.getElementById("NOMBRE").value = tr.dataset.nombre;
+            document.getElementById("TIPO").value = tr.dataset.tipo;
+            document.getElementById("STOCK").value = tr.dataset.stock;
+            document.getElementById("COSTO_UNITARIO").value = tr.dataset.costo;
+            document.getElementById("ID_PROVEEDOR").value = tr.dataset.proveedor;
+            document.getElementById("ID_ESTADO").value = tr.dataset.estado;
+
+            frm.action = "@Url.Action("Edit", "Materiales")";
+            btnEliminar.disabled = false;
+
+            document.getElementById("estadoContainer").style.display = "grid";
+            document.getElementById("formTitle").innerText = "Editar material #" + tr.dataset.id;
+
+            // Mostrar panel de ajuste
+            panelAjuste.style.display = "block";
+            document.getElementById("ajuste_ID_MATERIAL").value = tr.dataset.id;
+            document.getElementById("ajuste_nombre").value = tr.dataset.nombre + " (Stock actual: " + tr.dataset.stock + ")";
+            document.getElementById("AJUSTE_CANTIDAD").value = "";
+            document.getElementById("AJUSTE_OBSERVACION").value = "";
+        });
+    });
+
+    // Validación del formulario
+    frm.addEventListener("submit", function (e) {
+        var nombre = document.getElementById("NOMBRE").value.trim();
+        var tipo = document.getElementById("TIPO").value;
+        var costo = document.getElementById("COSTO_UNITARIO").value;
+        var proveedor = document.getElementById("ID_PROVEEDOR").value;
+
+        if (!nombre || !tipo || !costo || !proveedor) {
+            e.preventDefault();
+            alert("Todos los campos son requeridos. Complete nombre, tipo, costo unitario y proveedor.");
+            return false;
+        }
+
+        if (parseFloat(costo) < 0) {
+            e.preventDefault();
+            alert("El costo unitario no puede ser negativo.");
+            return false;
+        }
+    });
+
+    // Eliminar con confirmación
+    btnEliminar.addEventListener("click", function () {
+        var id = document.getElementById("ID_MATERIAL").value;
+        if (id == 0) return;
+
+        if (confirm("¿Está seguro que desea eliminar este material?\n\nSolo se puede eliminar si NO está asociado a transacciones activas.")) {
+            document.getElementById("deleteId").value = id;
+            document.getElementById("frmDelete").submit();
+        }
+    });
+
+    // Validación del ajuste
+    document.getElementById("frmAjuste").addEventListener("submit", function (e) {
+        var cant = document.getElementById("AJUSTE_CANTIDAD").value;
+        if (!cant || parseFloat(cant) === 0) {
+            e.preventDefault();
+            alert("La cantidad de ajuste no puede ser cero.");
+            return false;
+        }
+
+        if (!confirm("¿Confirma el ajuste de " + cant + " unidades en el stock de este material?")) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>

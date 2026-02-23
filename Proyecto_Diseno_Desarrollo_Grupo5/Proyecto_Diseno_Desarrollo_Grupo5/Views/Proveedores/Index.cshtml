@@ -1,0 +1,359 @@
+@model Proyecto_Diseno_Desarrollo_Grupo5.Models.ProveedorCrudVM
+@{
+    ViewBag.Title = "Proveedores";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/StaticFiles/css/Index.css" />
+    <link rel="stylesheet" href="~/StaticFiles/css/Footer.css" />
+    <link rel="stylesheet" href="~/StaticFiles/css/Productos.css" />
+}
+
+<section class="page-hero">
+    <div class="lp-wrap">
+        <div class="hero" style="grid-template-columns: 1fr;">
+            <div class="hero__left" style="padding: 34px 34px;">
+                <span class="hero__kicker">Módulo</span>
+                <h1>Gestión de Proveedores</h1>
+                <p>
+                    Registrar, editar, desactivar y filtrar proveedores.
+                    Seleccioná una fila para editar o desactivar.
+                </p>
+
+                <div class="hero__cta">
+                    <a href="@Url.Action("Index","Home")"
+                       style="display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;border-radius:14px;font-weight:950;font-size:13px;background:linear-gradient(135deg,rgba(182,128,68,.98),rgba(215,176,122,.95));color:#1d1712;border:1px solid rgba(182,128,68,.28);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;">
+                        Volver al inicio
+                    </a>
+                    <a href="#panel-form"
+                       style="display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;border-radius:14px;font-weight:950;font-size:13px;background:rgba(255,255,255,.55);color:rgba(36,31,26,.90);border:1px solid rgba(70,60,50,.12);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;">
+                        Ir al formulario
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section">
+    <div class="lp-wrap">
+
+        @if (TempData["OK"] != null)
+        {
+            <div class="alert alert-success" style="margin-bottom:12px;">@TempData["OK"]</div>
+        }
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-warning" style="margin-bottom:12px;">@TempData["Mensaje"]</div>
+        }
+
+        <!-- FORMULARIO DE REGISTRO / EDICIÓN -->
+        <div class="panel p-panel" id="panel-form">
+            <div class="p-head">
+                <div class="p-title">
+                    <h2 id="formTitle">Registro de proveedor</h2>
+                    <span class="muted">Click en una fila para cargar datos y editar.</span>
+                </div>
+                <span class="p-chip">CRUD</span>
+            </div>
+
+            <div class="p-search">
+                <input id="txtBuscar" placeholder="Filtrar proveedores activos por ID o nombre..." />
+            </div>
+
+            @using (Html.BeginForm("Create", "Proveedores", FormMethod.Post, new { id = "frmProveedor" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" id="ID_PROVEEDOR" name="ID_PROVEEDOR" value="0" />
+
+                <div class="p-form" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="p-field">
+                        <label>Nombre del proveedor</label>
+                        <input id="NOMBRE" name="NOMBRE" required placeholder="Ej: Mármoles del Sur S.A." />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Datos fiscales / Contacto</label>
+                        <input id="CONTACTO" name="CONTACTO" required placeholder="Cédula jurídica, razón social..." />
+                    </div>
+
+                    <div class="p-field">
+                        <label>Teléfono</label>
+                        <input id="TELEFONO" name="TELEFONO" required placeholder="Ej: 2222-3333" />
+                    </div>
+                </div>
+
+                <div class="p-form" style="grid-template-columns: 1fr; margin-top:0;">
+                    <div class="p-field">
+                        <label>Productos / Materiales asociados <span style="color:#dc3545;font-weight:700;">*</span></label>
+                        <div id="materialesCheckboxContainer" style="display:flex;flex-wrap:wrap;gap:10px;padding:10px 0;">
+                            @foreach (var m in Model.MaterialesDisponibles)
+                            {
+                                <label style="display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:13px;cursor:pointer;padding:6px 12px;border-radius:10px;border:1px solid rgba(70,60,50,.14);background:rgba(255,255,255,.82);">
+                                    <input type="checkbox" class="chkMaterial" value="@m.Value" />
+                                    @m.Text
+                                </label>
+                            }
+                            @if (!Model.MaterialesDisponibles.Any())
+                            {
+                                <span style="color:rgba(36,31,26,.5);font-weight:700;font-size:13px;">No hay materiales registrados aún. Registre materiales primero.</span>
+                            }
+                        </div>
+                        <input type="hidden" id="PRODUCTOS_ASOCIADOS" name="PRODUCTOS_ASOCIADOS" />
+                        <span id="msgProductos" style="display:none;color:#dc3545;font-weight:700;font-size:12px;">Debe asociar al menos un producto/material.</span>
+                    </div>
+                </div>
+
+                <div class="p-form" style="grid-template-columns: 1fr; margin-top: 0; display: none;" id="estadoContainer">
+                    <div class="p-field">
+                        <label>Estado</label>
+                        <select id="ID_ESTADO" name="ID_ESTADO" required>
+                            @foreach (var e in Model.Estados)
+                            {
+                                <option value="@e.Value">@e.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-actions">
+                    <button type="submit" id="btnGuardar" class="lp-btn">Guardar</button>
+                    <button type="button" id="btnCancelar" class="btn2">Cancelar</button>
+                    <button type="button" id="btnDesactivar" class="lp-btn p-danger" disabled>Desactivar</button>
+                </div>
+            }
+        </div>
+
+        <!-- PANEL DE PRODUCTOS ASOCIADOS (visible al seleccionar proveedor) -->
+        <div class="panel p-panel" style="margin-top:12px; display:none;" id="panel-productos">
+            <div class="p-head">
+                <div class="p-title">
+                    <h2>Productos asociados al proveedor</h2>
+                    <span class="muted" id="prodProvNombre"></span>
+                </div>
+                <span class="p-chip" id="prodProvCount">0 productos</span>
+            </div>
+            <div id="listadoProductos" style="padding:10px 0;">
+            </div>
+        </div>
+
+        <!-- TABLA DE PROVEEDORES -->
+        <div class="panel p-panel" style="margin-top:12px;">
+            <div class="p-head">
+                <div class="p-title">
+                    <h2>Lista general de proveedores</h2>
+                    <span class="muted">Se actualiza al guardar, editar o desactivar.</span>
+                </div>
+                <span class="p-chip">@Model.Proveedores.Count registros</span>
+            </div>
+
+            <div class="p-tableWrap">
+                <table id="tblProveedores" class="p-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Contacto / Datos fiscales</th>
+                            <th>Teléfono</th>
+                            <th>Materiales</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.Proveedores)
+                        {
+                            <tr class="rowProv"
+                                data-id="@p.ID_PROVEEDOR"
+                                data-nombre="@p.NOMBRE"
+                                data-contacto="@p.CONTACTO"
+                                data-telefono="@p.TELEFONO"
+                                data-estado="@p.ID_ESTADO"
+                                data-estadonombre="@p.ESTADO"
+                                data-materiales="@p.MATERIALES_NOMBRES">
+
+                                <td class="colId">@p.ID_PROVEEDOR</td>
+                                <td class="colNombre">@p.NOMBRE</td>
+                                <td>@p.CONTACTO</td>
+                                <td>@p.TELEFONO</td>
+                                <td>
+                                    <span class="p-chip" style="font-size:10.5px;">@p.CANTIDAD_MATERIALES material(es)</span>
+                                </td>
+                                <td>
+                                    @if (p.ESTADO == "Activo")
+                                    {
+                                        <span style="color:#28a745;font-weight:950;">@p.ESTADO</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:#dc3545;font-weight:950;">@p.ESTADO</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @using (Html.BeginForm("Deactivate", "Proveedores", FormMethod.Post, new { id = "frmDeactivate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="deactivateId" name="id" value="0" />
+            }
+        </div>
+
+    </div>
+</section>
+
+<script>
+    var txtBuscar = document.getElementById("txtBuscar");
+    var filas = function () { return document.querySelectorAll("#tblProveedores tbody tr"); };
+
+    // HU4 - Filtrar proveedores activos en tiempo real
+    txtBuscar.addEventListener("keyup", function () {
+        var q = txtBuscar.value.toLowerCase().trim();
+
+        filas().forEach(function (tr) {
+            var id = (tr.querySelector(".colId") ? tr.querySelector(".colId").innerText : "").toLowerCase();
+            var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
+            var estadoNombre = (tr.dataset.estadonombre || "").toLowerCase();
+
+            // Mostrar solo proveedores activos que coincidan con la búsqueda
+            var esActivo = estadoNombre === "activo";
+            var coincide = (id.indexOf(q) >= 0 || nombre.indexOf(q) >= 0);
+
+            if (q === "") {
+                tr.style.display = "";
+            } else {
+                tr.style.display = (esActivo && coincide) ? "" : "none";
+            }
+        });
+    });
+
+    var frm = document.getElementById("frmProveedor");
+    var btnDesactivar = document.getElementById("btnDesactivar");
+    var panelProductos = document.getElementById("panel-productos");
+
+    function limpiar() {
+        document.getElementById("ID_PROVEEDOR").value = 0;
+        document.getElementById("NOMBRE").value = "";
+        document.getElementById("CONTACTO").value = "";
+        document.getElementById("TELEFONO").value = "";
+        document.getElementById("ID_ESTADO").value = "1";
+        document.getElementById("PRODUCTOS_ASOCIADOS").value = "";
+
+        // Desmarcar checkboxes
+        document.querySelectorAll(".chkMaterial").forEach(function (cb) { cb.checked = false; });
+
+        frm.action = "@Url.Action("Create", "Proveedores")";
+        btnDesactivar.disabled = true;
+
+        document.getElementById("estadoContainer").style.display = "none";
+        document.getElementById("formTitle").innerText = "Registro de proveedor";
+        document.getElementById("msgProductos").style.display = "none";
+        panelProductos.style.display = "none";
+
+        filas().forEach(function (x) { x.classList.remove("p-selected"); });
+    }
+
+    document.getElementById("btnCancelar").addEventListener("click", limpiar);
+
+    filas().forEach(function (tr) {
+        tr.addEventListener("click", function () {
+            filas().forEach(function (x) { x.classList.remove("p-selected"); });
+            tr.classList.add("p-selected");
+
+            var provId = tr.dataset.id;
+
+            document.getElementById("ID_PROVEEDOR").value = provId;
+            document.getElementById("NOMBRE").value = tr.dataset.nombre;
+            document.getElementById("CONTACTO").value = tr.dataset.contacto;
+            document.getElementById("TELEFONO").value = tr.dataset.telefono;
+            document.getElementById("ID_ESTADO").value = tr.dataset.estado;
+
+            frm.action = "@Url.Action("Edit", "Proveedores")";
+            btnDesactivar.disabled = false;
+
+            document.getElementById("estadoContainer").style.display = "grid";
+            document.getElementById("formTitle").innerText = "Editar proveedor #" + provId;
+
+            // Cargar materiales asociados
+            document.querySelectorAll(".chkMaterial").forEach(function (cb) { cb.checked = false; });
+
+            // Mostrar panel de productos asociados
+            panelProductos.style.display = "block";
+            document.getElementById("prodProvNombre").innerText = "Proveedor: " + tr.dataset.nombre;
+
+            // Obtener materiales del proveedor vía AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "@Url.Action("GetMaterialesByProveedor", "Proveedores")?id=" + provId, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var materiales = JSON.parse(xhr.responseText);
+                    var html = "";
+                    var ids = [];
+
+                    materiales.forEach(function (m) {
+                        html += '<div style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:10px;border:1px solid rgba(182,128,68,.18);background:rgba(182,128,68,.08);font-weight:750;font-size:13px;margin:4px;">' + m.NOMBRE + '</div>';
+                        ids.push(m.ID_MATERIAL);
+
+                        // Marcar checkbox correspondiente
+                        document.querySelectorAll(".chkMaterial").forEach(function (cb) {
+                            if (cb.value == m.ID_MATERIAL.toString()) cb.checked = true;
+                        });
+                    });
+
+                    if (materiales.length === 0) {
+                        html = '<span style="color:rgba(36,31,26,.5);font-weight:700;font-size:13px;">Sin productos asociados.</span>';
+                    }
+
+                    document.getElementById("listadoProductos").innerHTML = html;
+                    document.getElementById("prodProvCount").innerText = materiales.length + " producto(s)";
+                    document.getElementById("PRODUCTOS_ASOCIADOS").value = ids.join(",");
+                }
+            };
+            xhr.send();
+        });
+    });
+
+    // Validación del formulario
+    frm.addEventListener("submit", function (e) {
+        var nombre = document.getElementById("NOMBRE").value.trim();
+        var contacto = document.getElementById("CONTACTO").value.trim();
+        var telefono = document.getElementById("TELEFONO").value.trim();
+
+        if (!nombre || !contacto || !telefono) {
+            e.preventDefault();
+            alert("Todos los campos son requeridos: nombre, datos fiscales/contacto y teléfono.");
+            return false;
+        }
+
+        // Recopilar materiales seleccionados
+        var seleccionados = [];
+        document.querySelectorAll(".chkMaterial:checked").forEach(function (cb) {
+            seleccionados.push(cb.value);
+        });
+        document.getElementById("PRODUCTOS_ASOCIADOS").value = seleccionados.join(",");
+
+        if (seleccionados.length === 0) {
+            e.preventDefault();
+            document.getElementById("msgProductos").style.display = "block";
+            alert("Debe asociar al menos un producto/material al proveedor para completar el registro.");
+            return false;
+        }
+
+        document.getElementById("msgProductos").style.display = "none";
+    });
+
+    // Desactivar con confirmación
+    btnDesactivar.addEventListener("click", function () {
+        var id = document.getElementById("ID_PROVEEDOR").value;
+        if (id == 0) return;
+
+        if (confirm("¿Confirma desactivar este proveedor?\n\nLos productos/materiales asociados exclusivamente a este proveedor también se desactivarán.\n\n(El registro no se elimina, solo cambia a estado inactivo.)")) {
+            document.getElementById("deactivateId").value = id;
+            document.getElementById("frmDeactivate").submit();
+        }
+    });
+</script>

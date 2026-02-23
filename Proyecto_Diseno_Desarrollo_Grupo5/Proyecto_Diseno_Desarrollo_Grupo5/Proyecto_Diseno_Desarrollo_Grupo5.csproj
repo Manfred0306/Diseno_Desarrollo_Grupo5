@@ -129,6 +129,8 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\MaterialesController.cs" />
+    <Compile Include="Controllers\ProveedoresController.cs" />
     <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
     <Compile Include="Controllers\AutenticacionController.cs" />
@@ -227,6 +229,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CategoriaCrudVM.cs" />
+    <Compile Include="Models\MaterialCrudVM.cs" />
+    <Compile Include="Models\ProveedorCrudVM.cs" />
     <Compile Include="Models\UsuariosModel.cs" />
     <Compile Include="Models\RolesModel.cs" />
     <Compile Include="Models\ProductoCrudVM.cs" />
@@ -331,6 +335,8 @@
     <Content Include="Views\Salidas\Index.cshtml" />
     <Content Include="Views\Salidas\Create.cshtml" />
     <Content Include="Views\Usuarios\Index.cshtml" />
+    <Content Include="Views\Materiales\Index.cshtml" />
+    <Content Include="Views\Proveedores\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
