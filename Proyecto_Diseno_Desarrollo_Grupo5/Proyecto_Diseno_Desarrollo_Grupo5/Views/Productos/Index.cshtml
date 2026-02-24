@@ -43,7 +43,7 @@
             </div>
 
             <div class="p-search">
-                <input id="txtBuscar" placeholder="Buscar por ID (código), nombre o categoría..." />
+                <input id="txtBuscar" placeholder="Buscar por nombre o categoría..." />
             </div>
 
             @using (Html.BeginForm("Create", "Productos", FormMethod.Post, new { id = "frmProducto" }))
@@ -106,7 +106,6 @@
                 <table id="tblProductos" class="p-table">
                     <thead>
                         <tr>
-                            <th>ID (Código)</th>
                             <th>Nombre</th>
                             <th>Precio</th>
                             <th>Categoría</th>
@@ -123,7 +122,6 @@
                                 data-categoria="@p.ID_CATEGORIA"
                                 data-estado="@p.ID_ESTADO">
 
-                                <td class="colId">@p.ID_PRODUCTO</td>
                                 <td class="colNombre">@p.NOMBRE</td>
                                 <td>@p.PRECIO_VENTA</td>
                                 <td class="colCategoria">@p.CATEGORIA</td>
@@ -152,7 +150,7 @@
         const q = txtBuscar.value.toLowerCase().trim();
 
         filas().forEach(tr => {
-            const id = (tr.querySelector(".colId")?.innerText || "").toLowerCase();
+            const id = (tr.dataset.id || "").toLowerCase();
             const nombre = (tr.querySelector(".colNombre")?.innerText || "").toLowerCase();
             const categoria = (tr.querySelector(".colCategoria")?.innerText || "").toLowerCase();
 

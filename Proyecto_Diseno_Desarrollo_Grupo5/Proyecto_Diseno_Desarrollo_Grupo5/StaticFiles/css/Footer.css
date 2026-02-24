@@ -37,7 +37,7 @@
 .f-links a {
     display: block;
     font-weight: 650;
-    font-size: 12.5px;
+    font-size: 13px;
     color: rgba(255,255,255,.85);
 }
 
@@ -81,7 +81,7 @@
     border-top: 1px solid rgba(148,163,184,.10);
     color: rgba(255,255,255,.88);
     font-weight: 750;
-    font-size: 12px;
+    font-size: 13px;
     padding: 10px 0;
     text-align: center;
 }

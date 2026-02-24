@@ -57,7 +57,7 @@
             </div>
 
             <div class="p-search">
-                <input id="txtBuscar" placeholder="Buscar por ID, nombre o tipo..." />
+                <input id="txtBuscar" placeholder="Buscar por nombre o tipo..." />
             </div>
 
             @using (Html.BeginForm("Create", "Materiales", FormMethod.Post, new { id = "frmMaterial" }))
@@ -198,7 +198,6 @@
                 <table id="tblMateriales" class="p-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nombre</th>
                             <th>Tipo</th>
                             <th>Stock</th>
@@ -222,7 +221,6 @@
                                 data-stockbajo="@m.STOCK_BAJO.ToString().ToLower()"
                                 style="@(m.STOCK_BAJO ? "background:rgba(220,53,69,.08);" : "")">
 
-                                <td class="colId">@m.ID_MATERIAL</td>
                                 <td class="colNombre">@m.NOMBRE</td>
                                 <td class="colTipo">@m.TIPO</td>
                                 <td style="@(m.STOCK_BAJO ? "color:#dc3545;font-weight:950;" : "")">@m.STOCK</td>
@@ -264,7 +262,7 @@
         var q = txtBuscar.value.toLowerCase().trim();
 
         filas().forEach(function (tr) {
-            var id = (tr.querySelector(".colId") ? tr.querySelector(".colId").innerText : "").toLowerCase();
+            var id = (tr.dataset.id || "").toLowerCase();
             var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
             var tipo = (tr.querySelector(".colTipo") ? tr.querySelector(".colTipo").innerText : "").toLowerCase();
 

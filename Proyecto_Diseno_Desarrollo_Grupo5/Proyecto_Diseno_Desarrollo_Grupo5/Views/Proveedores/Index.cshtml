@@ -57,7 +57,7 @@
             </div>
 
             <div class="p-search">
-                <input id="txtBuscar" placeholder="Filtrar proveedores activos por ID o nombre..." />
+                <input id="txtBuscar" placeholder="Filtrar proveedores por nombre..." />
             </div>
 
             @using (Html.BeginForm("Create", "Proveedores", FormMethod.Post, new { id = "frmProveedor" }))
@@ -151,7 +151,6 @@
                 <table id="tblProveedores" class="p-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nombre</th>
                             <th>Contacto / Datos fiscales</th>
                             <th>Teléfono</th>
@@ -171,7 +170,6 @@
                                 data-estadonombre="@p.ESTADO"
                                 data-materiales="@p.MATERIALES_NOMBRES">
 
-                                <td class="colId">@p.ID_PROVEEDOR</td>
                                 <td class="colNombre">@p.NOMBRE</td>
                                 <td>@p.CONTACTO</td>
                                 <td>@p.TELEFONO</td>
@@ -213,7 +211,7 @@
         var q = txtBuscar.value.toLowerCase().trim();
 
         filas().forEach(function (tr) {
-            var id = (tr.querySelector(".colId") ? tr.querySelector(".colId").innerText : "").toLowerCase();
+            var id = (tr.dataset.id || "").toLowerCase();
             var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
             var estadoNombre = (tr.dataset.estadonombre || "").toLowerCase();
 

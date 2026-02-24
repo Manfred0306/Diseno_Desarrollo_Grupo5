@@ -56,7 +56,7 @@
             </div>
 
             <div class="p-search">
-                <input id="txtBuscar" placeholder="Buscar por ID, nombre o descripción..." />
+                <input id="txtBuscar" placeholder="Buscar por nombre o descripción..." />
             </div>
 
             @using (Html.BeginForm("Create", "Categorias", FormMethod.Post, new { id = "frmCategoria" }))
@@ -108,7 +108,6 @@
                 <table id="tblCategorias" class="p-table">
                     <thead>
                         <tr>
-                            <th>ID (Código)</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th>Estado</th>
@@ -123,7 +122,6 @@
                                 data-descripcion="@c.DESCRIPCION"
                                 data-estado="@c.ID_ESTADO">
 
-                                <td class="colId">@c.ID_CATEGORIA</td>
                                 <td class="colNombre">@c.NOMBRE</td>
                                 <td class="colDescripcion">@c.DESCRIPCION</td>
                                 <td>@c.ESTADO</td>
@@ -151,7 +149,7 @@
         var q = txtBuscar.value.toLowerCase().trim();
 
         filas().forEach(function(tr) {
-            var id = (tr.querySelector(".colId") ? tr.querySelector(".colId").innerText : "").toLowerCase();
+            var id = (tr.dataset.id || "").toLowerCase();
             var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
             var desc = (tr.querySelector(".colDescripcion") ? tr.querySelector(".colDescripcion").innerText : "").toLowerCase();
 

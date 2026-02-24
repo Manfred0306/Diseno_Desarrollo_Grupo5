@@ -76,7 +76,6 @@
                     <table class="table table-hover align-middle roles-table mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width:90px;">ID</th>
                                 <th>Nombre</th>
                                 <th>Descripción</th>
                                 <th style="width:140px;">Estado</th>
@@ -87,7 +86,7 @@
                             @if (Model == null || Model.Count == 0)
                             {
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">
+                                    <td colspan="4" class="text-center py-4 text-muted">
                                         No hay roles para mostrar.
                                     </td>
                                 </tr>
@@ -99,7 +98,6 @@
                                     var esInactivo = (r.ID_ESTADO == 2);
 
                                     <tr>
-                                        <td>@r.ID_ROL</td>
                                         <td><strong>@r.NOMBRE</strong></td>
                                         <td class="text-muted">@r.DESCRIPCION</td>
                                         <td>
