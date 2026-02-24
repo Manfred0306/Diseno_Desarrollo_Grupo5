@@ -1,5 +1,10 @@
 ﻿@model Proyecto_Diseno_Desarrollo_Grupo5.Models.PerfilVM
 
+@{
+    ViewBag.Title = "Mi Perfil";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+}
+
 @section styles{
     <link rel="stylesheet" href="~/StaticFiles/css/Perfil.css" />
 }
@@ -20,6 +25,9 @@
             iniciales = (parts[0].Substring(0, 1) + parts[1].Substring(0, 1)).ToUpper();
         }
     }
+
+    var okMsg = ViewBag.OK as string;
+    var errMsg = ViewBag.Mensaje as string;
 }
 
 <div class="page-wrap">
@@ -30,22 +38,22 @@
             <div class="page-subtitle">Información de tu cuenta en AlphaStock</div>
         </div>
 
-        <a class="btn btn-outline-secondary" href="@Url.Action("Index","Home")">Volver</a>
+        <a class="btn2" href="@Url.Action("Index","Home")">Volver al inicio</a>
     </div>
 
     <div class="row g-3">
 
-        <!-- CARD PRINCIPAL -->
+        <!-- CARD INFO + EDICIÓN -->
         <div class="col-lg-7">
-            <div class="cardx">
+            <div class="pf-card">
 
                 <div class="profile-top">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="avatar">@iniciales</div>
+                        <div class="pf-avatar">@iniciales</div>
 
                         <div>
-                            <div style="font-weight:900; font-size:18px;">@Model.Nombre</div>
-                            <div style="color:#6c757d;">@Model.Correo</div>
+                            <div class="pf-name">@Model.Nombre</div>
+                            <div class="pf-email">@Model.Correo</div>
                         </div>
                     </div>
 
@@ -59,47 +67,89 @@
                     }
                 </div>
 
-                <div class="mini-line"></div>
+                <div class="pf-divider"></div>
 
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="label">ID Usuario</div>
-                        <div class="value">@Model.IdUsuario</div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <div class="pf-label">Rol</div>
+                        <div class="pf-value">@Model.Rol</div>
                     </div>
 
-                    <div class="col-md-8">
-                        <div class="label">Rol</div>
-                        <div class="value">@Model.Rol</div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="label">Correo</div>
-                        <div class="value">@Model.Correo</div>
+                    <div class="col-md-6">
+                        <div class="pf-label">Correo</div>
+                        <div class="pf-value">@Model.Correo</div>
                     </div>
                 </div>
+
+                <div class="pf-divider"></div>
+
+                <!-- FORMULARIO DE EDICIÓN -->
+                <div class="pf-section-title">Editar información</div>
+
+                @using (Html.BeginForm("Perfil", "Autenticacion", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.IdUsuario)
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="pf-label">Nombre</label>
+                            @Html.TextBoxFor(m => m.Nombre, new { @class = "pf-input", maxlength = "80" })
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="pf-label">Correo</label>
+                            @Html.TextBoxFor(m => m.Correo, new { @class = "pf-input", maxlength = "120", type = "email" })
+                        </div>
+                    </div>
+
+                    <div class="pf-divider"></div>
+
+                    <div class="pf-section-title">Cambiar contraseña <span class="pf-optional">(opcional)</span></div>
+
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="pf-label">Contraseña actual</label>
+                            @Html.PasswordFor(m => m.ContrasenaActual, new { @class = "pf-input", maxlength = "200", autocomplete = "current-password" })
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="pf-label">Nueva contraseña</label>
+                            @Html.PasswordFor(m => m.ContrasenaNueva, new { @class = "pf-input", maxlength = "200", autocomplete = "new-password" })
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="pf-label">Confirmar nueva</label>
+                            @Html.PasswordFor(m => m.ConfirmarContrasena, new { @class = "pf-input", maxlength = "200", autocomplete = "new-password" })
+                        </div>
+                    </div>
+
+                    <div class="pf-actions">
+                        <button type="submit" class="lp-btn">
+                            <i class="bi bi-save2 me-1"></i> Guardar cambios
+                        </button>
+                    </div>
+                }
 
             </div>
         </div>
 
-        <!-- ACCIONES -->
+        <!-- PANEL LATERAL -->
         <div class="col-lg-5">
-            <div class="cardx">
-                <div style="font-weight:900; font-size:16px;" class="mb-2">Acciones</div>
-                <div class="page-subtitle mb-3">Opciones rápidas para tu cuenta.</div>
-
-                <button class="btn btn-dark w-100 mb-2" disabled>
-                    Cambiar contraseña (próximamente)
-                </button>
+            <div class="pf-card">
+                <div class="pf-section-title">Sesión</div>
+                <div class="pf-hint mb-3">Cerrá tu sesión actual en AlphaStock.</div>
 
                 <a class="btn btn-outline-danger w-100" href="@Url.Action("Logout","Autenticacion")">
-                    Cerrar sesión
+                    <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
                 </a>
             </div>
 
-            <div class="cardx mt-3">
-                <div style="font-weight:900; font-size:16px;" class="mb-2">Seguridad</div>
-                <div class="page-subtitle">
-                    Recomendación: usá una contraseña segura y no la compartás.
+            <div class="pf-card mt-3">
+                <div class="pf-section-title">Seguridad</div>
+                <div class="pf-hint">
+                    Recomendación: usá una contraseña segura y no la compartás con nadie.
+                    Si sospechás que alguien accedió a tu cuenta, cambiá tu contraseña de inmediato.
                 </div>
             </div>
         </div>
@@ -107,3 +157,17 @@
     </div>
 
 </div>
+
+@section scripts{
+    <script>
+        var okMsg = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(okMsg));
+        var errMsg = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(errMsg));
+
+        if (okMsg) {
+            Swal.fire({ icon: 'success', title: 'Listo', text: okMsg, confirmButtonColor: '#10b981' });
+        }
+        if (errMsg) {
+            Swal.fire({ icon: 'error', title: 'Error', text: errMsg, confirmButtonColor: '#10b981' });
+        }
+    </script>
+}

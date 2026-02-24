@@ -125,21 +125,101 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
             using (var context = new DBGRUPO5Entities())
             {
-                var u = context.USUARIOS.FirstOrDefault(x => x.ID_USUARIO == idUsuario);
+                var u = context.SP_USUARIO_PERFIL_OBTENER(idUsuario).FirstOrDefault();
                 if (u == null)
                     return RedirectToAction("Login", "Autenticacion");
 
                 var vm = new PerfilVM
                 {
-                    IdUsuario = u.ID_USUARIO,
-                    Nombre = u.NOMBRE,
-                    Correo = u.CORREO,
-                    Rol = (Session["Rol"] ?? "").ToString(),
-                    Estado = (u.ID_ESTADO == 1) ? "ACTIVO" : "INACTIVO"
+                    IdUsuario = u.IdUsuario,
+                    Nombre = u.Nombre,
+                    Correo = u.Correo,
+                    Rol = u.ROL_NOMBRE,
+                    Estado = u.ESTADO_NOMBRE
                 };
 
                 return View(vm);
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Perfil(PerfilVM model)
+        {
+            if (Session["IdUsuario"] == null)
+                return RedirectToAction("Login", "Autenticacion");
+
+            int idUsuario = (int)Session["IdUsuario"];
+            model.IdUsuario = idUsuario;
+
+            // Validar que si se quiere cambiar contraseña, ambas coincidan
+            if (!string.IsNullOrWhiteSpace(model.ContrasenaNueva))
+            {
+                if (string.IsNullOrWhiteSpace(model.ContrasenaActual))
+                {
+                    ViewBag.Mensaje = "Debés ingresar tu contraseña actual para cambiarla.";
+                    return RecargarPerfil(model);
+                }
+
+                if (model.ContrasenaNueva != model.ConfirmarContrasena)
+                {
+                    ViewBag.Mensaje = "La nueva contraseña y la confirmación no coinciden.";
+                    return RecargarPerfil(model);
+                }
+            }
+
+            using (var context = new DBGRUPO5Entities())
+            {
+                var okParam = new System.Data.Entity.Core.Objects.ObjectParameter("OK", typeof(bool));
+                var msgParam = new System.Data.Entity.Core.Objects.ObjectParameter("MSG", typeof(string));
+
+                context.SP_USUARIO_PERFIL_ACTUALIZAR(
+                    idUsuario,
+                    model.Nombre,
+                    model.Correo,
+                    model.ContrasenaActual,
+                    model.ContrasenaNueva,
+                    okParam,
+                    msgParam
+                );
+
+                bool ok = okParam.Value != null && (bool)okParam.Value;
+                string msg = (msgParam.Value ?? "").ToString();
+
+                if (ok)
+                {
+                    // Actualizar el nombre en sesión si cambió
+                    Session["NombreUsuario"] = model.Nombre;
+                    ViewBag.OK = msg;
+                }
+                else
+                {
+                    ViewBag.Mensaje = msg;
+                }
+
+                return RecargarPerfil(model);
+            }
+        }
+
+        private ActionResult RecargarPerfil(PerfilVM model)
+        {
+            using (var context = new DBGRUPO5Entities())
+            {
+                var u = context.SP_USUARIO_PERFIL_OBTENER(model.IdUsuario).FirstOrDefault();
+                if (u != null)
+                {
+                    model.Nombre = u.Nombre;
+                    model.Correo = u.Correo;
+                    model.Rol = u.ROL_NOMBRE;
+                    model.Estado = u.ESTADO_NOMBRE;
+                }
+            }
+
+            model.ContrasenaActual = null;
+            model.ContrasenaNueva = null;
+            model.ConfirmarContrasena = null;
+
+            return View("Perfil", model);
         }
 
         #endregion
@@ -151,5 +231,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return View();
         }
         #endregion
+
     }
 }

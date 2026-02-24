@@ -13,5 +13,10 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Models
         public string Correo { get; set; }
         public string Rol { get; set; }
         public string Estado { get; set; }
+
+        // Campos para cambio de contraseña
+        public string ContrasenaActual { get; set; }
+        public string ContrasenaNueva { get; set; }
+        public string ConfirmarContrasena { get; set; }
     }
 }
