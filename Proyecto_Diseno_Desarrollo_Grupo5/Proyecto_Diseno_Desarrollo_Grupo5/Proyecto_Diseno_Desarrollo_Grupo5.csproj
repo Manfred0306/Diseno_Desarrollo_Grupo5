@@ -129,6 +129,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\VendedorController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\MaterialesController.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProductosController.cs" />
     <Compile Include="Controllers\SalidasController.cs" />
+    <Compile Include="Controllers\VentasController.cs" />
     <Compile Include="EF\BITACORA.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -188,6 +190,7 @@
     <Compile Include="EF\MOVIMIENTOS_INVENTARIO.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="EF\PAGOS.cs" />
     <Compile Include="EF\PERMISOS.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -235,15 +238,33 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CategoriaCrudVM.cs" />
+    <Compile Include="Models\ClienteCrudVM.cs" />
     <Compile Include="Models\MaterialCrudVM.cs" />
+    <Compile Include="Models\PerfilVM.cs" />
     <Compile Include="Models\ProveedorCrudVM.cs" />
     <Compile Include="Models\UsuariosModel.cs" />
     <Compile Include="Models\RolesModel.cs" />
     <Compile Include="Models\ProductoCrudVM.cs" />
     <Compile Include="Models\AutenticacionModel.cs" />
+    <Compile Include="Models\VentasMVModel.cs" />
+    <Compile Include="obj\Debug\.NETFramework,Version=v4.8.AssemblyAttributes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Antlr3.Runtime.dll" />
+    <Content Include="bin\EntityFramework.dll" />
+    <Content Include="bin\EntityFramework.SqlServer.dll" />
+    <Content Include="bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" />
+    <Content Include="bin\Microsoft.Web.Infrastructure.dll" />
+    <Content Include="bin\Newtonsoft.Json.dll" />
+    <Content Include="bin\System.Web.Helpers.dll" />
+    <Content Include="bin\System.Web.Mvc.dll" />
+    <Content Include="bin\System.Web.Optimization.dll" />
+    <Content Include="bin\System.Web.Razor.dll" />
+    <Content Include="bin\System.Web.WebPages.Deployment.dll" />
+    <Content Include="bin\System.Web.WebPages.dll" />
+    <Content Include="bin\System.Web.WebPages.Razor.dll" />
+    <Content Include="bin\WebGrease.dll" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -286,6 +307,9 @@
     <Content Include="EF\Model1.edmx.diagram">
       <DependentUpon>Model1.edmx</DependentUpon>
     </Content>
+    <Content Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
+    <Content Include="obj\Debug\Proyecto_Diseno_Desarrollo_Grupo5.csproj.AssemblyReference.cache" />
+    <Content Include="Proyecto_Diseno_Desarrollo_Grupo5.csproj.user.bak" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -297,8 +321,10 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="StaticFiles\css\Cliente.css" />
     <Content Include="StaticFiles\css\Footer.css" />
     <Content Include="StaticFiles\css\NuestraHistoria.css" />
+    <Content Include="StaticFiles\css\Perfil.css" />
     <Content Include="StaticFiles\css\Productos.css" />
     <Content Include="StaticFiles\css\Index.css" />
     <Content Include="StaticFiles\css\jquery.mCustomScrollbar.css" />
@@ -309,6 +335,7 @@
     <Content Include="StaticFiles\css\Autenticacion.css" />
     <Content Include="StaticFiles\css\Usuarios.css" />
     <Content Include="StaticFiles\css\Roles.css" />
+    <Content Include="StaticFiles\css\Ventas.css" />
     <Content Include="StaticFiles\img\AlphaStockLogo.png" />
     <Content Include="StaticFiles\js\Autenticacion.js" />
     <Content Include="StaticFiles\js\customScrollReveal.js" />
@@ -348,9 +375,13 @@
     <Content Include="Views\Autenticacion\AccesoDenegado.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Vendedor\Index.cshtml" />
+    <Content Include="Views\Clientes\Index.cshtml" />
+    <Content Include="Views\Ventas\Create.cshtml" />
+    <Content Include="Views\Ventas\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="obj\Debug\TempPE\" />
     <Folder Include="Services\" />
     <Folder Include="StaticFiles\fonts\" />
   </ItemGroup>
