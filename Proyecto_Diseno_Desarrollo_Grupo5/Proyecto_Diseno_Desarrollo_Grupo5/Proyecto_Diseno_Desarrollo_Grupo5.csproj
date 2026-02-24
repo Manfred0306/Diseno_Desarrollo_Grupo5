@@ -228,6 +228,7 @@
     <Compile Include="EF\VENTAS.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Filters\RolAuthorizeAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -312,6 +313,7 @@
     <Content Include="StaticFiles\js\Index.js" />
     <Content Include="StaticFiles\js\jquery-1.11.2.min.js" />
     <Content Include="StaticFiles\js\jquery.mCustomScrollbar.concat.min.js" />
+    <Content Include="StaticFiles\js\Perfil.js" />
     <Content Include="StaticFiles\js\Usuarios.js" />
     <Content Include="StaticFiles\js\Roles.js" />
     <Content Include="StaticFiles\js\scrollReveal.js" />
@@ -341,6 +343,7 @@
     <Content Include="Views\Materiales\Index.cshtml" />
     <Content Include="Views\Proveedores\Index.cshtml" />
     <Content Include="Views\Autenticacion\Perfil.cshtml" />
+    <Content Include="Views\Autenticacion\AccesoDenegado.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

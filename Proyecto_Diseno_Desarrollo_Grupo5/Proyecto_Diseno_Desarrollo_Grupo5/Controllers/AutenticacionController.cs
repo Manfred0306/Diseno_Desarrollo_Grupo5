@@ -48,13 +48,13 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                     Session["IdRolFk"] = res.ID_ROL;
                     Session["Rol"] = res.ROL;
 
-                    // ✅ Redirección según rol
+                    // Redirección según rol
                     if (res.ROL == "ADMINISTRADOR") return RedirectToAction("Index", "Admin");
                     if (res.ROL == "VENDEDOR") return RedirectToAction("Index", "Vendedor");
                     return RedirectToAction("Index", "Home");
                 }
 
-                // ✅ Para que se muestre SweetAlert (error)
+                // SweetAlert 
                 ViewBag.Mensaje = "Correo o contraseña incorrectos, o tu usuario está inactivo.";
                 return View(model);
             }
@@ -227,6 +227,16 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                 TempData["OK"] = msg;
                 return RedirectToAction("Perfil");
             }
+        }
+
+        #endregion
+
+        #region AccesoDenegado
+
+        [HttpGet]
+        public ActionResult AccesoDenegado()
+        {
+            return View();
         }
 
         #endregion
