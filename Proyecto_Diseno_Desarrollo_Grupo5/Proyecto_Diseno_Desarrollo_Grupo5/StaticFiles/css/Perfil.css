@@ -1,0 +1,88 @@
+﻿body {
+    background: #f6f7fb;
+}
+
+.page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 18px;
+}
+
+.page-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 6px;
+}
+
+.cardx {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.06);
+    border: 1px solid rgba(229,231,235,.7);
+}
+
+.profile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 18px;
+    color: #0f172a;
+    background: linear-gradient(135deg, rgba(13,110,253,.18), rgba(16,185,129,.14));
+    border: 1px solid rgba(229,231,235,.7);
+}
+
+.pill {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: .3px;
+}
+
+.pill-ok {
+    background: #198754;
+    color: #fff;
+}
+
+.pill-off {
+    background: #6c757d;
+    color: #fff;
+}
+
+.label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.mini-line {
+    height: 1px;
+    background: rgba(229,231,235,.8);
+    margin: 12px 0;
+}

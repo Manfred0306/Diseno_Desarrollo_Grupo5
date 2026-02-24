@@ -1,0 +1,178 @@
+﻿﻿@model System.Collections.Generic.List<Proyecto_Diseno_Desarrollo_Grupo5.Models.VentaFilaVM>
+
+@section styles{
+    <link rel="stylesheet" href="~/StaticFiles/css/Ventas.css" />
+}
+
+<div class="page-wrap">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="page-title">Ventas</h2>
+            <div class="page-subtitle">Historial, pagos y cancelaciones</div>
+        </div>
+
+        <a class="btn btn-primary" href="@Url.Action("Create","Ventas")">+ Nueva venta</a>
+    </div>
+
+    @if (TempData["OK"] != null)
+    {<div class="alert alert-success">@TempData["OK"]</div>}
+    @if (TempData["ERR"] != null)
+    {<div class="alert alert-danger">@TempData["ERR"]</div>}
+
+    <div class="page-section mb-3">
+        <form class="row g-2 align-items-end" method="get" action="@Url.Action("Index")">
+            <div class="col-md-9">
+                <label class="form-label" style="font-weight:700;">Buscar</label>
+                <input class="form-control" name="q" value="@ViewBag.Q"
+                       placeholder="ID venta, ID cliente o nombre..." />
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-dark w-100" style="height:44px; border-radius:12px; font-weight:800;">
+                    🔍 Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="page-section">
+        <div class="table-wrap">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:90px;">ID</th>
+                        <th>Cliente</th>
+                        <th style="width:180px;">Fecha</th>
+                        <th style="width:120px;">Total</th>
+                        <th style="width:120px;">Pagado</th>
+                        <th style="width:120px;">Saldo</th>
+                        <th style="width:130px;">Estado</th>
+                        <th style="width:260px; text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model)
+                    {
+                        var isActiva = v.IdEstado == 1;
+                        var tieneSaldo = v.Saldo > 0;
+
+                        <tr>
+                            <td>@v.IdVenta</td>
+                            <td>@v.Cliente</td>
+                            <td>@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@v.Total</td>
+                            <td>@v.Pagado</td>
+                            <td>@v.Saldo</td>
+                            <td>
+                                @if (isActiva)
+                                {
+                                    <span class="badge-pill badge-ok">ACTIVA</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-pill badge-off">CANCELADA</span>
+                                }
+                            </td>
+                            <td style="text-align:right;">
+                                <div class="d-flex gap-2 justify-content-end flex-wrap">
+
+                                    @if (isActiva && tieneSaldo)
+                                    {
+                                        <button type="button"
+                                                class="btn-soft btn-soft-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalPago"
+                                                onclick="cargarPago('@v.IdVenta','@v.Saldo')">
+                                            💳 Pagar
+                                        </button>
+                                    }
+
+                                    @if (isActiva)
+                                    {
+                                        <form method="post" action="@Url.Action("Cancelar","Ventas")" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@v.IdVenta" />
+                                            <button type="submit" class="btn-soft btn-soft-danger"
+                                                    onclick="return confirm('¿Cancelar la venta #@v.IdVenta? Esto revierte inventario.')">
+                                                ✖ Cancelar
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Sin acciones</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL PAGO -->
+<div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Registrar pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            @using (Html.BeginForm("Pagar", "Ventas", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+                    <input type="hidden" name="IdVenta" id="pago_IdVenta" />
+
+                    <div class="mb-2">
+                        <label class="form-label" style="font-weight:700;">Monto</label>
+                        <input class="form-control" type="number" step="0.01" min="0.01"
+                               name="Monto" id="pago_Monto" required />
+                        <div class="text-muted" style="font-size:12px; margin-top:6px;">
+                            Saldo pendiente: <b id="pago_SaldoTxt"></b>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label" style="font-weight:700;">Método</label>
+                        <select class="form-select" name="Metodo" required>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Sinpe">SINPE</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label" style="font-weight:700;">Referencia (opcional)</label>
+                        <input class="form-control" name="Referencia" placeholder="Ej: #Comprobante / Banco..." />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="border-radius:12px; font-weight:900;">
+                        Guardar pago
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        function cargarPago(idVenta, saldo) {
+            document.getElementById("pago_IdVenta").value = idVenta;
+            document.getElementById("pago_SaldoTxt").innerText = saldo;
+            document.getElementById("pago_Monto").value = saldo; // por default paga el saldo completo
+        }
+    </script>
+}

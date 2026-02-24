@@ -1,90 +1,109 @@
-﻿@model Proyecto_Diseno_Desarrollo_Grupo5.Models.UsuariosModel
+﻿@model Proyecto_Diseno_Desarrollo_Grupo5.Models.PerfilVM
+
+@section styles{
+    <link rel="stylesheet" href="~/StaticFiles/css/Perfil.css" />
+}
 
 @{
-    ViewBag.Title = "Mi Perfil";
-    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+    var iniciales = "?";
 
-    var mensaje = ViewBag.Mensaje as string;
-    var ok = ViewBag.OK as string;
-}
+    if (!string.IsNullOrWhiteSpace(Model.Nombre))
+    {
+        var parts = Model.Nombre.Trim().Split(' ');
 
-<div class="container py-4">
-    <div class="mb-3">
-        <h2 class="mb-0">Mi cuenta / Perfil</h2>
-        <small class="text-muted">Actualizá tu información y tu contraseña si lo necesitás.</small>
-    </div>
-
-    <div class="card p-3">
-        @using (Html.BeginForm("Perfil", "Autenticacion", FormMethod.Post))
+        if (parts.Length == 1)
         {
-            @Html.AntiForgeryToken()
-
-            @Html.HiddenFor(m => m.IdUsuario)
-            @Html.HiddenFor(m => m.IdRol)
-            @Html.HiddenFor(m => m.IdEstado)
-
-            <div class="row g-3">
-                <div class="col-12 col-md-6">
-                    <label class="form-label">Nombre</label>
-                    @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", maxlength = "80" })
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label class="form-label">Correo</label>
-                    @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", maxlength = "120", type = "email" })
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label class="form-label">Rol</label>
-                    <input class="form-control" value="@Model.ROL_NOMBRE" readonly />
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label class="form-label">Estado</label>
-                    <input class="form-control" value="@Model.ESTADO_NOMBRE" readonly />
-                </div>
-            </div>
-
-            <hr class="my-4" />
-
-            <h5 class="mb-2">Cambiar contraseña (opcional)</h5>
-            <div class="row g-3">
-                <div class="col-12 col-md-4">
-                    <label class="form-label">Contraseña actual</label>
-                    @Html.PasswordFor(m => m.ContrasenaActual, new { @class = "form-control", maxlength = "200" })
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label class="form-label">Nueva contraseña</label>
-                    @Html.PasswordFor(m => m.Contrasena, new { @class = "form-control", maxlength = "200" })
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label class="form-label">Confirmar nueva</label>
-                    @Html.PasswordFor(m => m.ConfirmarContrasena, new { @class = "form-control", maxlength = "200" })
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end mt-4">
-                <button type="submit" class="btn btn-primary">
-                    Guardar cambios
-                </button>
-            </div>
+            iniciales = parts[0].Substring(0, 1).ToUpper();
         }
-    </div>
-</div>
-
-@section scripts{
-    <script>
-    // Mensajes estilo SweetAlert (igual que el resto del sistema)
-    const okMsg = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ok));
-    const errMsg = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(mensaje));
-
-    if (okMsg) {
-        Swal.fire("Listo", okMsg, "success");
+        else
+        {
+            iniciales = (parts[0].Substring(0, 1) + parts[1].Substring(0, 1)).ToUpper();
+        }
     }
-    if (errMsg) {
-        Swal.fire("Atención", errMsg, "warning");
-    }
-    </script>
 }
+
+<div class="page-wrap">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="page-title">Mi perfil</h2>
+            <div class="page-subtitle">Información de tu cuenta en AlphaStock</div>
+        </div>
+
+        <a class="btn btn-outline-secondary" href="@Url.Action("Index","Home")">Volver</a>
+    </div>
+
+    <div class="row g-3">
+
+        <!-- CARD PRINCIPAL -->
+        <div class="col-lg-7">
+            <div class="cardx">
+
+                <div class="profile-top">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar">@iniciales</div>
+
+                        <div>
+                            <div style="font-weight:900; font-size:18px;">@Model.Nombre</div>
+                            <div style="color:#6c757d;">@Model.Correo</div>
+                        </div>
+                    </div>
+
+                    @if (Model.Estado == "ACTIVO")
+                    {
+                        <span class="pill pill-ok">ACTIVO</span>
+                    }
+                    else
+                    {
+                        <span class="pill pill-off">INACTIVO</span>
+                    }
+                </div>
+
+                <div class="mini-line"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="label">ID Usuario</div>
+                        <div class="value">@Model.IdUsuario</div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="label">Rol</div>
+                        <div class="value">@Model.Rol</div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="label">Correo</div>
+                        <div class="value">@Model.Correo</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="col-lg-5">
+            <div class="cardx">
+                <div style="font-weight:900; font-size:16px;" class="mb-2">Acciones</div>
+                <div class="page-subtitle mb-3">Opciones rápidas para tu cuenta.</div>
+
+                <button class="btn btn-dark w-100 mb-2" disabled>
+                    Cambiar contraseña (próximamente)
+                </button>
+
+                <a class="btn btn-outline-danger w-100" href="@Url.Action("Logout","Autenticacion")">
+                    Cerrar sesión
+                </a>
+            </div>
+
+            <div class="cardx mt-3">
+                <div style="font-weight:900; font-size:16px;" class="mb-2">Seguridad</div>
+                <div class="page-subtitle">
+                    Recomendación: usá una contraseña segura y no la compartás.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

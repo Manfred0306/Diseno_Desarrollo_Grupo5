@@ -47,6 +47,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.EF
         public virtual DbSet<USUARIOS> USUARIOS { get; set; }
         public virtual DbSet<VENTAS> VENTAS { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
+        public virtual DbSet<PAGOS> PAGOS { get; set; }
     
         public virtual ObjectResult<USUARIO_LOGIN_SP_Result> USUARIO_LOGIN_SP(string correo, string contrasena)
         {

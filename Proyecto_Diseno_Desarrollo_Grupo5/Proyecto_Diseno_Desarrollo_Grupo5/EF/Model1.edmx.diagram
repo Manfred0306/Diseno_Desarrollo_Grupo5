@@ -51,6 +51,9 @@
         <AssociationConnector Association="Model1.FK_USU_ROL" ManuallyRouted="false" />
         <AssociationConnector Association="Model1.ROLES_PERMISOS" ManuallyRouted="false" />
         <EntityTypeShape EntityType="Model1.sysdiagrams" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="Model1.PAGOS" Width="1.5" PointX="13.5" PointY="18.125" />
+        <AssociationConnector Association="Model1.FK_PAGOS_USUARIO" />
+        <AssociationConnector Association="Model1.FK_PAGOS_VENTA" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
