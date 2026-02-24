@@ -273,5 +273,39 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.EF
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_USUARIOS_TOGGLE_ESTADO", iD_USUARIOParameter, oK, mSG);
         }
+    
+        public virtual int SP_USUARIO_PERFIL_ACTUALIZAR(Nullable<int> iD_USUARIO, string nOMBRE, string cORREO, string cONTRASENA_ACTUAL, string cONTRASENA_NUEVA, ObjectParameter oK, ObjectParameter mSG)
+        {
+            var iD_USUARIOParameter = iD_USUARIO.HasValue ?
+                new ObjectParameter("ID_USUARIO", iD_USUARIO) :
+                new ObjectParameter("ID_USUARIO", typeof(int));
+    
+            var nOMBREParameter = nOMBRE != null ?
+                new ObjectParameter("NOMBRE", nOMBRE) :
+                new ObjectParameter("NOMBRE", typeof(string));
+    
+            var cORREOParameter = cORREO != null ?
+                new ObjectParameter("CORREO", cORREO) :
+                new ObjectParameter("CORREO", typeof(string));
+    
+            var cONTRASENA_ACTUALParameter = cONTRASENA_ACTUAL != null ?
+                new ObjectParameter("CONTRASENA_ACTUAL", cONTRASENA_ACTUAL) :
+                new ObjectParameter("CONTRASENA_ACTUAL", typeof(string));
+    
+            var cONTRASENA_NUEVAParameter = cONTRASENA_NUEVA != null ?
+                new ObjectParameter("CONTRASENA_NUEVA", cONTRASENA_NUEVA) :
+                new ObjectParameter("CONTRASENA_NUEVA", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_USUARIO_PERFIL_ACTUALIZAR", iD_USUARIOParameter, nOMBREParameter, cORREOParameter, cONTRASENA_ACTUALParameter, cONTRASENA_NUEVAParameter, oK, mSG);
+        }
+    
+        public virtual ObjectResult<SP_USUARIO_PERFIL_OBTENER_Result> SP_USUARIO_PERFIL_OBTENER(Nullable<int> iD_USUARIO)
+        {
+            var iD_USUARIOParameter = iD_USUARIO.HasValue ?
+                new ObjectParameter("ID_USUARIO", iD_USUARIO) :
+                new ObjectParameter("ID_USUARIO", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_USUARIO_PERFIL_OBTENER_Result>("SP_USUARIO_PERFIL_OBTENER", iD_USUARIOParameter);
+        }
     }
 }

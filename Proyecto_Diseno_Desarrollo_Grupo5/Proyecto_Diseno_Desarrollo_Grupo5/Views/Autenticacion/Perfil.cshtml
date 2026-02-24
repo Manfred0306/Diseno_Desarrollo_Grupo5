@@ -1,0 +1,90 @@
+﻿@model Proyecto_Diseno_Desarrollo_Grupo5.Models.UsuariosModel
+
+@{
+    ViewBag.Title = "Mi Perfil";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+
+    var mensaje = ViewBag.Mensaje as string;
+    var ok = ViewBag.OK as string;
+}
+
+<div class="container py-4">
+    <div class="mb-3">
+        <h2 class="mb-0">Mi cuenta / Perfil</h2>
+        <small class="text-muted">Actualizá tu información y tu contraseña si lo necesitás.</small>
+    </div>
+
+    <div class="card p-3">
+        @using (Html.BeginForm("Perfil", "Autenticacion", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(m => m.IdUsuario)
+            @Html.HiddenFor(m => m.IdRol)
+            @Html.HiddenFor(m => m.IdEstado)
+
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Nombre</label>
+                    @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", maxlength = "80" })
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Correo</label>
+                    @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", maxlength = "120", type = "email" })
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Rol</label>
+                    <input class="form-control" value="@Model.ROL_NOMBRE" readonly />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Estado</label>
+                    <input class="form-control" value="@Model.ESTADO_NOMBRE" readonly />
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <h5 class="mb-2">Cambiar contraseña (opcional)</h5>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <label class="form-label">Contraseña actual</label>
+                    @Html.PasswordFor(m => m.ContrasenaActual, new { @class = "form-control", maxlength = "200" })
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label">Nueva contraseña</label>
+                    @Html.PasswordFor(m => m.Contrasena, new { @class = "form-control", maxlength = "200" })
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label">Confirmar nueva</label>
+                    @Html.PasswordFor(m => m.ConfirmarContrasena, new { @class = "form-control", maxlength = "200" })
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary">
+                    Guardar cambios
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts{
+    <script>
+    // Mensajes estilo SweetAlert (igual que el resto del sistema)
+    const okMsg = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ok));
+    const errMsg = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(mensaje));
+
+    if (okMsg) {
+        Swal.fire("Listo", okMsg, "success");
+    }
+    if (errMsg) {
+        Swal.fire("Atención", errMsg, "warning");
+    }
+    </script>
+}

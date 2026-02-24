@@ -213,6 +213,9 @@
     <Compile Include="EF\SP_USUARIOS_LISTAR_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="EF\SP_USUARIO_PERFIL_OBTENER_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="EF\sysdiagrams.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -337,6 +340,7 @@
     <Content Include="Views\Usuarios\Index.cshtml" />
     <Content Include="Views\Materiales\Index.cshtml" />
     <Content Include="Views\Proveedores\Index.cshtml" />
+    <Content Include="Views\Autenticacion\Perfil.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

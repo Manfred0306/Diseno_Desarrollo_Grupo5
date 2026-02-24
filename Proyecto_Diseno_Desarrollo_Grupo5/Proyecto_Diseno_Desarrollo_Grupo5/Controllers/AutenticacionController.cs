@@ -1,5 +1,8 @@
 ﻿using Proyecto_Diseno_Desarrollo_Grupo5.EF;
 using Proyecto_Diseno_Desarrollo_Grupo5.Models;
+using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -113,6 +116,116 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
                 ViewBag.Mensaje = "No se pudo registrar.";
                 return View(model);
+            }
+        }
+
+        #endregion
+
+        #region perfil
+
+        [HttpGet]
+        public ActionResult Perfil()
+        {
+            if (Session["IdUsuario"] == null)
+                return RedirectToAction("Login", "Autenticacion");
+
+            int idUsuario = (int)Session["IdUsuario"];
+
+            using (var context = new DBGRUPO5Entities())
+            {
+                var model = context.Database.SqlQuery<UsuariosModel>(
+                    "EXEC dbo.SP_USUARIO_PERFIL_OBTENER @ID_USUARIO",
+                    new SqlParameter("@ID_USUARIO", idUsuario)
+                ).FirstOrDefault();
+
+                if (model == null)
+                    return RedirectToAction("Login", "Autenticacion");
+
+                ViewBag.Mensaje = TempData["Mensaje"];
+                ViewBag.OK = TempData["OK"];
+
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Perfil(UsuariosModel model)
+        {
+            if (Session["IdUsuario"] == null)
+                return RedirectToAction("Login", "Autenticacion");
+
+            int idUsuario = (int)Session["IdUsuario"];
+
+            if (string.IsNullOrWhiteSpace(model.Nombre) || model.Nombre.Trim().Length < 2)
+            {
+                TempData["Mensaje"] = "El nombre debe tener al menos 2 caracteres.";
+                return RedirectToAction("Perfil");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Correo) || !model.Correo.Contains("@"))
+            {
+                TempData["Mensaje"] = "Ingresá un correo válido.";
+                return RedirectToAction("Perfil");
+            }
+
+            bool quiereCambiarPass = !string.IsNullOrWhiteSpace(model.Contrasena);
+
+            if (quiereCambiarPass)
+            {
+                if (model.Contrasena.Length < 4)
+                {
+                    TempData["Mensaje"] = "La nueva contraseña debe tener mínimo 4 caracteres.";
+                    return RedirectToAction("Perfil");
+                }
+
+                if (model.Contrasena != model.ConfirmarContrasena)
+                {
+                    TempData["Mensaje"] = "La confirmación de contraseña no coincide.";
+                    return RedirectToAction("Perfil");
+                }
+            }
+
+            using (var context = new DBGRUPO5Entities())
+            {
+                var okParam = new SqlParameter("@OK", SqlDbType.Bit)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var msgParam = new SqlParameter("@MSG", SqlDbType.NVarChar, 200)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                object passActual = (object)model.ContrasenaActual ?? DBNull.Value;
+                object passNueva = quiereCambiarPass ? (object)model.Contrasena : DBNull.Value;
+
+                context.Database.ExecuteSqlCommand(
+                    "EXEC dbo.SP_USUARIO_PERFIL_ACTUALIZAR " +
+                    "@ID_USUARIO, @NOMBRE, @CORREO, @CONTRASENA_ACTUAL, @CONTRASENA_NUEVA, @OK OUTPUT, @MSG OUTPUT",
+                    new SqlParameter("@ID_USUARIO", idUsuario),
+                    new SqlParameter("@NOMBRE", model.Nombre.Trim()),
+                    new SqlParameter("@CORREO", model.Correo.Trim()),
+                    new SqlParameter("@CONTRASENA_ACTUAL", passActual),
+                    new SqlParameter("@CONTRASENA_NUEVA", passNueva),
+                    okParam,
+                    msgParam
+                );
+
+                bool ok = (bool)okParam.Value;
+                string msg = msgParam.Value.ToString();
+
+                if (!ok)
+                {
+                    TempData["Mensaje"] = msg;
+                    return RedirectToAction("Perfil");
+                }
+
+                Session["NombreUsuario"] = model.Nombre.Trim();
+
+                TempData["OK"] = msg;
+                return RedirectToAction("Perfil");
             }
         }
 
