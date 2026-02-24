@@ -26,5 +26,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Models
 
         public string ROL_NOMBRE { get; set; }
         public string ESTADO_NOMBRE { get; set; }
+        public string ContrasenaActual { get; set; }
+        public string ConfirmarContrasena { get; set; }
     }
 }

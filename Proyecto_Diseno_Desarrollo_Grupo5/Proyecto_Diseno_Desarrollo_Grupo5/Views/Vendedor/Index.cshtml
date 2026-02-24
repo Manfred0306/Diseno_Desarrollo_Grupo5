@@ -1,0 +1,37 @@
+﻿@{
+    ViewBag.Title = "Panel Vendedor";
+    Layout = "~/Views/Shared/_LayoutVendedor.cshtml";
+}
+
+<div class="container py-4">
+    <div class="card p-4 mb-3">
+        <h2 class="mb-1">Panel Vendedor</h2>
+        <p class="text-muted mb-0">Bienvenido, @Session["NombreUsuario"]</p>
+    </div>
+
+    <div class="row g-3">
+        <!-- Ventas / Salidas (si ese módulo es ventas) -->
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Salidas")">
+                <h5 class="mb-1">Ventas / Salidas</h5>
+                <small class="text-muted">Registrar ventas o movimientos</small>
+            </a>
+        </div>
+
+        <!-- Inventario / Productos -->
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Productos")">
+                <h5 class="mb-1">Productos / Inventario</h5>
+                <small class="text-muted">Ver inventario y productos</small>
+            </a>
+        </div>
+
+        <!-- Perfil -->
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Perfil","Autenticacion")">
+                <h5 class="mb-1">Mi Perfil</h5>
+                <small class="text-muted">Actualizar datos y contraseña</small>
+            </a>
+        </div>
+    </div>
+</div>

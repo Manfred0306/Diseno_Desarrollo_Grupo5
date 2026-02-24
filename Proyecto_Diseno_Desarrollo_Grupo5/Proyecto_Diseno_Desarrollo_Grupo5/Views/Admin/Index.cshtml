@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "Panel Administrador";
+    Layout = "~/Views/Shared/_LayoutAdministrador.cshtml";
+}
+
+<div class="container py-4">
+    <div class="card p-4 mb-3">
+        <h2 class="mb-1">Panel Administrador</h2>
+        <p class="text-muted mb-0">Bienvenido, @Session["NombreUsuario"]</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Usuarios")">
+                <h5 class="mb-1">Control de Usuarios</h5>
+                <small class="text-muted">Crear, editar, activar/inactivar</small>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Roles")">
+                <h5 class="mb-1">Control de Roles</h5>
+                <small class="text-muted">Gestión de roles</small>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Categorias")">
+                <h5 class="mb-1">Categorías</h5>
+                <small class="text-muted">Gestión de categorías</small>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Productos")">
+                <h5 class="mb-1">Productos</h5>
+                <small class="text-muted">Gestión de productos</small>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Materiales")">
+                <h5 class="mb-1">Materiales</h5>
+                <small class="text-muted">Inventario / materiales</small>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Proveedores")">
+                <h5 class="mb-1">Proveedores</h5>
+                <small class="text-muted">Gestión de proveedores</small>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card p-3 text-decoration-none" href="@Url.Action("Index","Salidas")">
+                <h5 class="mb-1">Salidas</h5>
+                <small class="text-muted">Registros / movimientos</small>
+            </a>
+        </div>
+    </div>
+</div>
