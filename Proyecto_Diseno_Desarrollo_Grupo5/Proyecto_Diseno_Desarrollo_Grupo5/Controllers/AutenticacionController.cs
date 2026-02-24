@@ -42,10 +42,10 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                 {
                     Session["IdUsuario"] = res.ID_USUARIO;
                     Session["NombreUsuario"] = res.NOMBRE;
-                    Session["IdRolFk"] = res.ID_ROL;
+                    Session["IdRol"] = res.ID_ROL;
                     Session["Rol"] = res.ROL;
 
-                    // ✅ Redirección según rol
+                    // Redirección según rol
                     if (res.ROL == "ADMINISTRADOR") return RedirectToAction("Index", "Home");
                     if (res.ROL == "VENDEDOR") return RedirectToAction("Index", "Vendedor");
                     return RedirectToAction("Index", "Home");
@@ -58,7 +58,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         }
 
         #endregion
-
 
         #region registro
 
@@ -143,6 +142,14 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             }
         }
 
-            #endregion
+        #endregion
+
+        #region AccesoDenegado
+        [HttpGet]
+        public ActionResult AccesoDenegado()
+        {
+            return View();
         }
+        #endregion
     }
+}

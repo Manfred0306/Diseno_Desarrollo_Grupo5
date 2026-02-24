@@ -19,7 +19,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.EF
         {
             this.DETALLES_VENTAS = new HashSet<DETALLES_VENTAS>();
             this.DEVOLUCIONES = new HashSet<DEVOLUCIONES>();
-            this.PAGOS = new HashSet<PAGOS>();
         }
     
         public int ID_VENTA { get; set; }
@@ -34,7 +33,5 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.EF
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DEVOLUCIONES> DEVOLUCIONES { get; set; }
         public virtual ESTADO ESTADO { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PAGOS> PAGOS { get; set; }
     }
 }

@@ -19,7 +19,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.EF
         {
             this.BITACORA = new HashSet<BITACORA>();
             this.DESPERDICIOS_MATERIAL = new HashSet<DESPERDICIOS_MATERIAL>();
-            this.PAGOS = new HashSet<PAGOS>();
         }
     
         public int ID_USUARIO { get; set; }
@@ -35,7 +34,5 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.EF
         public virtual ICollection<DESPERDICIOS_MATERIAL> DESPERDICIOS_MATERIAL { get; set; }
         public virtual ESTADO ESTADO { get; set; }
         public virtual ROLES ROLES { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PAGOS> PAGOS { get; set; }
     }
 }

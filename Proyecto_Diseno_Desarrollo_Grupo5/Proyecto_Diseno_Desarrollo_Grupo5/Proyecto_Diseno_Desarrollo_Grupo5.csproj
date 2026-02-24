@@ -190,7 +190,6 @@
     <Compile Include="EF\MOVIMIENTOS_INVENTARIO.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
-    <Compile Include="EF\PAGOS.cs" />
     <Compile Include="EF\PERMISOS.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

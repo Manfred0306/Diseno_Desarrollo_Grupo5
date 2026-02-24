@@ -27,13 +27,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                     ventas = ventas.Where(v => v.CLIENTES.NOMBRE.Contains(q));
             }
 
-            var pagosPorVenta = db.PAGOS
-                .GroupBy(p => p.ID_VENTA)
-                .Select(g => new { IdVenta = g.Key, Pagado = g.Sum(x => x.MONTO) });
-
             var lista = (from v in ventas
-                         join p in pagosPorVenta on v.ID_VENTA equals p.IdVenta into pj
-                         from p in pj.DefaultIfEmpty()
                          orderby v.ID_VENTA descending
                          select new VentaFilaVM
                          {
@@ -41,8 +35,8 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                              Cliente = v.CLIENTES.NOMBRE,
                              Fecha = v.FECHA,
                              Total = v.TOTAL,
-                             Pagado = (p == null ? 0 : p.Pagado),
-                             Saldo = v.TOTAL - (p == null ? 0 : p.Pagado),
+                             Pagado = 0,
+                             Saldo = v.TOTAL,
                              IdEstado = v.ID_ESTADO,
                              Estado = v.ESTADO.NOMBRE
                          }).ToList();
@@ -160,44 +154,12 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             }
         }
 
-        // REGISTRAR PAGO
+        // REGISTRAR PAGO (deshabilitado temporalmente - tabla PAGOS pendiente de configurar)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Pagar(PagoCrearVM vm)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["ERR"] = "Revisá los datos del pago.";
-                return RedirectToAction("Index");
-            }
-
-            var venta = db.VENTAS.Find(vm.IdVenta);
-            if (venta == null)
-            {
-                TempData["ERR"] = "La venta no existe.";
-                return RedirectToAction("Index");
-            }
-
-            if (venta.ID_ESTADO != 1)
-            {
-                TempData["ERR"] = "No se puede pagar una venta cancelada/inactiva.";
-                return RedirectToAction("Index");
-            }
-
-            int? idUsuario = Session["IdUsuario"] as int?;
-
-            db.PAGOS.Add(new PAGOS
-            {
-                ID_VENTA = vm.IdVenta,
-                MONTO = vm.Monto,
-                METODO = (vm.Metodo ?? "").Trim(),
-                REFERENCIA = (vm.Referencia ?? "").Trim(),
-                FECHA = DateTime.Now,
-                ID_USUARIO = idUsuario
-            });
-
-            db.SaveChanges();
-            TempData["OK"] = "Pago registrado.";
+            TempData["ERR"] = "Módulo de pagos no disponible aún.";
             return RedirectToAction("Index");
         }
 
