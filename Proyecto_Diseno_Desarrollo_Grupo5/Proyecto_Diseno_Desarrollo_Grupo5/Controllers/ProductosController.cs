@@ -1,4 +1,5 @@
 ﻿using Proyecto_Diseno_Desarrollo_Grupo5.EF;
+using Proyecto_Diseno_Desarrollo_Grupo5.Filters;
 using Proyecto_Diseno_Desarrollo_Grupo5.Models;
 using System.Linq;
 using System.Web.Mvc;
@@ -9,6 +10,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
+        [RolAuthorize(1,2)]
         public ActionResult Index()
         {
             var vm = new ProductoCrudVM
@@ -51,6 +53,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return View(vm);
         }
 
+        [RolAuthorize(1)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(ProductoCrudVM vm)
@@ -71,6 +74,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return RedirectToAction("Index");
         }
 
+        [RolAuthorize(1)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(ProductoCrudVM vm)
@@ -87,6 +91,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return RedirectToAction("Index");
         }
 
+        [RolAuthorize(1)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id)
