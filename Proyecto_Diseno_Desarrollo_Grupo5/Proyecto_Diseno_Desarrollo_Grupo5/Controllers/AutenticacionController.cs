@@ -46,7 +46,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                     Session["Rol"] = res.ROL;
 
                     // ✅ Redirección según rol
-                    if (res.ROL == "ADMINISTRADOR") return RedirectToAction("Index", "Admin");
+                    if (res.ROL == "ADMINISTRADOR") return RedirectToAction("Index", "Home");
                     if (res.ROL == "VENDEDOR") return RedirectToAction("Index", "Vendedor");
                     return RedirectToAction("Index", "Home");
                 }
@@ -116,6 +116,33 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             }
         }
 
-        #endregion
+        [HttpGet]
+        public ActionResult Perfil()
+        {
+            if (Session["IdUsuario"] == null)
+                return RedirectToAction("Login", "Autenticacion");
+
+            int idUsuario = (int)Session["IdUsuario"];
+
+            using (var context = new DBGRUPO5Entities())
+            {
+                var u = context.USUARIOS.FirstOrDefault(x => x.ID_USUARIO == idUsuario);
+                if (u == null)
+                    return RedirectToAction("Login", "Autenticacion");
+
+                var vm = new PerfilVM
+                {
+                    IdUsuario = u.ID_USUARIO,
+                    Nombre = u.NOMBRE,
+                    Correo = u.CORREO,
+                    Rol = (Session["Rol"] ?? "").ToString(),
+                    Estado = (u.ID_ESTADO == 1) ? "ACTIVO" : "INACTIVO"
+                };
+
+                return View(vm);
+            }
+        }
+
+            #endregion
+        }
     }
-}

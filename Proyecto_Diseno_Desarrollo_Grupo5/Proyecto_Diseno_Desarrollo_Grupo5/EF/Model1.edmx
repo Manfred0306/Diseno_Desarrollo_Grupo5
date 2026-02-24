@@ -117,6 +117,18 @@
           <Property Name="FECHA" Type="datetime2" Precision="0" Nullable="false" />
           <Property Name="OBSERVACION" Type="nvarchar" MaxLength="250" />
         </EntityType>
+        <EntityType Name="PAGOS">
+          <Key>
+            <PropertyRef Name="ID_PAGO" />
+          </Key>
+          <Property Name="ID_PAGO" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_VENTA" Type="int" Nullable="false" />
+          <Property Name="MONTO" Type="decimal" Precision="12" Scale="2" Nullable="false" />
+          <Property Name="METODO" Type="nvarchar" MaxLength="40" Nullable="false" />
+          <Property Name="REFERENCIA" Type="nvarchar" MaxLength="80" />
+          <Property Name="FECHA" Type="datetime2" Precision="0" Nullable="false" />
+          <Property Name="ID_USUARIO" Type="int" />
+        </EntityType>
         <EntityType Name="PERMISOS">
           <Key>
             <PropertyRef Name="ID_PERMISO" />
@@ -365,6 +377,30 @@
             </Principal>
             <Dependent Role="MOVIMIENTOS_INVENTARIO">
               <PropertyRef Name="ID_MATERIAL" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PAGOS_USUARIO">
+          <End Role="USUARIOS" Type="Self.USUARIOS" Multiplicity="0..1" />
+          <End Role="PAGOS" Type="Self.PAGOS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="USUARIOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Principal>
+            <Dependent Role="PAGOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PAGOS_VENTA">
+          <End Role="VENTAS" Type="Self.VENTAS" Multiplicity="1" />
+          <End Role="PAGOS" Type="Self.PAGOS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VENTAS">
+              <PropertyRef Name="ID_VENTA" />
+            </Principal>
+            <Dependent Role="PAGOS">
+              <PropertyRef Name="ID_VENTA" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -622,6 +658,7 @@
           <EntitySet Name="GARANTIAS" EntityType="Self.GARANTIAS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MATERIALES" EntityType="Self.MATERIALES" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MOVIMIENTOS_INVENTARIO" EntityType="Self.MOVIMIENTOS_INVENTARIO" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PAGOS" EntityType="Self.PAGOS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PERMISOS" EntityType="Self.PERMISOS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PRODUCTO_MATERIAL" EntityType="Self.PRODUCTO_MATERIAL" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PRODUCTOS" EntityType="Self.PRODUCTOS" Schema="dbo" store:Type="Tables" />
@@ -683,6 +720,14 @@
           <AssociationSet Name="FK_MI_MAT" Association="Self.FK_MI_MAT">
             <End Role="MATERIALES" EntitySet="MATERIALES" />
             <End Role="MOVIMIENTOS_INVENTARIO" EntitySet="MOVIMIENTOS_INVENTARIO" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PAGOS_USUARIO" Association="Self.FK_PAGOS_USUARIO">
+            <End Role="USUARIOS" EntitySet="USUARIOS" />
+            <End Role="PAGOS" EntitySet="PAGOS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PAGOS_VENTA" Association="Self.FK_PAGOS_VENTA">
+            <End Role="VENTAS" EntitySet="VENTAS" />
+            <End Role="PAGOS" EntitySet="PAGOS" />
           </AssociationSet>
           <AssociationSet Name="FK_PM_MAT" Association="Self.FK_PM_MAT">
             <End Role="MATERIALES" EntitySet="MATERIALES" />
@@ -971,6 +1016,7 @@
           <NavigationProperty Name="DESPERDICIOS_MATERIAL" Relationship="Self.FK_DM_USU" FromRole="USUARIOS" ToRole="DESPERDICIOS_MATERIAL" />
           <NavigationProperty Name="ESTADO" Relationship="Self.FK_USU_ESTADO" FromRole="USUARIOS" ToRole="ESTADO" />
           <NavigationProperty Name="ROLES" Relationship="Self.FK_USU_ROL" FromRole="USUARIOS" ToRole="ROLES" />
+          <NavigationProperty Name="PAGOS" Relationship="Model1.FK_PAGOS_USUARIO" FromRole="USUARIOS" ToRole="PAGOS" />
         </EntityType>
         <EntityType Name="VENTAS">
           <Key>
@@ -985,6 +1031,7 @@
           <NavigationProperty Name="DETALLES_VENTAS" Relationship="Self.FK_DV_VENTA" FromRole="VENTAS" ToRole="DETALLES_VENTAS" />
           <NavigationProperty Name="DEVOLUCIONES" Relationship="Self.FK_DEV_VEN" FromRole="VENTAS" ToRole="DEVOLUCIONES" />
           <NavigationProperty Name="ESTADO" Relationship="Self.FK_VEN_ESTADO" FromRole="VENTAS" ToRole="ESTADO" />
+          <NavigationProperty Name="PAGOS" Relationship="Model1.FK_PAGOS_VENTA" FromRole="VENTAS" ToRole="PAGOS" />
         </EntityType>
         <Association Name="FK_BIT_USU">
           <End Role="USUARIOS" Type="Self.USUARIOS" Multiplicity="1" />
@@ -1488,6 +1535,15 @@
             <Parameter Name="OK" Mode="InOut" Type="Boolean" />
             <Parameter Name="MSG" Mode="InOut" Type="String" />
           </FunctionImport>
+          <EntitySet Name="PAGOS" EntityType="Model1.PAGOS" />
+          <AssociationSet Name="FK_PAGOS_USUARIO" Association="Model1.FK_PAGOS_USUARIO">
+            <End Role="USUARIOS" EntitySet="USUARIOS" />
+            <End Role="PAGOS" EntitySet="PAGOS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PAGOS_VENTA" Association="Model1.FK_PAGOS_VENTA">
+            <End Role="VENTAS" EntitySet="VENTAS" />
+            <End Role="PAGOS" EntitySet="PAGOS" />
+          </AssociationSet>
         </EntityContainer>
         <ComplexType Name="USUARIO_LOGIN_SP_Result">
           <Property Type="Int32" Name="ID_USUARIO" Nullable="false" />
@@ -1526,6 +1582,44 @@
           <Property Type="Int32" Name="ID_ESTADO" Nullable="false" />
           <Property Type="String" Name="ESTADO_NOMBRE" Nullable="false" MaxLength="20" />
         </ComplexType>
+        <EntityType Name="PAGOS">
+          <Key>
+            <PropertyRef Name="ID_PAGO" />
+          </Key>
+          <Property Name="ID_PAGO" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_VENTA" Type="Int32" Nullable="false" />
+          <Property Name="MONTO" Type="Decimal" Nullable="false" Precision="12" Scale="2" />
+          <Property Name="METODO" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="REFERENCIA" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="FECHA" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="ID_USUARIO" Type="Int32" />
+          <NavigationProperty Name="USUARIOS" Relationship="Model1.FK_PAGOS_USUARIO" FromRole="PAGOS" ToRole="USUARIOS" />
+          <NavigationProperty Name="VENTAS" Relationship="Model1.FK_PAGOS_VENTA" FromRole="PAGOS" ToRole="VENTAS" />
+        </EntityType>
+        <Association Name="FK_PAGOS_USUARIO">
+          <End Type="Model1.USUARIOS" Role="USUARIOS" Multiplicity="0..1" />
+          <End Type="Model1.PAGOS" Role="PAGOS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="USUARIOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Principal>
+            <Dependent Role="PAGOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PAGOS_VENTA">
+          <End Type="Model1.VENTAS" Role="VENTAS" Multiplicity="1" />
+          <End Type="Model1.PAGOS" Role="PAGOS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VENTAS">
+              <PropertyRef Name="ID_VENTA" />
+            </Principal>
+            <Dependent Role="PAGOS">
+              <PropertyRef Name="ID_VENTA" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1811,6 +1905,19 @@
             </ResultMapping>
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="SP_USUARIOS_TOGGLE_ESTADO" FunctionName="Model1.Store.SP_USUARIOS_TOGGLE_ESTADO" />
+          <EntitySetMapping Name="PAGOS">
+            <EntityTypeMapping TypeName="Model1.PAGOS">
+              <MappingFragment StoreEntitySet="PAGOS">
+                <ScalarProperty Name="ID_USUARIO" ColumnName="ID_USUARIO" />
+                <ScalarProperty Name="FECHA" ColumnName="FECHA" />
+                <ScalarProperty Name="REFERENCIA" ColumnName="REFERENCIA" />
+                <ScalarProperty Name="METODO" ColumnName="METODO" />
+                <ScalarProperty Name="MONTO" ColumnName="MONTO" />
+                <ScalarProperty Name="ID_VENTA" ColumnName="ID_VENTA" />
+                <ScalarProperty Name="ID_PAGO" ColumnName="ID_PAGO" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
