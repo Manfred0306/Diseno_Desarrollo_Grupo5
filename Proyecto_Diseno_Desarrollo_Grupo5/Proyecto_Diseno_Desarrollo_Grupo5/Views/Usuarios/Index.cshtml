@@ -79,7 +79,7 @@
                             <th>Correo</th>
                             <th style="width:160px;">Rol</th>
                             <th style="width:120px;">Estado</th>
-                            <th class="text-end" style="width:210px;">Acciones</th>
+                            <th class="text-end" style="width:100px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,18 +105,19 @@
 
                                     <td class="text-end">
                                         <button class="btn btn-outline-primary btn-sm me-1 btnEditar"
+                                                title="Editar"
                                                 data-id="@u.IdUsuario"
                                                 data-nombre="@u.Nombre"
                                                 data-correo="@u.Correo"
                                                 data-rol="@u.IdRol">
-                                            <i class="bi bi-pencil-square me-1"></i> Editar
+                                            <i class="bi bi-pencil-square"></i>
                                         </button>
 
                                         <button class="btn btn-outline-danger btn-sm btnToggle"
+                                                title="@(esActivo ? "Inactivar" : "Activar")"
                                                 data-id="@u.IdUsuario"
                                                 data-estado="@(esActivo ? 1 : 2)">
-                                            <i class="bi @(esActivo ? "bi-person-x" : "bi-person-check") me-1"></i>
-                                            @(esActivo ? "Inactivar" : "Activar")
+                                            <i class="bi @(esActivo ? "bi-person-x" : "bi-person-check")"></i>
                                         </button>
                                     </td>
                                 </tr>

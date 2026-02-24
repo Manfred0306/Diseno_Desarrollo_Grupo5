@@ -1,4 +1,5 @@
 ﻿
+
 .p-wrap {
     width: min(var(--max), 92vw);
     margin: 0 auto;
@@ -55,7 +56,7 @@
     display: block;
     font-weight: 900;
     font-size: 12.5px;
-    color: rgba(36,31,26,.88);
+    color: var(--muted);
     margin-bottom: 6px;
 }
 
@@ -64,17 +65,22 @@
     width: 100%;
     padding: 10px 12px;
     border-radius: 12px;
-    border: 1px solid rgba(70,60,50,.14);
-    background: rgba(255,255,255,.82);
-    color: rgba(36,31,26,.95);
+    border: 1px solid var(--border);
+    background: rgba(26,29,40,.60);
+    color: var(--text);
     font-weight: 700;
     outline: none;
 }
 
     .p-field input:focus,
     .p-field select:focus {
-        border-color: rgba(182,128,68,.35);
-        box-shadow: 0 0 0 4px rgba(182,128,68,.10);
+        border-color: rgba(16,185,129,.40);
+        box-shadow: 0 0 0 3px rgba(16,185,129,.12);
+    }
+
+    .p-field input::placeholder {
+        color: var(--muted);
+        opacity: .7;
     }
 
 .p-actions {
@@ -87,6 +93,8 @@
 
 .p-danger {
     background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
     box-shadow: 0 12px 20px rgba(220,53,69,.16) !important;
 }
 
@@ -106,17 +114,29 @@
         width: min(520px, 92vw);
         padding: 10px 12px;
         border-radius: 12px;
-        border: 1px solid rgba(70,60,50,.14);
-        background: rgba(255,255,255,.82);
+        border: 1px solid var(--border);
+        background: rgba(26,29,40,.60);
+        color: var(--text);
         font-weight: 750;
+    }
+
+    .p-search input::placeholder {
+        color: var(--muted);
+        opacity: .7;
+    }
+
+    .p-search input:focus {
+        border-color: rgba(16,185,129,.40);
+        box-shadow: 0 0 0 3px rgba(16,185,129,.12);
+        outline: none;
     }
 
 .p-tableWrap {
     margin-top: 10px;
     overflow: auto;
-    border-radius: var(--radius2);
-    border: 1px solid rgba(70,60,50,.12);
-    background: rgba(255,255,255,.78);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(26,29,40,.40);
 }
 
 .p-table {
@@ -129,26 +149,26 @@
         text-align: left;
         font-size: 12px;
         font-weight: 950;
-        color: rgba(36,31,26,.75);
+        color: var(--muted);
         padding: 12px 12px;
-        border-bottom: 1px solid rgba(70,60,50,.12);
-        background: rgba(255,255,255,.92);
+        border-bottom: 1px solid var(--border);
+        background: rgba(26,29,40,.60);
     }
 
     .p-table tbody td {
         padding: 12px 12px;
-        border-bottom: 1px solid rgba(70,60,50,.08);
+        border-bottom: 1px solid var(--border);
         font-weight: 750;
-        color: rgba(36,31,26,.92);
+        color: var(--text);
     }
 
     .p-table tbody tr:hover {
-        background: rgba(182,128,68,.08);
+        background: rgba(16,185,129,.06);
         cursor: pointer;
     }
 
     .p-table tbody tr.p-selected {
-        background: rgba(182,128,68,.12);
+        background: rgba(16,185,129,.10);
     }
 
 .p-chip {
@@ -159,8 +179,9 @@
     border-radius: 999px;
     font-weight: 950;
     font-size: 11.5px;
-    background: rgba(182,128,68,.10);
-    border: 1px solid rgba(182,128,68,.18);
+    background: rgba(16,185,129,.10);
+    border: 1px solid rgba(16,185,129,.18);
+    color: var(--accent2);
 }
 
 .page-hero {
@@ -180,4 +201,5 @@
 body {
     padding-bottom: 180px;
 }
+
 

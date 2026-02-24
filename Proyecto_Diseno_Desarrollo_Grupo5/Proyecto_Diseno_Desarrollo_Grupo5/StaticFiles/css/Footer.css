@@ -6,8 +6,8 @@
     bottom: auto;
     transform: none;
     opacity: 1;
-    background: rgba(120, 102, 78, .92);
-    border-top: 1px solid rgba(255,255,255,.18);
+    background: rgba(22,26,38,.97);
+    border-top: 1px solid rgba(16,185,129,.10);
     backdrop-filter: blur(8px);
     z-index: 1;
 }
@@ -65,14 +65,20 @@
         align-items: center;
         justify-content: center;
         border-radius: 999px;
-        background: rgba(255,255,255,.14);
-        border: 1px solid rgba(255,255,255,.18);
+        background: rgba(16,185,129,.10);
+        border: 1px solid rgba(16,185,129,.18);
         font-weight: 980;
         font-size: 12px;
+        transition: background .18s ease, border-color .18s ease;
+    }
+
+    .socials a:hover {
+        background: rgba(16,185,129,.22);
+        border-color: rgba(16,185,129,.30);
     }
 
 .lp-footer__bottom {
-    border-top: 1px solid rgba(255,255,255,.16);
+    border-top: 1px solid rgba(148,163,184,.10);
     color: rgba(255,255,255,.88);
     font-weight: 750;
     font-size: 12px;

@@ -1,17 +1,17 @@
 ﻿:root {
-    /* ===== Paleta Marmol/Granito ===== */
-    --bg: #f3efe8; /* fondo general crema */
-    --card: #ffffff; /* tarjeta blanca */
-    --panel: #faf7f2; /* panel suave */
-    --muted: #6f6a61; /* texto secundario piedra */
-    --text: #2a2621; /* texto principal */
-    --accent: #c48a4a; /* dorado/cobre suave */
-    --accent2: #d8a76b; /* beige-dorado */
-    --border: rgba(60,50,40,.14);
-    --shadow: 0 18px 50px rgba(40,30,20,.18);
+    /* ===== Dark Emerald ===== */
+    --bg: #0f1219;
+    --card: rgba(32,37,52,.95);
+    --panel: rgba(26,29,40,.90);
+    --muted: #94a3b8;
+    --text: #f1f5f9;
+    --accent: #10b981;
+    --accent2: #6ee7b7;
+    --border: rgba(148,163,184,.10);
+    --shadow: 0 25px 60px rgba(0,0,0,.40);
     --radius: 18px;
-    --input-bg: rgba(0,0,0,.02);
-    --input-focus: rgba(196,138,74,.35);
+    --input-bg: rgba(26,29,40,.60);
+    --input-focus: rgba(16,185,129,.15);
 }
 
 * {
@@ -25,9 +25,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
-    /* Fondo tipo piedra claro */
-    background: radial-gradient(1200px 600px at 15% 20%, rgba(196,138,74,.18), transparent 60%), radial-gradient(1000px 500px at 85% 80%, rgba(216,167,107,.18), transparent 60%), linear-gradient(180deg, #f6f2ec, #efe8df);
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+    background: radial-gradient(ellipse 900px 500px at 10% 20%, rgba(16,185,129,.07), transparent), radial-gradient(ellipse 800px 450px at 90% 80%, rgba(110,231,183,.05), transparent), linear-gradient(180deg, #0f1219, #1a1d28);
     color: var(--text);
 }
 
@@ -46,9 +45,8 @@ body {
 /* ===== Panel izquierdo (Logo) ===== */
 .auth__brand {
     padding: 46px 42px;
-    background: linear-gradient(135deg, rgba(196,138,74,.18), rgba(255,255,255,0) 55%), linear-gradient(0deg, rgba(0,0,0,.02), rgba(0,0,0,0)), var(--panel);
+    background: linear-gradient(135deg, rgba(16,185,129,.10), rgba(0,0,0,0) 55%), linear-gradient(0deg, rgba(0,0,0,.04), rgba(0,0,0,0)), var(--panel);
     position: relative;
-    /* Centrado real del bloque */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -60,7 +58,7 @@ body {
         content: "";
         position: absolute;
         inset: -2px;
-        background: radial-gradient(550px 220px at 20% 10%, rgba(196,138,74,.18), transparent 65%);
+        background: radial-gradient(550px 220px at 20% 10%, rgba(16,185,129,.12), transparent 65%);
         pointer-events: none;
     }
 
@@ -99,7 +97,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
+    background: var(--card);
 }
 
 .form {
@@ -143,7 +141,7 @@ body {
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(42,38,33,.55);
+    color: var(--muted);
     font-size: 18px;
 }
 
@@ -160,9 +158,9 @@ body {
 }
 
     .input:focus {
-        border-color: rgba(196,138,74,.70);
+        border-color: rgba(16,185,129,.50);
         box-shadow: 0 0 0 4px var(--input-focus);
-        background: rgba(0,0,0,.015);
+        background: rgba(26,29,40,.80);
     }
 
 /* ===== Botón ===== */
@@ -181,8 +179,8 @@ body {
 }
 
     .btn:hover {
-        filter: brightness(1.03);
-        box-shadow: 0 14px 30px rgba(196,138,74,.28);
+        filter: brightness(1.05);
+        box-shadow: 0 14px 30px rgba(16,185,129,.22);
         transform: translateY(-1px);
     }
 
@@ -217,7 +215,7 @@ body {
     display: block;
     margin-top: 6px;
     font-size: 12.5px;
-    color: #b86b2a;
+    color: #f85149;
 }
 
 @media (max-width: 900px) {
