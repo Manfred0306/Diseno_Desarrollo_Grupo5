@@ -129,6 +129,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\MaterialesController.cs" />
     <Compile Include="Controllers\ProveedoresController.cs" />
     <Compile Include="Controllers\UsuariosController.cs" />
@@ -344,12 +345,12 @@
     <Content Include="Views\Proveedores\Index.cshtml" />
     <Content Include="Views\Autenticacion\Perfil.cshtml" />
     <Content Include="Views\Autenticacion\AccesoDenegado.cshtml" />
+    <Content Include="Views\Admin\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Services\" />
     <Folder Include="StaticFiles\fonts\" />
-    <Folder Include="Views\Admin\" />
     <Folder Include="Views\Vendedor\" />
   </ItemGroup>
   <ItemGroup>

@@ -45,8 +45,8 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                 {
                     Session["IdUsuario"] = res.ID_USUARIO;
                     Session["NombreUsuario"] = res.NOMBRE;
-                    Session["IdRolFk"] = res.ID_ROL;
-                    Session["Rol"] = res.ROL;
+                    Session["IdRol"] = res.ID_ROL;
+                    Session["RolNombre"] = res.ROL;
 
                     // Redirección según rol
                     if (res.ROL == "ADMINISTRADOR") return RedirectToAction("Index", "Admin");
@@ -61,7 +61,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         }
 
         #endregion
-
 
         #region registro
 

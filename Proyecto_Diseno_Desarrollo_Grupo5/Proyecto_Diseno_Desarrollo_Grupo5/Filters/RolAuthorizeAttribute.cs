@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -8,11 +7,11 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Filters
 {
     public class RolAuthorizeAttribute : AuthorizeAttribute
     {
-        private readonly string[] _rolesPermitidos;
+        private readonly int[] _rolesPermitidos;
 
-        public RolAuthorizeAttribute(params string[] rolesPermitidos)
+        public RolAuthorizeAttribute(params int[] rolesPermitidos)
         {
-            _rolesPermitidos = rolesPermitidos ?? Array.Empty<string>();
+            _rolesPermitidos = rolesPermitidos ?? Array.Empty<int>();
         }
 
         protected override bool AuthorizeCore(HttpContextBase httpContext)
@@ -24,10 +23,13 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Filters
 
             if (_rolesPermitidos.Length == 0) return true;
 
-            var rolNombre = session["RolNombre"]?.ToString();
-            if (string.IsNullOrWhiteSpace(rolNombre)) return false;
+            // Leemos el IdRol de la sesión
+            if (session["IdRol"] == null) return false;
 
-            return _rolesPermitidos.Contains(rolNombre);
+            int idRol;
+            if (!int.TryParse(session["IdRol"].ToString(), out idRol)) return false;
+
+            return _rolesPermitidos.Contains(idRol);
         }
 
         protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
