@@ -55,170 +55,176 @@
     </div>
 </div>
 
-    <div class="page-section mt-3">
-        <div class="cardx table-wrap">
-            <table class="table">
-                <thead>
+<div class="page-section mt-3">
+    <div class="cardx table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <a class="sort-link"
+                           href="@Url.Action("Index", new { q = Model.Q, sortOrder = ViewBag.NameSortParm })">
+                            Cliente
+                            <span class="sort-ico">
+                                @(Request["sortOrder"] == "name_desc" ? "⬇" : "⬆")
+                            </span>
+                        </a>
+                    </th>
+                    <th style="width:150px;">Teléfono</th>
+                    <th>Correo</th>
+                    <th>Dirección</th>
+                    <th style="width:130px;">Estado</th>
+                    <th style="width:240px; text-align:right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.Clientes)
+                {
                     <tr>
-                        <th style="width:80px;">
-                            <a class="sort-link" href="@Url.Action("Index", new { q = Model.Q, sortOrder = ViewBag.IdSortParm })">
-                                ID <span class="sort-ico">@(Request["sortOrder"] == "id_desc" ? "⬇" : "⬆")</span>
-                            </a>
-                        </th>
-                        <th>Cliente</th>
-                        <th style="width:150px;">Teléfono</th>
-                        <th>Correo</th>
-                        <th>Dirección</th>
-                        <th style="width:240px; text-align:right;">Acciones</th>
+                        <td>
+                            <div class="chip">
+                                <div>
+                                    <div style="font-weight:900;">@c.NOMBRE</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@c.TELEFONO</td>
+                        <td>@c.CORREO</td>
+                        <td>@c.DIRECCION</td>
+                        <td>
+                            <span class="badge-pill @(c.ID_ESTADO == 1 ? "badge-ok" : "badge-off")">
+                                @(c.ID_ESTADO == 1 ? "ACTIVO" : "INACTIVO")
+                            </span>
+                        </td>
+
+                        <td class="text-end" style="width:100px;">
+                            <button class="btn btn-outline-primary btn-sm me-1"
+                                    title="Editar"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditar"
+                                    onclick="cargarClienteEditar('@c.ID_CLIENTE',
+              '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(c.NOMBRE ?? ""))',
+              '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(c.TELEFONO ?? ""))',
+              '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(c.CORREO ?? ""))',
+              '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(c.DIRECCION ?? ""))',
+              '@c.ID_ESTADO')">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+
+                            @using (Html.BeginForm("ToggleEstado", "Clientes", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@c.ID_CLIENTE" />
+                                <input type="hidden" name="q" value="@Model.Q" />
+                                <input type="hidden" name="sortOrder" value="@Request["sortOrder"]" />
+
+                                var esActivo = (c.ID_ESTADO == 1);
+
+                                <button type="submit"
+                                        class="btn btn-outline-danger btn-sm"
+                                        title="@(esActivo ? "Inactivar" : "Activar")">
+                                    <i class="bi @(esActivo ? "bi-person-x" : "bi-person-check")"></i>
+                                </button>
+                            }
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var c in Model.Clientes)
-                    {
-                        var inicial = string.IsNullOrWhiteSpace(c.NOMBRE) ? "?" : c.NOMBRE.Trim().Substring(0, 1).ToUpper();
-
-                        <tr>
-                            <td>@c.ID_CLIENTE</td>
-
-                            <td>
-                                <div class="chip">
-                                    <div>
-                                        <div style="font-weight:900;">@c.NOMBRE</div>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <td>@c.TELEFONO</td>
-                            <td>@c.CORREO</td>
-                            <td>@c.DIRECCION</td>
-
-                            <td style="text-align:right;">
-                                <div class="actions">
-
-                                    <button type="button"
-                                            class="btn-soft btn-soft-edit"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modalEditar"
-                                            onclick="cargarClienteEditar('@c.ID_CLIENTE',
-                          '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.NOMBRE ?? ""))',
-                          '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.TELEFONO ?? ""))',
-                          '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.CORREO ?? ""))',
-                          '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.DIRECCION ?? ""))',
-                          '@c.ID_ESTADO')">
-                                        ✏ Editar
-                                    </button>
-
-                                    @using (Html.BeginForm("ToggleEstado", "Clientes", FormMethod.Post))
-                                    {
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@c.ID_CLIENTE" />
-
-                                        <button type="submit" class="btn-soft btn-soft-toggle">
-                                            @(c.ID_ESTADO == 1 ? "👤 Inactivar" : "👤 Activar")
-                                        </button>
-                                    }
-
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" style="font-weight:900;">Nuevo cliente</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    @using (Html.BeginForm("Create", "Clientes", FormMethod.Post))
-                    {
-                        @Html.AntiForgeryToken()
-
-                        <div class="modal-body">
-                            <div class="mb-2">
-                                <label class="form-label">Nombre</label>
-                                <input class="form-control" name="NOMBRE" required />
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label">Teléfono</label>
-                                <input class="form-control" name="TELEFONO" />
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label">Correo</label>
-                                <input class="form-control" name="CORREO" type="email" />
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label">Dirección</label>
-                                <input class="form-control" name="DIRECCION" />
-                            </div>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary btn-primary-pill" style="box-shadow:none;">Guardar</button>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" style="font-weight:900;">Editar cliente</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    @using (Html.BeginForm("Edit", "Clientes", FormMethod.Post))
-                    {
-                        @Html.AntiForgeryToken()
-
-                        <div class="modal-body">
-                            <input type="hidden" name="ID_CLIENTE" id="edit_ID_CLIENTE" />
-                            <input type="hidden" name="Q" value="@Model.Q" />
-
-                            <div class="mb-2">
-                                <label class="form-label">Nombre</label>
-                                <input class="form-control" name="NOMBRE" id="edit_NOMBRE" required />
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label">Teléfono</label>
-                                <input class="form-control" name="TELEFONO" id="edit_TELEFONO" />
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label">Correo</label>
-                                <input class="form-control" name="CORREO" id="edit_CORREO" type="email" />
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label">Dirección</label>
-                                <input class="form-control" name="DIRECCION" id="edit_DIRECCION" />
-                            </div>
-
-                            <input type="hidden" name="ID_ESTADO" id="edit_ID_ESTADO" />
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary btn-primary-pill" style="box-shadow:none;">Guardar cambios</button>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-
+                }
+            </tbody>
+        </table>
     </div>
+
+    <div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="font-weight:900;">Nuevo cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                @using (Html.BeginForm("Create", "Clientes", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <label class="form-label">Nombre</label>
+                            <input class="form-control" name="NOMBRE" required />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Teléfono</label>
+                            <input class="form-control" name="TELEFONO" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Correo</label>
+                            <input class="form-control" name="CORREO" type="email" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Dirección</label>
+                            <input class="form-control" name="DIRECCION" />
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-primary-pill" style="box-shadow:none;">Guardar</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="font-weight:900;">Editar cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                @using (Html.BeginForm("Edit", "Clientes", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="modal-body">
+                        <input type="hidden" name="ID_CLIENTE" id="edit_ID_CLIENTE" />
+                        <input type="hidden" name="Q" value="@Model.Q" />
+
+                        <div class="mb-2">
+                            <label class="form-label">Nombre</label>
+                            <input class="form-control" name="NOMBRE" id="edit_NOMBRE" required />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Teléfono</label>
+                            <input class="form-control" name="TELEFONO" id="edit_TELEFONO" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Correo</label>
+                            <input class="form-control" name="CORREO" id="edit_CORREO" type="email" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Dirección</label>
+                            <input class="form-control" name="DIRECCION" id="edit_DIRECCION" />
+                        </div>
+
+                        <input type="hidden" name="ID_ESTADO" id="edit_ID_ESTADO" />
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-primary-pill" style="box-shadow:none;">Guardar cambios</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+
+</div>
 
 </div>
 

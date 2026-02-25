@@ -12,7 +12,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
         public ActionResult Index(string q = null, string sortOrder = null)
         {
-            ViewBag.IdSortParm = string.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
+            ViewBag.NameSortParm = (sortOrder == "name_asc") ? "name_desc" : "name_asc";
 
             var clientesQuery = db.CLIENTES.AsQueryable();
 
@@ -20,52 +20,38 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             {
                 q = q.Trim();
 
-                // Si es número -> ID exacto
                 if (int.TryParse(q, out int idBuscado))
-                {
                     clientesQuery = clientesQuery.Where(c => c.ID_CLIENTE == idBuscado);
-                }
                 else
-                {
-                    // Si es texto -> buscar por nombre/correo/teléfono (evitando NULL)
-                    clientesQuery = clientesQuery.Where(c =>
-                        (c.NOMBRE ?? "").Contains(q) ||
-                        (c.CORREO ?? "").Contains(q) ||
-                        (c.TELEFONO ?? "").Contains(q)
-                    );
-                }
+                    clientesQuery = clientesQuery.Where(c => c.NOMBRE.Contains(q)
+                                                          || c.CORREO.Contains(q)
+                                                          || c.TELEFONO.Contains(q));
             }
 
-            clientesQuery = (sortOrder == "id_desc")
-                ? clientesQuery.OrderByDescending(c => c.ID_CLIENTE)
-                : clientesQuery.OrderBy(c => c.ID_CLIENTE);
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    clientesQuery = clientesQuery.OrderByDescending(c => c.NOMBRE);
+                    break;
+                case "name_asc":
+                default:
+                    clientesQuery = clientesQuery.OrderBy(c => c.NOMBRE);
+                    break;
+            }
 
             var vm = new ClienteCrudVM
             {
                 Q = q,
-
-                Clientes = clientesQuery
-                    .Select(c => new ClienteFilaVM
-                    {
-                        ID_CLIENTE = c.ID_CLIENTE,
-                        NOMBRE = c.NOMBRE,
-                        TELEFONO = c.TELEFONO,
-                        CORREO = c.CORREO,
-                        DIRECCION = c.DIRECCION,
-                        ID_ESTADO = c.ID_ESTADO,
-                        ESTADO = c.ESTADO.NOMBRE
-                    })
-                    .ToList(),
-
-                Estados = db.ESTADO
-                    .OrderBy(e => e.ID_ESTADO)
-                    .ToList()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ID_ESTADO.ToString(),
-                        Text = e.NOMBRE
-                    })
-                    .ToList()
+                Clientes = clientesQuery.Select(c => new ClienteFilaVM
+                {
+                    ID_CLIENTE = c.ID_CLIENTE,
+                    NOMBRE = c.NOMBRE,
+                    TELEFONO = c.TELEFONO,
+                    CORREO = c.CORREO,
+                    DIRECCION = c.DIRECCION,
+                    ID_ESTADO = c.ID_ESTADO,
+                    ESTADO = c.ESTADO.NOMBRE
+                }).ToList()
             };
 
             return View(vm);
@@ -93,7 +79,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                 TELEFONO = (vm.TELEFONO ?? "").Trim(),
                 CORREO = (vm.CORREO ?? "").Trim(),
                 DIRECCION = (vm.DIRECCION ?? "").Trim(),
-                ID_ESTADO = 1 
+                ID_ESTADO = 1
             };
 
             db.CLIENTES.Add(c);
@@ -136,20 +122,20 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ToggleEstado(int id)
+        public ActionResult ToggleEstado(int id, string q = null, string sortOrder = null)
         {
             var c = db.CLIENTES.Find(id);
             if (c == null)
             {
                 TempData["ERR"] = "Cliente no encontrado.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { q, sortOrder });
             }
 
             c.ID_ESTADO = (c.ID_ESTADO == 1) ? 2 : 1;
             db.SaveChanges();
 
             TempData["OK"] = "Estado del cliente actualizado.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { q, sortOrder });
         }
     }
 }
