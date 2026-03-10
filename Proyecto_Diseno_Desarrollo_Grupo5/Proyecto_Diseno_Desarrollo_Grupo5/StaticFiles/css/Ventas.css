@@ -1,57 +1,97 @@
-﻿body {
-    background: #f6f7fb;
+﻿:root {
+    --accent: #10b981;
+    --accent2: #6ee7b7;
+    --line: #e5e7eb;
+    --text: #0f172a;
+    --muted: #6b7280;
 }
 
-.page-wrap {
+/* CONTENEDOR CENTRADO */
+.ventas-wrap {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 30px 18px;
+    padding: 28px 18px;
 }
 
+/* TITULOS */
+
 .page-title {
-    font-size: 30px;
-    font-weight: 800;
-    margin: 0;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -.3px;
 }
 
 .page-subtitle {
+    color: var(--muted);
     font-size: 14px;
-    color: #6c757d;
-    margin-top: 6px;
+    margin-top: 4px;
 }
+
+/* SECCIONES */
 
 .page-section {
-    background: #fff;
-    border-radius: 14px;
+    background: rgba(24, 30, 48, .78);
+    border-radius: 16px;
     padding: 18px;
-    box-shadow: 0 6px 18px rgba(0,0,0,.06);
-    border: 1px solid rgba(229,231,235,.7);
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 14px 26px rgba(0,0,0,.18);
+    backdrop-filter: blur(6px);
 }
+
+/* BUSCADOR */
+
+.form-control,
+.form-select {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.10);
+    height: 44px;
+    background: rgba(255,255,255,.06);
+    color: #f8fafc;
+}
+
+    .form-control::placeholder {
+        color: rgba(241,245,249,.45);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background: rgba(255,255,255,.08);
+        color: #fff;
+        border-color: rgba(16,185,129,.35);
+        box-shadow: 0 0 0 .2rem rgba(16,185,129,.10);
+    }
+
+/* TABLA */
 
 .table-wrap {
-    border-radius: 14px;
-    overflow: hidden;
+    overflow-x: auto;
+    border-radius: 16px;
 }
 
-.table thead th {
-    background: #f8fafc;
-    border-bottom: 1px solid #e5e7eb !important;
-    font-weight: 800;
-    font-size: 13px;
-    padding: 14px 12px;
+.table {
+    color: #f8fafc;
 }
 
-.table tbody td {
-    border-top: 1px solid #eef2f7 !important;
-    padding: 12px;
-    font-size: 14px;
-    vertical-align: middle;
-}
+    .table thead th {
+        font-weight: 900;
+        font-size: 13px;
+        border-bottom: 1px solid rgba(255,255,255,.08) !important;
+        background: rgba(255,255,255,.05);
+        color: rgba(241,245,249,.78);
+    }
+
+    .table tbody td {
+        border-top: 1px solid rgba(255,255,255,.06) !important;
+        font-size: 14px;
+        color: rgba(241,245,249,.92);
+    }
+
+/* ESTADOS */
 
 .badge-pill {
     padding: 6px 10px;
     border-radius: 999px;
-    font-weight: 800;
+    font-weight: 900;
     font-size: 12px;
     letter-spacing: .3px;
 }
@@ -66,13 +106,16 @@
     color: #fff;
 }
 
+/* BOTONES */
+
 .btn-soft {
     border-radius: 12px;
-    padding: 8px 10px;
+    padding: 8px 12px;
     font-weight: 800;
     font-size: 13px;
     border: 1px solid transparent;
     background: #fff;
+    transition: .15s ease;
 }
 
 .btn-soft-primary {
@@ -81,38 +124,150 @@
     background: rgba(13,110,253,.06);
 }
 
+    .btn-soft-primary:hover {
+        background: rgba(13,110,253,.12);
+        transform: translateY(-2px);
+    }
+
 .btn-soft-danger {
     border-color: rgba(220,53,69,.35);
     color: #dc3545;
     background: rgba(220,53,69,.06);
 }
 
-.btn-soft:hover {
-    filter: brightness(.98);
+    .btn-soft-danger:hover {
+        background: rgba(220,53,69,.12);
+        transform: translateY(-2px);
+    }
+
+/* ACCIONES */
+
+.actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
 }
 
-.form-control, .form-select {
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    height: 44px;
-}
+/* MODAL */
 
 .modal-content {
     border-radius: 16px;
-    border: 1px solid rgba(229,231,235,.7);
 }
 
-.total-box {
-    background: #0f172a;
-    color: #fff;
-    border-radius: 14px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+.modal-header {
+    border-bottom: 1px solid var(--line);
 }
 
-    .total-box b {
-        font-size: 18px;
+.modal-footer {
+    border-top: 1px solid var(--line);
+}
+
+label.form-label {
+    color: rgba(241,245,249,.82);
+}
+
+.page-title {
+    color: #f8fafc;
+}
+
+.page-subtitle {
+    color: rgba(241,245,249,.60);
+}
+
+.text-muted {
+    color: rgba(241,245,249,.55) !important;
+}
+/* TEXTO DEL LOGO AlphaStock */
+.lp-brand__text strong {
+    color: #ffffff !important;
+}
+
+.lp-brand__text span {
+    color: rgba(255,255,255,.75) !important;
+}
+
+/* MENU */
+.lp-nav a,
+.lp-dd__btn {
+    color: #ffffff !important;
+}
+
+/* USUARIO A LA DERECHA */
+.lp-user__name {
+    color: #ffffff !important;
+}
+
+/* ICONO FLECHA USUARIO */
+.lp-user__btn {
+    color: #ffffff !important;
+}
+.cliente-resultados {
+    position: absolute;
+    top: calc(100% - 2px);
+    left: 12px;
+    right: 12px;
+    background: rgba(24, 30, 48, .98);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    box-shadow: 0 14px 28px rgba(0,0,0,.22);
+    z-index: 50;
+    overflow: hidden;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.cliente-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-top: 1px solid rgba(255,255,255,.05);
+    transition: background .15s ease;
+}
+
+    .cliente-item:first-child {
+        border-top: 0;
     }
+
+    .cliente-item:hover {
+        background: rgba(255,255,255,.06);
+    }
+
+    .cliente-item b {
+        display: block;
+        color: #f8fafc;
+        font-size: 14px;
+    }
+
+    .cliente-item span {
+        display: block;
+        color: rgba(241,245,249,.65);
+        font-size: 12px;
+        margin-top: 2px;
+    }
+
+/* ===== CREATE VENTAS ===== */
+
+.total-box span {
+    color: #e5e7eb;
+    font-weight: 700;
+}
+
+.total-box b {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.page-section label {
+    color: #e5e7eb;
+}
+
+.page-section .btn-dark {
+    color: #ffffff;
+    font-weight: 900;
+}
+
+.page-section .btn-primary {
+    color: #ffffff;
+    font-weight: 900;
+}

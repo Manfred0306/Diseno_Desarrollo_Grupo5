@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="~/StaticFiles/css/Ventas.css" />
 }
 
-<div class="page-wrap">
+<div class="ventas-wrap">
 
     <div class="d-flex justify-content-between align-items-start mb-3">
         <div>
@@ -16,31 +16,32 @@
     </div>
 
     @if (TempData["OK"] != null)
-    {<div class="alert alert-success">@TempData["OK"]</div>}
+    {
+        <div class="alert alert-success">@TempData["OK"]</div>
+    }
+
     @if (TempData["ERR"] != null)
-    {<div class="alert alert-danger">@TempData["ERR"]</div>}
+    {
+        <div class="alert alert-danger">@TempData["ERR"]</div>
+    }
 
     <div class="page-section mb-3">
-        <form class="row g-2 align-items-end" method="get" action="@Url.Action("Index")">
-            <div class="col-md-9">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-12">
                 <label class="form-label" style="font-weight:700;">Buscar</label>
-                <input class="form-control" name="q" value="@ViewBag.Q"
-                       placeholder="ID venta, ID cliente o nombre..." />
+                <input id="busquedaVentas"
+                       class="form-control"
+                       type="text"
+                       placeholder="Buscar cliente, fecha, total, estado..." />
             </div>
-            <div class="col-md-3">
-                <button class="btn btn-dark w-100" style="height:44px; border-radius:12px; font-weight:800;">
-                    🔍 Buscar
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 
     <div class="page-section">
         <div class="table-wrap">
-            <table class="table mb-0">
+            <table class="table mb-0" id="tablaVentas">
                 <thead>
                     <tr>
-                        <th style="width:90px;">ID</th>
                         <th>Cliente</th>
                         <th style="width:180px;">Fecha</th>
                         <th style="width:120px;">Total</th>
@@ -57,7 +58,6 @@
                         var tieneSaldo = v.Saldo > 0;
 
                         <tr>
-                            <td>@v.IdVenta</td>
                             <td>@v.Cliente</td>
                             <td>@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
                             <td>@v.Total</td>
@@ -92,7 +92,8 @@
                                         <form method="post" action="@Url.Action("Cancelar","Ventas")" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@v.IdVenta" />
-                                            <button type="submit" class="btn-soft btn-soft-danger"
+                                            <button type="submit"
+                                                    class="btn-soft btn-soft-danger"
                                                     onclick="return confirm('¿Cancelar la venta #@v.IdVenta? Esto revierte inventario.')">
                                                 ✖ Cancelar
                                             </button>
@@ -102,6 +103,7 @@
                                     {
                                         <span class="text-muted">Sin acciones</span>
                                     }
+
                                 </div>
                             </td>
                         </tr>
@@ -113,7 +115,6 @@
 
 </div>
 
-<!-- MODAL PAGO -->
 <div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -132,8 +133,13 @@
 
                     <div class="mb-2">
                         <label class="form-label" style="font-weight:700;">Monto</label>
-                        <input class="form-control" type="number" step="0.01" min="0.01"
-                               name="Monto" id="pago_Monto" required />
+                        <input class="form-control"
+                               type="number"
+                               step="0.01"
+                               min="0.01"
+                               name="Monto"
+                               id="pago_Monto"
+                               required />
                         <div class="text-muted" style="font-size:12px; margin-top:6px;">
                             Saldo pendiente: <b id="pago_SaldoTxt"></b>
                         </div>
@@ -172,7 +178,26 @@
         function cargarPago(idVenta, saldo) {
             document.getElementById("pago_IdVenta").value = idVenta;
             document.getElementById("pago_SaldoTxt").innerText = saldo;
-            document.getElementById("pago_Monto").value = saldo; // por default paga el saldo completo
+            document.getElementById("pago_Monto").value = saldo;
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.getElementById("busquedaVentas");
+            const filas = document.querySelectorAll("#tablaVentas tbody tr");
+
+            input.addEventListener("keyup", function () {
+                const filtro = input.value.toLowerCase().trim();
+
+                filas.forEach(function (fila) {
+                    const textoFila = fila.innerText.toLowerCase();
+
+                    if (textoFila.includes(filtro)) {
+                        fila.style.display = "";
+                    } else {
+                        fila.style.display = "none";
+                    }
+                });
+            });
+        });
     </script>
 }

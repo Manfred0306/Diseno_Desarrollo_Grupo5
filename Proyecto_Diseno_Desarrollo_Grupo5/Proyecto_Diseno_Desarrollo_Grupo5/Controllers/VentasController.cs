@@ -12,7 +12,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
-        // HISTORIAL
         public ActionResult Index(string q = null)
         {
             q = (q ?? "").Trim();
@@ -51,18 +50,15 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         {
             var vm = new VentaCrearVM
             {
-                Clientes = db.CLIENTES
-                    .Where(c => c.ID_ESTADO == 1)
-                    .OrderBy(c => c.NOMBRE)
-                    .ToList()
-                    .Select(c => new SelectListItem { Value = c.ID_CLIENTE.ToString(), Text = c.NOMBRE })
-                    .ToList(),
-
                 Productos = db.PRODUCTOS
                     .Where(p => p.ID_ESTADO == 1)
                     .OrderBy(p => p.NOMBRE)
                     .ToList()
-                    .Select(p => new SelectListItem { Value = p.ID_PRODUCTO.ToString(), Text = p.NOMBRE })
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.ID_PRODUCTO.ToString(),
+                        Text = p.NOMBRE
+                    })
                     .ToList()
             };
 
@@ -118,7 +114,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                             SUBTOTAL = subtotal
                         });
 
-                        // 🔥 Descontar inventario real (materiales) usando receta PRODUCTO_MATERIAL
                         var receta = db.PRODUCTO_MATERIAL
                             .Where(pm => pm.ID_PRODUCTO == idProd)
                             .ToList();
@@ -128,7 +123,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                             var material = db.MATERIALES.Find(r.ID_MATERIAL);
                             if (material == null) continue;
 
-                            // cantidad a descontar = cant vendida * cantidad usada por producto
                             var descuento = cant * r.CANTIDAD_USADA;
 
                             if (material.STOCK < descuento)
@@ -154,13 +148,37 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             }
         }
 
-        // REGISTRAR PAGO (deshabilitado temporalmente - tabla PAGOS pendiente de configurar)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Pagar(PagoCrearVM vm)
         {
             TempData["ERR"] = "Módulo de pagos no disponible aún.";
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public JsonResult BuscarClientes(string term)
+        {
+            term = (term ?? "").Trim().ToLower();
+
+            var clientes = db.CLIENTES
+                .Where(c =>
+                    c.NOMBRE.ToLower().Contains(term) ||
+                    (c.TELEFONO ?? "").ToLower().Contains(term) ||
+                    (c.CORREO ?? "").ToLower().Contains(term)
+                )
+                .OrderBy(c => c.NOMBRE)
+                .Take(10)
+                .Select(c => new
+                {
+                    id = c.ID_CLIENTE,
+                    nombre = c.NOMBRE,
+                    telefono = c.TELEFONO,
+                    correo = c.CORREO
+                })
+                .ToList();
+
+            return Json(clientes, JsonRequestBehavior.AllowGet);
         }
 
         // CANCELAR VENTA + REVERTIR INVENTARIO

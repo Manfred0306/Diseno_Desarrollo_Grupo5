@@ -188,3 +188,9 @@
         background: rgba(220,53,69,.12);
         transform: translateY(-2px);
     }
+/* CONTENEDOR CENTRADO COMO VENTAS */
+.clientes-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 18px;
+}

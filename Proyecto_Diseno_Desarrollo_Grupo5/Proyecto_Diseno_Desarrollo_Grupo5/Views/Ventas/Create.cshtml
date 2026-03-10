@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="~/StaticFiles/css/Ventas.css" />
 }
 
-<div class="page-wrap">
+<div class="ventas-wrap">
 
     <div class="d-flex justify-content-between align-items-start mb-3">
         <div>
@@ -23,85 +23,93 @@
         @Html.AntiForgeryToken()
 
         <div class="page-section mb-3">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label" style="font-weight:800;">Cliente</label>
-                    @Html.DropDownList("IdCliente", Model.Clientes, "Seleccione un cliente", new { @class = "form-select", required = "required" })
-                </div>
+            <div class="col-md-6 position-relative">
+                <label class="form-label" style="font-weight:800;">Cliente</label>
 
-                <div class="col-md-6">
-                    <div class="total-box">
-                        <span>Total</span>
-                        <b id="totalTxt">0.00</b>
-                    </div>
+                <input type="text"
+                       id="clienteBusqueda"
+                       class="form-control"
+                       placeholder="Escriba nombre, teléfono o correo..."
+                       autocomplete="off" />
+
+                <input type="hidden" name="IdCliente" id="IdCliente" required />
+
+                <div id="clienteResultados" class="cliente-resultados d-none"></div>
+
+                <small id="clienteSeleccionadoTxt" class="text-muted d-block mt-2">
+                    No hay cliente seleccionado.
+                </small>
+            </div>
+
+            <div class="col-md-6">
+                <div class="total-box">
+                    <span>Total</span>
+                    <b id="totalTxt">0.00</b>
                 </div>
             </div>
         </div>
 
-        <!-- Agregar producto -->
-        <div class="page-section mb-3">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-5">
-                    <label class="form-label" style="font-weight:800;">Producto</label>
-                    @Html.DropDownList("productoSelect", Model.Productos, "Seleccione un producto", new { @class = "form-select" })
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label" style="font-weight:800;">Cantidad</label>
-                    <input class="form-control" type="number" step="0.01" min="0.01" id="cantInput" />
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label" style="font-weight:800;">Precio Unitario</label>
-                    <input class="form-control" type="number" step="0.01" min="0" id="precioInput" />
-                </div>
-
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-dark w-100"
-                            style="height:44px; border-radius:12px; font-weight:900;"
-                            onclick="agregarItem()">
-                        + Agregar
-                    </button>
-                </div>
+    <div class="page-section mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" style="font-weight:800;">Producto</label>
+                @Html.DropDownList("productoSelect", Model.Productos, "Seleccione un producto", new { @class = "form-select" })
             </div>
 
-            <div class="text-muted mt-2" style="font-size:12px;">
-                El inventario de materiales se descuenta automáticamente según la receta del producto (PRODUCTO_MATERIAL).
-            </div>
-        </div>
-
-        <!-- Tabla detalle -->
-        <div class="page-section">
-            <div class="table-wrap">
-                <table class="table mb-0" id="tablaDetalle">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th style="width:120px;">Cantidad</th>
-                            <th style="width:150px;">Precio</th>
-                            <th style="width:150px;">Subtotal</th>
-                            <th style="width:120px; text-align:right;">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+            <div class="col-md-2">
+                <label class="form-label" style="font-weight:800;">Cantidad</label>
+                <input class="form-control" type="number" step="0.01" min="0.01" id="cantInput" />
             </div>
 
-            <div class="d-flex justify-content-end gap-2 mt-3">
-                <button type="submit" class="btn btn-primary"
-                        style="border-radius:12px; font-weight:900;">
-                    Guardar venta
+            <div class="col-md-3">
+                <label class="form-label" style="font-weight:800;">Precio Unitario</label>
+                <input class="form-control" type="number" step="0.01" min="0" id="precioInput" />
+            </div>
+
+            <div class="col-md-2">
+                <button type="button" class="btn btn-dark w-100"
+                        style="height:44px; border-radius:12px; font-weight:900;"
+                        onclick="agregarItem()">
+                    + Agregar
                 </button>
             </div>
         </div>
 
-        <!-- Aquí se inyectan inputs hidden: IdProducto[], Cantidad[], PrecioUnitario[] -->
-        <div id="hiddenContainer"></div>
-    }
-</div>
+        <div class="text-muted mt-2" style="font-size:12px;">
+            El inventario de materiales se descuenta automáticamente según la receta del producto (PRODUCTO_MATERIAL).
+        </div>
+    </div>
 
-@section scripts{
-    <script>
+    <div class="page-section">
+        <div class="table-wrap">
+            <table class="table mb-0" id="tablaDetalle">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="width:120px;">Cantidad</th>
+                        <th style="width:150px;">Precio</th>
+                        <th style="width:150px;">Subtotal</th>
+                        <th style="width:120px; text-align:right;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-3">
+            <button type="submit" class="btn btn-primary"
+                    style="border-radius:12px; font-weight:900;">
+                Guardar venta
+            </button>
+        </div>
+    </div>
+
+    <div id="hiddenContainer"></div>
+}
+    </div>
+
+    @section scripts{
+        <script>
         function money(n) {
             return (Math.round(n * 100) / 100).toFixed(2);
         }
@@ -128,7 +136,6 @@
 
             const subtotal = cant * precio;
 
-            // fila
             const tbody = document.querySelector("#tablaDetalle tbody");
             const tr = document.createElement("tr");
             tr.setAttribute("data-subtotal", subtotal);
@@ -144,7 +151,6 @@
             `;
             tbody.appendChild(tr);
 
-            // hidden inputs (arrays)
             const hidden = document.getElementById("hiddenContainer");
             hidden.insertAdjacentHTML("beforeend", `
                 <input type="hidden" name="IdProducto" value="${idProd}" />
@@ -152,7 +158,6 @@
                 <input type="hidden" name="PrecioUnitario" value="${precio}" />
             `);
 
-            // limpiar
             document.getElementById("cantInput").value = "";
             document.getElementById("precioInput").value = "";
             sel.selectedIndex = 0;
@@ -164,10 +169,8 @@
             const tr = btn.closest("tr");
             const index = Array.from(tr.parentNode.children).indexOf(tr);
 
-            // quitar fila
             tr.remove();
 
-            // quitar inputs hidden correspondientes (3 por item)
             const hidden = document.querySelectorAll("#hiddenContainer input");
             const base = index * 3;
             if (hidden[base]) hidden[base].remove();
@@ -176,5 +179,72 @@
 
             recalcularTotal();
         }
-    </script>
-}
+
+        // ===== BUSCADOR PROFESIONAL DE CLIENTES =====
+        const clienteBusqueda = document.getElementById("clienteBusqueda");
+        const clienteResultados = document.getElementById("clienteResultados");
+        const idClienteInput = document.getElementById("IdCliente");
+        const clienteSeleccionadoTxt = document.getElementById("clienteSeleccionadoTxt");
+
+        let timeoutCliente = null;
+
+        clienteBusqueda.addEventListener("keyup", function () {
+            const valor = this.value.trim();
+
+            idClienteInput.value = "";
+            clienteSeleccionadoTxt.innerText = "No hay cliente seleccionado.";
+
+            clearTimeout(timeoutCliente);
+
+            if (valor.length < 2) {
+                clienteResultados.innerHTML = "";
+                clienteResultados.classList.add("d-none");
+                return;
+            }
+
+            timeoutCliente = setTimeout(function () {
+                fetch('@Url.Action("BuscarClientes", "Ventas")?term=' + encodeURIComponent(valor))
+                    .then(r => r.json())
+                    .then(data => {
+                        clienteResultados.innerHTML = "";
+
+                        if (!data || data.length === 0) {
+                            clienteResultados.innerHTML = `
+                                <div class="cliente-item">
+                                    <b>Sin resultados</b>
+                                    <span>No se encontraron clientes.</span>
+                                </div>`;
+                            clienteResultados.classList.remove("d-none");
+                            return;
+                        }
+
+                        data.forEach(c => {
+                            const item = document.createElement("div");
+                            item.className = "cliente-item";
+                            item.innerHTML = `
+                                <b>${c.nombre}</b>
+                                <span>${c.telefono || ""} ${c.correo ? "· " + c.correo : ""}</span>
+                            `;
+
+                            item.addEventListener("click", function () {
+                                clienteBusqueda.value = c.nombre;
+                                idClienteInput.value = c.id;
+                                clienteSeleccionadoTxt.innerText = "Cliente seleccionado: " + c.nombre;
+                                clienteResultados.classList.add("d-none");
+                            });
+
+                            clienteResultados.appendChild(item);
+                        });
+
+                        clienteResultados.classList.remove("d-none");
+                    });
+            }, 250);
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!clienteBusqueda.contains(e.target) && !clienteResultados.contains(e.target)) {
+                clienteResultados.classList.add("d-none");
+            }
+        });
+        </script>
+    }
