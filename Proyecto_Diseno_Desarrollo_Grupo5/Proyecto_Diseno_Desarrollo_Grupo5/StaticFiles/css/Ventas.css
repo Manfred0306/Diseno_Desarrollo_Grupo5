@@ -6,14 +6,12 @@
     --muted: #6b7280;
 }
 
-/* CONTENEDOR CENTRADO */
 .ventas-wrap {
     max-width: 1100px;
     margin: 0 auto;
     padding: 28px 18px;
 }
 
-/* TITULOS */
 
 .page-title {
     font-size: 32px;
@@ -27,7 +25,6 @@
     margin-top: 4px;
 }
 
-/* SECCIONES */
 
 .page-section {
     background: rgba(24, 30, 48, .78);
@@ -38,7 +35,6 @@
     backdrop-filter: blur(6px);
 }
 
-/* BUSCADOR */
 
 .form-control,
 .form-select {
@@ -61,7 +57,6 @@
         box-shadow: 0 0 0 .2rem rgba(16,185,129,.10);
     }
 
-/* TABLA */
 
 .table-wrap {
     overflow-x: auto;
@@ -86,7 +81,6 @@
         color: rgba(241,245,249,.92);
     }
 
-/* ESTADOS */
 
 .badge-pill {
     padding: 6px 10px;
@@ -106,7 +100,6 @@
     color: #fff;
 }
 
-/* BOTONES */
 
 .btn-soft {
     border-radius: 12px;
@@ -140,7 +133,6 @@
         transform: translateY(-2px);
     }
 
-/* ACCIONES */
 
 .actions {
     display: flex;
@@ -149,7 +141,6 @@
     flex-wrap: wrap;
 }
 
-/* MODAL */
 
 .modal-content {
     border-radius: 16px;
@@ -178,7 +169,6 @@ label.form-label {
 .text-muted {
     color: rgba(241,245,249,.55) !important;
 }
-/* TEXTO DEL LOGO AlphaStock */
 .lp-brand__text strong {
     color: #ffffff !important;
 }
@@ -187,18 +177,15 @@ label.form-label {
     color: rgba(255,255,255,.75) !important;
 }
 
-/* MENU */
 .lp-nav a,
 .lp-dd__btn {
     color: #ffffff !important;
 }
 
-/* USUARIO A LA DERECHA */
 .lp-user__name {
     color: #ffffff !important;
 }
 
-/* ICONO FLECHA USUARIO */
 .lp-user__btn {
     color: #ffffff !important;
 }
@@ -245,7 +232,6 @@ label.form-label {
         margin-top: 2px;
     }
 
-/* ===== CREATE VENTAS ===== */
 
 .total-box span {
     color: #e5e7eb;
@@ -271,3 +257,21 @@ label.form-label {
     color: #ffffff;
     font-weight: 900;
 }
+
+/* Select de productos */
+.form-select {
+    background-color: rgba(255,255,255,.06);
+    color: #f8fafc;
+    border: 1px solid rgba(255,255,255,.10);
+}
+
+    /* Opciones internas del select */
+    .form-select option {
+        background: #1b2236;
+        color: #f8fafc;
+    }
+
+        /* Placeholder del primer option */
+        .form-select option[value=""] {
+            color: #cbd5e1;
+        }
