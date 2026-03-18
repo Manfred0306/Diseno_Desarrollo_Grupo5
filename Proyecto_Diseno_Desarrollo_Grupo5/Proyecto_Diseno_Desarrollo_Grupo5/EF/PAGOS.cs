@@ -21,6 +21,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.EF
         public string REFERENCIA { get; set; }
         public System.DateTime FECHA { get; set; }
         public Nullable<int> ID_USUARIO { get; set; }
+        public string COMPROBANTE_IMG { get; set; }
     
         public virtual USUARIOS USUARIOS { get; set; }
         public virtual VENTAS VENTAS { get; set; }

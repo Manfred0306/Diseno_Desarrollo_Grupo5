@@ -5,6 +5,9 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.UI;
+using System.IO;
+using System.Web;
+using System.Globalization;
 
 namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 {
@@ -26,7 +29,18 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                     ventas = ventas.Where(v => v.CLIENTES.NOMBRE.Contains(q));
             }
 
+            var pagosPorVenta = db.PAGOS
+                .GroupBy(p => p.ID_VENTA)
+                .Select(g => new
+                {
+                    IdVenta = g.Key,
+                    Pagado = g.Sum(x => x.MONTO)
+                });
+
             var lista = (from v in ventas
+                         join p in pagosPorVenta
+                            on v.ID_VENTA equals p.IdVenta into pagosJoin
+                         from p in pagosJoin.DefaultIfEmpty()
                          orderby v.ID_VENTA descending
                          select new VentaFilaVM
                          {
@@ -34,8 +48,8 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                              Cliente = v.CLIENTES.NOMBRE,
                              Fecha = v.FECHA,
                              Total = v.TOTAL,
-                             Pagado = 0,
-                             Saldo = v.TOTAL,
+                             Pagado = (p == null ? 0 : p.Pagado),
+                             Saldo = v.TOTAL - (p == null ? 0 : p.Pagado),
                              IdEstado = v.ID_ESTADO,
                              Estado = v.ESTADO.NOMBRE
                          }).ToList();
@@ -159,9 +173,124 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Pagar(PagoCrearVM vm)
+        public ActionResult Pagar(PagoCrearVM vm, HttpPostedFileBase comprobanteSinpe)
         {
-            TempData["ERR"] = "Módulo de pagos no disponible aún.";
+            // Leer el monto crudo del form para evitar problemas de cultura
+            var montoRaw = (Request["Monto"] ?? "").Trim();
+
+            decimal montoParseado;
+
+            // Intentar con punto decimal
+            bool okMonto =
+                decimal.TryParse(montoRaw, NumberStyles.Any, CultureInfo.InvariantCulture, out montoParseado)
+                || decimal.TryParse(montoRaw, NumberStyles.Any, CultureInfo.CurrentCulture, out montoParseado);
+
+            if (vm == null)
+            {
+                TempData["ERR"] = "No se recibieron datos del pago.";
+                return RedirectToAction("Index");
+            }
+
+            if (vm.IdVenta <= 0)
+            {
+                TempData["ERR"] = "La venta no es válida.";
+                return RedirectToAction("Index");
+            }
+
+            if (!okMonto || montoParseado <= 0)
+            {
+                TempData["ERR"] = "El monto ingresado no es válido.";
+                return RedirectToAction("Index");
+            }
+
+            if (string.IsNullOrWhiteSpace(vm.Metodo))
+            {
+                TempData["ERR"] = "Debe seleccionar un método de pago.";
+                return RedirectToAction("Index");
+            }
+
+            var venta = db.VENTAS.Find(vm.IdVenta);
+            if (venta == null)
+            {
+                TempData["ERR"] = "La venta no existe.";
+                return RedirectToAction("Index");
+            }
+
+            if (venta.ID_ESTADO != 1)
+            {
+                TempData["ERR"] = "No se puede registrar pago a una venta cancelada.";
+                return RedirectToAction("Index");
+            }
+
+            decimal totalPagado = db.PAGOS
+                .Where(p => p.ID_VENTA == vm.IdVenta)
+                .Select(p => (decimal?)p.MONTO)
+                .Sum() ?? 0;
+
+            decimal saldoActual = venta.TOTAL - totalPagado;
+
+            if (saldoActual <= 0)
+            {
+                TempData["ERR"] = "Esta venta ya está completamente pagada.";
+                return RedirectToAction("Index");
+            }
+
+            if (montoParseado > saldoActual)
+            {
+                TempData["ERR"] = $"El monto ingresado supera el saldo pendiente. Saldo actual: {saldoActual}";
+                return RedirectToAction("Index");
+            }
+
+            string rutaImagen = null;
+            var metodo = (vm.Metodo ?? "").Trim();
+
+            if (metodo.Equals("Sinpe", StringComparison.OrdinalIgnoreCase))
+            {
+                if (comprobanteSinpe == null || comprobanteSinpe.ContentLength <= 0)
+                {
+                    TempData["ERR"] = "Debe adjuntar el comprobante de SINPE.";
+                    return RedirectToAction("Index");
+                }
+
+                var extension = Path.GetExtension(comprobanteSinpe.FileName)?.ToLower();
+                var extensionesValidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+                if (!extensionesValidas.Contains(extension))
+                {
+                    TempData["ERR"] = "El comprobante debe ser una imagen válida (.jpg, .jpeg, .png, .webp).";
+                    return RedirectToAction("Index");
+                }
+
+                var nombreArchivo = $"sinpe_{vm.IdVenta}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
+                var carpetaFisica = Server.MapPath("~/Uploads/Sinpe");
+
+                if (!Directory.Exists(carpetaFisica))
+                    Directory.CreateDirectory(carpetaFisica);
+
+                var rutaFisica = Path.Combine(carpetaFisica, nombreArchivo);
+                comprobanteSinpe.SaveAs(rutaFisica);
+
+                rutaImagen = "/Uploads/Sinpe/" + nombreArchivo;
+            }
+
+            int? idUsuario = null;
+            if (Session["IdUsuario"] != null)
+                idUsuario = Convert.ToInt32(Session["IdUsuario"]);
+
+            db.PAGOS.Add(new PAGOS
+            {
+                ID_VENTA = vm.IdVenta,
+                MONTO = montoParseado,
+                METODO = metodo,
+                REFERENCIA = (vm.Referencia ?? "").Trim(),
+                FECHA = DateTime.Now,
+                ID_USUARIO = idUsuario,
+                COMPROBANTE_IMG = rutaImagen
+            });
+
+            db.SaveChanges();
+
+            TempData["OK"] = "Pago registrado correctamente.";
             return RedirectToAction("Index");
         }
 

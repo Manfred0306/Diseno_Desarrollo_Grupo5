@@ -128,6 +128,7 @@
           <Property Name="REFERENCIA" Type="nvarchar" MaxLength="80" />
           <Property Name="FECHA" Type="datetime2" Precision="0" Nullable="false" />
           <Property Name="ID_USUARIO" Type="int" />
+          <Property Name="COMPROBANTE_IMG" Type="nvarchar" MaxLength="250" />
         </EntityType>
         <EntityType Name="PERMISOS">
           <Key>
@@ -1616,6 +1617,7 @@
           <Property Name="ID_USUARIO" Type="Int32" />
           <NavigationProperty Name="USUARIOS" Relationship="Model1.FK_PAGOS_USUARIO" FromRole="PAGOS" ToRole="USUARIOS" />
           <NavigationProperty Name="VENTAS" Relationship="Model1.FK_PAGOS_VENTA" FromRole="PAGOS" ToRole="VENTAS" />
+          <Property Name="COMPROBANTE_IMG" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_PAGOS_USUARIO">
           <End Type="Model1.USUARIOS" Role="USUARIOS" Multiplicity="0..1" />
@@ -1929,6 +1931,7 @@
           <EntitySetMapping Name="PAGOS">
             <EntityTypeMapping TypeName="Model1.PAGOS">
               <MappingFragment StoreEntitySet="PAGOS">
+                <ScalarProperty Name="COMPROBANTE_IMG" ColumnName="COMPROBANTE_IMG" />
                 <ScalarProperty Name="ID_USUARIO" ColumnName="ID_USUARIO" />
                 <ScalarProperty Name="FECHA" ColumnName="FECHA" />
                 <ScalarProperty Name="REFERENCIA" ColumnName="REFERENCIA" />

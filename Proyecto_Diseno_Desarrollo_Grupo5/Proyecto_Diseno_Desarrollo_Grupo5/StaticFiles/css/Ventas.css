@@ -146,6 +146,7 @@
     border-radius: 16px;
 }
 
+
 .modal-header {
     border-bottom: 1px solid var(--line);
 }
@@ -258,21 +259,80 @@ label.form-label {
     font-weight: 900;
 }
 
-/* Select de productos */
 .form-select {
     background-color: rgba(255,255,255,.06);
     color: #f8fafc;
     border: 1px solid rgba(255,255,255,.10);
 }
 
-    /* Opciones internas del select */
     .form-select option {
         background: #1b2236;
         color: #f8fafc;
     }
 
-        /* Placeholder del primer option */
         .form-select option[value=""] {
             color: #cbd5e1;
         }
 
+.modal-dialog {
+    max-width: 460px;
+}
+
+.modal-content {
+    background: rgba(24, 30, 48, .98) !important;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    color: #f8fafc;
+    overflow: hidden;
+}
+
+.modal-header,
+.modal-footer {
+    border-color: rgba(255,255,255,.10) !important;
+}
+
+.modal-body {
+    max-height: 65vh;
+    overflow-y: auto;
+}
+
+.modal-backdrop.show {
+    opacity: 0.6;
+}
+
+.btn-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s ease;
+}
+
+.btn-pagar {
+    border-color: rgba(16,185,129,.4);
+    color: #10b981;
+    background: rgba(16,185,129,.08);
+}
+
+    .btn-pagar:hover {
+        background: rgba(16,185,129,.18);
+        transform: translateY(-2px);
+        box-shadow: 0 0 10px rgba(16,185,129,.4);
+    }
+
+.btn-cancelar {
+    border-color: rgba(239,68,68,.4);
+    color: #ef4444;
+    background: rgba(239,68,68,.08);
+}
+
+    .btn-cancelar:hover {
+        background: rgba(239,68,68,.18);
+        transform: translateY(-2px);
+        box-shadow: 0 0 10px rgba(239,68,68,.4);
+    }

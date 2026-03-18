@@ -79,11 +79,12 @@
                                     @if (isActiva && tieneSaldo)
                                     {
                                         <button type="button"
-                                                class="btn-soft btn-soft-primary"
+                                                class="btn-icon btn-pagar"
+                                                title="Pagar"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#modalPago"
                                                 onclick="cargarPago('@v.IdVenta','@v.Saldo')">
-                                            💳 Pagar
+                                            💳
                                         </button>
                                     }
 
@@ -92,10 +93,12 @@
                                         <form method="post" action="@Url.Action("Cancelar","Ventas")" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@v.IdVenta" />
+
                                             <button type="submit"
-                                                    class="btn-soft btn-soft-danger"
-                                                    onclick="return confirm('¿Cancelar la venta #@v.IdVenta? Esto revierte inventario.')">
-                                                ✖ Cancelar
+                                                    class="btn-icon btn-cancelar"
+                                                    title="Cancelar venta"
+                                                    onclick="return confirm('¿Cancelar la venta #@v.IdVenta?')">
+                                                ❌
                                             </button>
                                         </form>
                                     }
@@ -116,7 +119,7 @@
 </div>
 
 <div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
 
             <div class="modal-header">
@@ -124,7 +127,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            @using (Html.BeginForm("Pagar", "Ventas", FormMethod.Post))
+            @using (Html.BeginForm("Pagar", "Ventas", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
                 @Html.AntiForgeryToken()
 
@@ -147,7 +150,7 @@
 
                     <div class="mb-2">
                         <label class="form-label" style="font-weight:700;">Método</label>
-                        <select class="form-select" name="Metodo" required>
+                        <select class="form-select" name="Metodo" id="pago_Metodo" required>
                             <option value="Efectivo">Efectivo</option>
                             <option value="Tarjeta">Tarjeta</option>
                             <option value="Transferencia">Transferencia</option>
@@ -155,9 +158,23 @@
                         </select>
                     </div>
 
+                    <div class="mb-2 d-none" id="bloqueComprobanteSinpe">
+                        <label class="form-label" style="font-weight:700;">Comprobante SINPE</label>
+                        <input class="form-control"
+                               type="file"
+                               name="comprobanteSinpe"
+                               id="comprobanteSinpe"
+                               accept="image/*" />
+                        <div class="text-muted" style="font-size:12px; margin-top:6px;">
+                            Adjunte una imagen del comprobante.
+                        </div>
+                    </div>
+
                     <div class="mb-2">
                         <label class="form-label" style="font-weight:700;">Referencia (opcional)</label>
-                        <input class="form-control" name="Referencia" placeholder="Ej: #Comprobante / Banco..." />
+                        <input class="form-control"
+                               name="Referencia"
+                               placeholder="Ej: #Comprobante / Banco..." />
                     </div>
                 </div>
 
@@ -173,31 +190,58 @@
     </div>
 </div>
 
-@section scripts{
-    <script>
-        function cargarPago(idVenta, saldo) {
-            document.getElementById("pago_IdVenta").value = idVenta;
-            document.getElementById("pago_SaldoTxt").innerText = saldo;
-            document.getElementById("pago_Monto").value = saldo;
-        }
+            @section scripts{
+                <script>
+                    function toggleComprobanteSinpe() {
+                        const metodo = document.getElementById("pago_Metodo").value;
+                        const bloque = document.getElementById("bloqueComprobanteSinpe");
+                        const input = document.getElementById("comprobanteSinpe");
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const input = document.getElementById("busquedaVentas");
-            const filas = document.querySelectorAll("#tablaVentas tbody tr");
-
-            input.addEventListener("keyup", function () {
-                const filtro = input.value.toLowerCase().trim();
-
-                filas.forEach(function (fila) {
-                    const textoFila = fila.innerText.toLowerCase();
-
-                    if (textoFila.includes(filtro)) {
-                        fila.style.display = "";
-                    } else {
-                        fila.style.display = "none";
+                        if (metodo === "Sinpe") {
+                            bloque.classList.remove("d-none");
+                            input.required = true;
+                        } else {
+                            bloque.classList.add("d-none");
+                            input.required = false;
+                            input.value = "";
+                        }
                     }
-                });
-            });
-        });
-    </script>
-}
+
+                    function cargarPago(idVenta, saldo) {
+                        document.getElementById("pago_IdVenta").value = idVenta;
+                        document.getElementById("pago_SaldoTxt").innerText = saldo;
+                        document.getElementById("pago_Monto").value = saldo;
+
+                        const metodo = document.getElementById("pago_Metodo");
+                        if (metodo) {
+                            metodo.value = "Efectivo";
+                            toggleComprobanteSinpe();
+                        }
+                    }
+
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const input = document.getElementById("busquedaVentas");
+                        const filas = document.querySelectorAll("#tablaVentas tbody tr");
+
+                        input.addEventListener("keyup", function () {
+                            const filtro = input.value.toLowerCase().trim();
+
+                            filas.forEach(function (fila) {
+                                const textoFila = fila.innerText.toLowerCase();
+
+                                if (textoFila.includes(filtro)) {
+                                    fila.style.display = "";
+                                } else {
+                                    fila.style.display = "none";
+                                }
+                            });
+                        });
+
+                        const metodo = document.getElementById("pago_Metodo");
+                        if (metodo) {
+                            metodo.addEventListener("change", toggleComprobanteSinpe);
+                            toggleComprobanteSinpe();
+                        }
+                    });
+                </script>
+            }
