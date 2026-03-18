@@ -29,4 +29,11 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Models
         public int ID_ESTADO { get; set; }
         public string ESTADO { get; set; }
     }
+
+    public class ProductoVentaVM
+    {
+        public int IdProducto { get; set; }
+        public string Nombre { get; set; }
+        public decimal PrecioVenta { get; set; }
+    }
 }

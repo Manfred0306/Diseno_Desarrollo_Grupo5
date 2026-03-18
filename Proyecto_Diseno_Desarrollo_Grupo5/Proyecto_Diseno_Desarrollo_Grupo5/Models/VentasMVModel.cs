@@ -23,6 +23,8 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Models
         public List<SelectListItem> Productos { get; set; } = new List<SelectListItem>();
 
         public List<VentaCrearItemVM> Items { get; set; } = new List<VentaCrearItemVM>();
+
+        public List<ProductoVentaVM> ProductosConPrecio { get; set; } = new List<ProductoVentaVM>();
     }
 
     public class VentaFilaVM
@@ -49,4 +51,5 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Models
 
         public string Referencia { get; set; }
     }
+
 }

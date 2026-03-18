@@ -44,20 +44,30 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return View(lista);
         }
 
-        // FORM CREAR
         [HttpGet]
         public ActionResult Create()
         {
+            var productosActivos = db.PRODUCTOS
+                .Where(p => p.ID_ESTADO == 1)
+                .OrderBy(p => p.NOMBRE)
+                .ToList();
+
             var vm = new VentaCrearVM
             {
-                Productos = db.PRODUCTOS
-                    .Where(p => p.ID_ESTADO == 1)
-                    .OrderBy(p => p.NOMBRE)
-                    .ToList()
+                Productos = productosActivos
                     .Select(p => new SelectListItem
                     {
                         Value = p.ID_PRODUCTO.ToString(),
                         Text = p.NOMBRE
+                    })
+                    .ToList(),
+
+                ProductosConPrecio = productosActivos
+                    .Select(p => new ProductoVentaVM
+                    {
+                        IdProducto = p.ID_PRODUCTO,
+                        Nombre = p.NOMBRE,
+                        PrecioVenta = p.PRECIO_VENTA
                     })
                     .ToList()
             };
@@ -65,7 +75,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return View(vm);
         }
 
-        // GUARDAR VENTA + DESCONTAR INVENTARIO (MATERIALES)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(int IdCliente, int[] IdProducto, decimal[] Cantidad, decimal[] PrecioUnitario)
@@ -181,7 +190,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             return Json(clientes, JsonRequestBehavior.AllowGet);
         }
 
-        // CANCELAR VENTA + REVERTIR INVENTARIO
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Cancelar(int id)
@@ -206,7 +214,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                         return RedirectToAction("Index");
                     }
 
-                    // 🔥 Revertir inventario
                     foreach (var det in venta.DETALLES_VENTAS.ToList())
                     {
                         var receta = db.PRODUCTO_MATERIAL
@@ -223,7 +230,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                         }
                     }
 
-                    // Marcar venta como inactiva (cancelada)
                     venta.ID_ESTADO = 2;
                     db.SaveChanges();
 

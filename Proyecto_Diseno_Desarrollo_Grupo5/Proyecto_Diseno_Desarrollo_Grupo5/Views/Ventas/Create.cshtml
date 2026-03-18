@@ -49,67 +49,85 @@
             </div>
         </div>
 
-    <div class="page-section mb-3">
-        <div class="row g-2 align-items-end">
-            <div class="col-md-5">
-                <label class="form-label" style="font-weight:800;">Producto</label>
-                @Html.DropDownList("productoSelect", Model.Productos, "Seleccione un producto", new { @class = "form-select" })
+        <div class="page-section mb-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label" style="font-weight:800;">Producto</label>
+                    @Html.DropDownList("productoSelect", Model.Productos, "Seleccione un producto", new { @class = "form-select" })
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" style="font-weight:800;">Cantidad</label>
+                    <input class="form-control" type="number" step="0.01" min="0.01" id="cantInput" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label" style="font-weight:800;">Precio Unitario (₡)</label>
+                    <input class="form-control" type="number" step="0.01" min="0" id="precioInput" />
+                </div>
+
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-dark w-100"
+                            style="height:44px; border-radius:12px; font-weight:900;"
+                            onclick="agregarItem()">
+                        + Agregar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-section">
+            <div class="table-wrap">
+                <table class="table mb-0" id="tablaDetalle">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th style="width:120px;">Cantidad</th>
+                            <th style="width:150px;">Precio</th>
+                            <th style="width:150px;">Subtotal</th>
+                            <th style="width:120px; text-align:right;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
 
-            <div class="col-md-2">
-                <label class="form-label" style="font-weight:800;">Cantidad</label>
-                <input class="form-control" type="number" step="0.01" min="0.01" id="cantInput" />
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label" style="font-weight:800;">Precio Unitario</label>
-                <input class="form-control" type="number" step="0.01" min="0" id="precioInput" />
-            </div>
-
-            <div class="col-md-2">
-                <button type="button" class="btn btn-dark w-100"
-                        style="height:44px; border-radius:12px; font-weight:900;"
-                        onclick="agregarItem()">
-                    + Agregar
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="submit" class="btn btn-primary"
+                        style="border-radius:12px; font-weight:900;">
+                    Guardar venta
                 </button>
             </div>
         </div>
 
-        <div class="text-muted mt-2" style="font-size:12px;">
-            El inventario de materiales se descuenta automáticamente según la receta del producto (PRODUCTO_MATERIAL).
-        </div>
-    </div>
+        <div id="hiddenContainer"></div>
+    }
+</div>
 
-    <div class="page-section">
-        <div class="table-wrap">
-            <table class="table mb-0" id="tablaDetalle">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th style="width:120px;">Cantidad</th>
-                        <th style="width:150px;">Precio</th>
-                        <th style="width:150px;">Subtotal</th>
-                        <th style="width:120px; text-align:right;">Acción</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+@section scripts{
+    <script>
+        const productosPrecio = {
+        @for (int i = 0; i < Model.ProductosConPrecio.Count; i++)
+        {
+            var p = Model.ProductosConPrecio[i];
+        <text>
+            "@p.IdProducto": @p.PrecioVenta.ToString(System.Globalization.CultureInfo.InvariantCulture)@(i < Model.ProductosConPrecio.Count - 1 ? "," : "")
+        </text>
+        }
+        };
 
-        <div class="d-flex justify-content-end gap-2 mt-3">
-            <button type="submit" class="btn btn-primary"
-                    style="border-radius:12px; font-weight:900;">
-                Guardar venta
-            </button>
-        </div>
-    </div>
+        document.getElementsByName("productoSelect")[0].addEventListener("change", function () {
+            const idProd = this.value;
+            const precioInput = document.getElementById("precioInput");
 
-    <div id="hiddenContainer"></div>
-}
-    </div>
+            if (idProd && productosPrecio[idProd] !== undefined) {
+                precioInput.value = productosPrecio[idProd];
+            } else {
+                precioInput.value = "";
+            }
+        });
 
-    @section scripts{
-        <script>
+
         function money(n) {
             return (Math.round(n * 100) / 100).toFixed(2);
         }
@@ -246,5 +264,5 @@
                 clienteResultados.classList.add("d-none");
             }
         });
-        </script>
-    }
+    </script>
+}
