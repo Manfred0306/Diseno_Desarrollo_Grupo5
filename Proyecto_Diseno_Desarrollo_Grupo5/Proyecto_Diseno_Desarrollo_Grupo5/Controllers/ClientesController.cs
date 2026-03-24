@@ -10,7 +10,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
-        public ActionResult Index(string q = null, string sortOrder = null)
+        public ActionResult Index(string q = null, string sortOrder = null, int page = 1, int pageSize = 10)
         {
             ViewBag.NameSortParm = (sortOrder == "name_asc") ? "name_desc" : "name_asc";
 
@@ -39,10 +39,20 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                     break;
             }
 
+            // Count total items before paging
+            var totalItems = clientesQuery.Count();
+
+            // Apply paging
+            var skip = (Math.Max(page, 1) - 1) * pageSize;
+            var clientesPaged = clientesQuery.Skip(skip).Take(pageSize).ToList();
+
             var vm = new ClienteCrudVM
             {
                 Q = q,
-                Clientes = clientesQuery.Select(c => new ClienteFilaVM
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                Clientes = clientesPaged.Select(c => new ClienteFilaVM
                 {
                     ID_CLIENTE = c.ID_CLIENTE,
                     NOMBRE = c.NOMBRE,
@@ -117,25 +127,25 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             db.SaveChanges();
 
             TempData["OK"] = "Cliente actualizado. Los cambios se muestran en la lista.";
-            return RedirectToAction("Index", new { q = vm.Q });
+            return RedirectToAction("Index", new { q = vm.Q, page = vm.Page });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ToggleEstado(int id, string q = null, string sortOrder = null)
+        public ActionResult ToggleEstado(int id, string q = null, string sortOrder = null, int page = 1)
         {
             var c = db.CLIENTES.Find(id);
             if (c == null)
             {
                 TempData["ERR"] = "Cliente no encontrado.";
-                return RedirectToAction("Index", new { q, sortOrder });
+                return RedirectToAction("Index", new { q, sortOrder, page });
             }
 
             c.ID_ESTADO = (c.ID_ESTADO == 1) ? 2 : 1;
             db.SaveChanges();
 
             TempData["OK"] = "Estado del cliente actualizado.";
-            return RedirectToAction("Index", new { q, sortOrder });
+            return RedirectToAction("Index", new { q, sortOrder, page });
         }
     }
 }

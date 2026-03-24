@@ -49,6 +49,7 @@
                         </button>
                     </div>
                 </div>
+                <input type="hidden" name="page" value="@Model.Page" />
             }
         </div>
 
@@ -61,7 +62,7 @@
                 <tr>
                     <th>
                         <a class="sort-link"
-                           href="@Url.Action("Index", new { q = Model.Q, sortOrder = ViewBag.NameSortParm })">
+                           href="@Url.Action("Index", new { q = Model.Q, sortOrder = ViewBag.NameSortParm, page = Model.Page })">
                             Cliente
                             <span class="sort-ico">
                                 @(Request["sortOrder"] == "name_desc" ? "⬇" : "⬆")
@@ -115,6 +116,7 @@
                                 <input type="hidden" name="id" value="@c.ID_CLIENTE" />
                                 <input type="hidden" name="q" value="@Model.Q" />
                                 <input type="hidden" name="sortOrder" value="@Request["sortOrder"]" />
+                                <input type="hidden" name="page" value="@Model.Page" />
 
                                 var esActivo = (c.ID_ESTADO == 1);
 
@@ -130,6 +132,33 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Paginación" class="mt-3">
+        <ul class="pagination">
+            @{
+                var current = Model.Page;
+                var total = Model.TotalPages;
+                int start = Math.Max(1, current - 2);
+                int end = Math.Min(total, current + 2);
+            }
+
+            <li class="page-item @(current == 1 ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, sortOrder = Request["sortOrder"], page = current - 1 })">Anterior</a>
+            </li>
+
+            @for (int i = start; i <= end; i++)
+            {
+                <li class="page-item @(i == current ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, sortOrder = Request["sortOrder"], page = i })">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(current >= total ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, sortOrder = Request["sortOrder"], page = current + 1 })">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
 
     <div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
@@ -189,6 +218,7 @@
                     <div class="modal-body">
                         <input type="hidden" name="ID_CLIENTE" id="edit_ID_CLIENTE" />
                         <input type="hidden" name="Q" value="@Model.Q" />
+                        <input type="hidden" name="Page" value="@Model.Page" />
 
                         <div class="mb-2">
                             <label class="form-label">Nombre</label>

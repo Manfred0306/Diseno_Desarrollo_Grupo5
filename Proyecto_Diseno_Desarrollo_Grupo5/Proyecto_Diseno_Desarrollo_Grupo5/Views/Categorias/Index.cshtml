@@ -52,7 +52,6 @@
                     <h2>Registro y mantenimiento</h2>
                     <span class="muted">Click en una fila para cargar datos y editar.</span>
                 </div>
-                <span class="p-chip">CRUD</span>
             </div>
 
             <div class="p-search">
@@ -64,6 +63,7 @@
                 @Html.AntiForgeryToken()
 
                 <input type="hidden" id="ID_CATEGORIA" name="ID_CATEGORIA" value="0" />
+                <input type="hidden" name="Page" value="@Model.Page" />
 
                 <div class="p-form" style="grid-template-columns: 1.2fr 2fr 1fr;">
                     <div class="p-field">
@@ -101,7 +101,7 @@
                     <h2>Lista general</h2>
                     <span class="muted">Se actualiza cuando guardás, editás o desactivás.</span>
                 </div>
-                <span class="p-chip">@Model.Categorias.Count registros</span>
+                <span class="p-chip">@Model.TotalItems registros</span>
             </div>
 
             <div class="p-tableWrap">
@@ -130,6 +130,33 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            @{
+                var current = Model.Page <= 0 ? 1 : Model.Page;
+                var total = Model.TotalPages <= 0 ? 1 : Model.TotalPages;
+                int start = System.Math.Max(1, current - 2);
+                int end = System.Math.Min(total, current + 2);
+            }
+
+            <nav aria-label="Paginación" class="mt-3">
+                <ul class="pagination">
+                    <li class="page-item @(current == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = current - 1 })">Anterior</a>
+                    </li>
+
+                    @for (int i = start; i <= end; i++)
+                    {
+                        <li class="page-item @(i == current ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(current >= total ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = current + 1 })">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
 
             @using (Html.BeginForm("Deactivate", "Categorias", FormMethod.Post, new { id = "frmDeactivate" }))
             {

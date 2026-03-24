@@ -220,6 +220,9 @@
     <Compile Include="EF\SP_USUARIOS_LISTAR_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="EF\SP_USUARIO_PERFIL_OBTENER1_Result.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="EF\SP_USUARIO_PERFIL_OBTENER_Result.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

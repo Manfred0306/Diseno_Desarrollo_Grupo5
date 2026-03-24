@@ -18,7 +18,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         // ============================================
         // LISTAR (SP_USUARIOS_LISTAR)
         // ============================================
-        public ActionResult Index(string q = "", int rol = 0, int estado = 0)
+        public ActionResult Index(string q = "", int rol = 0, int estado = 0, int page = 1, int pageSize = 10)
         {
             var lista = db.Database.SqlQuery<UsuariosModel>(
                 "EXEC dbo.SP_USUARIOS_LISTAR @Q, @ID_ROL, @ID_ESTADO",
@@ -27,12 +27,20 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                 new SqlParameter("@ID_ESTADO", estado)
             ).ToList();
 
+            var total = lista.Count;
+            var skip = (Math.Max(page, 1) - 1) * pageSize;
+            var paged = lista.Skip(skip).Take(pageSize).ToList();
+
             ViewBag.Roles = db.ROLES.ToList();
             ViewBag.Q = q;
             ViewBag.Rol = rol;
             ViewBag.Estado = estado;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = total;
+            ViewBag.TotalPages = pageSize <= 0 ? 0 : (int)Math.Ceiling((double)total / pageSize);
 
-            return View(lista);
+            return View(paged);
         }
 
         // ============================================

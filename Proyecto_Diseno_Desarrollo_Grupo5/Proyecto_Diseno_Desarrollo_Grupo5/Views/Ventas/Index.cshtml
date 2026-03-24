@@ -1,4 +1,4 @@
-﻿﻿@model System.Collections.Generic.List<Proyecto_Diseno_Desarrollo_Grupo5.Models.VentaFilaVM>
+﻿@model System.Collections.Generic.List<Proyecto_Diseno_Desarrollo_Grupo5.Models.VentaFilaVM>
 
 @section styles{
     <link rel="stylesheet" href="~/StaticFiles/css/Ventas.css" />
@@ -114,6 +114,35 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        @{
+            var current = (int)(ViewBag.Page ?? 1);
+            var total = (int)(ViewBag.TotalPages ?? 1);
+            int start = Math.Max(1, current - 2);
+            int end = Math.Min(total, current + 2);
+            var q = (string)(ViewBag.Q ?? "");
+        }
+
+        <nav aria-label="Paginación" class="mt-3">
+            <ul class="pagination">
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = q, page = current - 1 })">Anterior</a>
+                </li>
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { q = q, page = i })">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(current >= total ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = q, page = current + 1 })">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+
     </div>
 
 </div>

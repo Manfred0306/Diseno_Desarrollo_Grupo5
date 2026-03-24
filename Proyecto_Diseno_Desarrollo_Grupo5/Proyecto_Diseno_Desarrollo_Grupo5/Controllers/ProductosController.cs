@@ -1,6 +1,7 @@
 ﻿using Proyecto_Diseno_Desarrollo_Grupo5.EF;
 using Proyecto_Diseno_Desarrollo_Grupo5.Filters;
 using Proyecto_Diseno_Desarrollo_Grupo5.Models;
+using System;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -11,12 +12,20 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
         [RolAuthorize(1,2)]
-        public ActionResult Index()
+        public ActionResult Index(int page = 1, int pageSize = 10)
         {
+            var query = db.PRODUCTOS.OrderBy(p => p.NOMBRE).AsQueryable();
+
+            var total = query.Count();
+            var skip = (Math.Max(page,1) - 1) * pageSize;
+            var items = query.Skip(skip).Take(pageSize).ToList();
+
             var vm = new ProductoCrudVM
             {
-                Productos = db.PRODUCTOS
-                    .OrderBy(p => p.NOMBRE)
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = total,
+                Productos = items
                     .Select(p => new ProductoFilaVM
                     {
                         ID_PRODUCTO = p.ID_PRODUCTO,
@@ -71,7 +80,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
             db.PRODUCTOS.Add(p);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = vm.Page });
         }
 
         [RolAuthorize(1)]
@@ -88,7 +97,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             p.ID_ESTADO = vm.ID_ESTADO;
 
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = vm.Page });
         }
 
         [RolAuthorize(1)]

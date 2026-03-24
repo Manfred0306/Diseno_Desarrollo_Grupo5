@@ -53,7 +53,6 @@
                     <h2 id="formTitle">Registro de proveedor</h2>
                     <span class="muted">Click en una fila para cargar datos y editar.</span>
                 </div>
-                <span class="p-chip">CRUD</span>
             </div>
 
             <div class="p-search">
@@ -65,16 +64,17 @@
                 @Html.AntiForgeryToken()
 
                 <input type="hidden" id="ID_PROVEEDOR" name="ID_PROVEEDOR" value="0" />
+                <input type="hidden" name="Page" value="@Model.Page" />
 
                 <div class="p-form" style="grid-template-columns: 1fr 1fr 1fr;">
                     <div class="p-field">
-                        <label>Nombre del proveedor</label>
+                        <label>Nombre de la empresa</label>
                         <input id="NOMBRE" name="NOMBRE" required placeholder="Ej: Mármoles del Sur S.A." />
                     </div>
 
                     <div class="p-field">
                         <label>Nombre de Contacto</label>
-                        <input id="CONTACTO" name="CONTACTO" required placeholder="Cédula jurídica, razón social..." />
+                        <input id="CONTACTO" name="CONTACTO" required placeholder="Nombre del encargado" />
                     </div>
 
                     <div class="p-field">
@@ -110,7 +110,7 @@
                     <h2>Lista general de proveedores</h2>
                     <span class="muted">Se actualiza al guardar, editar o desactivar.</span>
                 </div>
-                <span class="p-chip">@Model.Proveedores.Count registros</span>
+                <span class="p-chip">@Model.TotalItems registros</span>
             </div>
 
             <div class="p-tableWrap">
@@ -157,6 +157,33 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Paginación" class="mt-3">
+                <ul class="pagination">
+                    @{
+                        var current = Model.Page;
+                        var total = Model.TotalPages;
+                        int start = Math.Max(1, current - 2);
+                        int end = Math.Min(total, current + 2);
+                    }
+
+                    <li class="page-item @(current == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = current - 1 })">Anterior</a>
+                    </li>
+
+                    @for (int i = start; i <= end; i++)
+                    {
+                        <li class="page-item @(i == current ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(current >= total ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = current + 1 })">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
 
             @using (Html.BeginForm("Deactivate", "Proveedores", FormMethod.Post, new { id = "frmDeactivate" }))
             {

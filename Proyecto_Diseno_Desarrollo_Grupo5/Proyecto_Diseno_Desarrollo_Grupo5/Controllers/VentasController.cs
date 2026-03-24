@@ -15,7 +15,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
-        public ActionResult Index(string q = null)
+        public ActionResult Index(string q = null, int page = 1, int pageSize = 10)
         {
             q = (q ?? "").Trim();
 
@@ -54,8 +54,18 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                              Estado = v.ESTADO.NOMBRE
                          }).ToList();
 
+            // Paginación server-side
+            var total = lista.Count;
+            var skip = (Math.Max(page, 1) - 1) * pageSize;
+            var paged = lista.Skip(skip).Take(pageSize).ToList();
+
             ViewBag.Q = q;
-            return View(lista);
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = total;
+            ViewBag.TotalPages = pageSize <= 0 ? 0 : (int)Math.Ceiling((double)total / pageSize);
+
+            return View(paged);
         }
 
         [HttpGet]

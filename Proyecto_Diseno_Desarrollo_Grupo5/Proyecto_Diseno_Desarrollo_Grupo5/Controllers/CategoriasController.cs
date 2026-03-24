@@ -12,14 +12,22 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
-        public ActionResult Index()
+        public ActionResult Index(int page = 1, int pageSize = 10)
         {
             try
             {
+                var query = db.CATEGORIAS.OrderBy(c => c.NOMBRE).AsQueryable();
+
+                var total = query.Count();
+                var skip = (Math.Max(page, 1) - 1) * pageSize;
+                var items = query.Skip(skip).Take(pageSize).ToList();
+
                 var vm = new CategoriaCrudVM
                 {
-                    Categorias = db.CATEGORIAS
-                        .OrderBy(c => c.NOMBRE)
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalItems = total,
+                    Categorias = items
                         .Select(c => new CategoriaFilaVM
                         {
                             ID_CATEGORIA = c.ID_CATEGORIA,
@@ -62,14 +70,14 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (string.IsNullOrWhiteSpace(vm.NOMBRE))
             {
                 TempData["Mensaje"] = "El nombre es requerido.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page });
             }
 
             var existe = db.CATEGORIAS.Any(c => c.NOMBRE == vm.NOMBRE.Trim());
             if (existe)
             {
                 TempData["Mensaje"] = "Ya existe una categoría con ese nombre.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page });
             }
 
             var estadoActivo = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Activo");
@@ -85,7 +93,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             db.SaveChanges();
 
             TempData["OK"] = "Categoría registrada correctamente.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = vm.Page });
         }
 
         [HttpPost]
@@ -98,14 +106,14 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (string.IsNullOrWhiteSpace(vm.NOMBRE))
             {
                 TempData["Mensaje"] = "El nombre es requerido.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page });
             }
 
             var existe = db.CATEGORIAS.Any(c => c.NOMBRE == vm.NOMBRE.Trim() && c.ID_CATEGORIA != vm.ID_CATEGORIA);
             if (existe)
             {
                 TempData["Mensaje"] = "Ya existe otra categoría con ese nombre.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page });
             }
 
             cat.NOMBRE = vm.NOMBRE.Trim();
@@ -115,7 +123,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             db.SaveChanges();
 
             TempData["OK"] = "Categoría actualizada correctamente.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = vm.Page });
         }
 
         [HttpPost]
@@ -131,7 +139,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             db.SaveChanges();
 
             TempData["OK"] = "Categoría puesta como Inactiva.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = 1 });
         }
 
         public ActionResult GetActiveCategories()

@@ -9,6 +9,9 @@
     var estado = (int)(ViewBag.Estado ?? 0);
 
     var roles = ViewBag.Roles as System.Collections.Generic.List<Proyecto_Diseno_Desarrollo_Grupo5.EF.ROLES>;
+
+    var current = (int)(ViewBag.Page ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
 }
 
 @section styles{
@@ -133,6 +136,31 @@
                 </table>
             </div>
         </div>
+
+        <!-- Pagination -->
+        @{
+            int start = Math.Max(1, current - 2);
+            int end = Math.Min(totalPages, current + 2);
+        }
+
+        <nav aria-label="Paginación" class="mt-3">
+            <ul class="pagination">
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = q, rol = rol, estado = estado, page = current - 1 })">Anterior</a>
+                </li>
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { q = q, rol = rol, estado = estado, page = i })">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(current >= totalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = q, rol = rol, estado = estado, page = current + 1 })">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
 
     </div>
 

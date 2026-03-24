@@ -15,16 +15,24 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
         private const decimal STOCK_MINIMO_DEFAULT = 10m;
 
-        public ActionResult Index()
+        public ActionResult Index(int page = 1, int pageSize = 10)
         {
             try
             {
+                var query = db.MATERIALES.OrderBy(m => m.NOMBRE).AsQueryable();
+
+                var total = query.Count();
+                var skip = (Math.Max(page,1) - 1) * pageSize;
+                var items = query.Skip(skip).Take(pageSize).ToList();
+
                 var activoId = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Activo")?.ID_ESTADO ?? 1;
 
                 var vm = new MaterialCrudVM
                 {
-                    Materiales = db.MATERIALES
-                        .OrderBy(m => m.NOMBRE)
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalItems = total,
+                    Materiales = items
                         .Select(m => new MaterialFilaVM
                         {
                             ID_MATERIAL = m.ID_MATERIAL,
@@ -90,7 +98,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (string.IsNullOrWhiteSpace(vm.NOMBRE) || string.IsNullOrWhiteSpace(vm.TIPO) || vm.ID_PROVEEDOR <= 0)
             {
                 TempData["Mensaje"] = "Todos los campos son requeridos. Verifique nombre, tipo, proveedor y costo.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page });
             }
 
             // Validar código no repetido (nombre único como código)
@@ -98,7 +106,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (existe)
             {
                 TempData["Mensaje"] = "El código ya está en uso. Ya existe un material con ese nombre.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page });
             }
 
             var estadoActivo = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Activo");
@@ -120,7 +128,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("CREAR_MATERIAL", "Material registrado: " + mat.NOMBRE + " (ID: " + mat.ID_MATERIAL + ")");
 
             TempData["OK"] = "Material registrado correctamente.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = vm.Page });
         }
 
         [HttpPost]
@@ -133,7 +141,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (string.IsNullOrWhiteSpace(vm.NOMBRE) || string.IsNullOrWhiteSpace(vm.TIPO) || vm.ID_PROVEEDOR <= 0)
             {
                 TempData["Mensaje"] = "Todos los campos son requeridos.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page });
             }
 
             // Validar nombre único excluyendo el actual
@@ -141,7 +149,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (existe)
             {
                 TempData["Mensaje"] = "El código ya está en uso. Ya existe otro material con ese nombre.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page });
             }
 
             mat.NOMBRE = vm.NOMBRE.Trim();
@@ -158,7 +166,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("EDITAR_MATERIAL", "Material editado: " + mat.NOMBRE + " (ID: " + mat.ID_MATERIAL + ") por " + usuario + " el " + DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
 
             TempData["OK"] = "Material actualizado correctamente.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = vm.Page });
         }
 
         [HttpPost]
@@ -177,7 +185,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (tieneMovimientos || tieneCortes || tieneDesperdicios || tieneProductos)
             {
                 TempData["Mensaje"] = "No se puede eliminar este material porque tiene registros de compra, uso o transacciones activas asociadas.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = 1 });
             }
 
             db.MATERIALES.Remove(mat);
@@ -186,7 +194,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("ELIMINAR_MATERIAL", "Material eliminado: " + mat.NOMBRE + " (ID: " + id + ")");
 
             TempData["OK"] = "Material eliminado correctamente.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = 1 });
         }
 
         [HttpPost]
@@ -197,20 +205,20 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (mat == null)
             {
                 TempData["Mensaje"] = "Material no encontrado.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = 1 });
             }
 
             if (AJUSTE_CANTIDAD == 0)
             {
                 TempData["Mensaje"] = "La cantidad de ajuste no puede ser cero.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = 1 });
             }
 
             // Verificar que el stock resultante no sea negativo
             if (mat.STOCK + AJUSTE_CANTIDAD < 0)
             {
                 TempData["Mensaje"] = "El ajuste resultaría en stock negativo. Stock actual: " + mat.STOCK;
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = 1 });
             }
 
             // Registrar movimiento de ajuste
@@ -234,7 +242,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("AJUSTE_STOCK", "Ajuste de stock en material " + mat.NOMBRE + " (ID: " + ID_MATERIAL + "): " + (AJUSTE_CANTIDAD > 0 ? "+" : "") + AJUSTE_CANTIDAD + " por " + usuario);
 
             TempData["OK"] = "Ajuste de existencias realizado correctamente. Nuevo stock: " + mat.STOCK;
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = 1 });
         }
 
         private void RegistrarBitacora(string accion, string descripcion)

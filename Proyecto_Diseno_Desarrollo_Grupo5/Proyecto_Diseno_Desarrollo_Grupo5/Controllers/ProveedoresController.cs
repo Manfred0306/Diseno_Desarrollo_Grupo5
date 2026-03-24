@@ -13,14 +13,22 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
-        public ActionResult Index()
+        public ActionResult Index(int page = 1, int pageSize = 10)
         {
             try
             {
+                var query = db.PROVEEDORES.OrderBy(p => p.NOMBRE).AsQueryable();
+
+                var total = query.Count();
+                var skip = (Math.Max(page, 1) - 1) * pageSize;
+                var items = query.Skip(skip).Take(pageSize).ToList();
+
                 var vm = new ProveedorCrudVM
                 {
-                    Proveedores = db.PROVEEDORES
-                        .OrderBy(p => p.NOMBRE)
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalItems = total,
+                    Proveedores = items
                         .Select(p => new ProveedorFilaVM
                         {
                             ID_PROVEEDOR = p.ID_PROVEEDOR,
@@ -54,7 +62,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                         .ToList()
                 };
 
-                // Obtener nombres de materiales para cada proveedor
+                // Obtener nombres de materiales para cada proveedor mostrado
                 foreach (var prov in vm.Proveedores)
                 {
                     var materiales = db.MATERIALES
@@ -124,7 +132,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("CREAR_PROVEEDOR", "Proveedor registrado: " + prov.NOMBRE + " (ID: " + prov.ID_PROVEEDOR + ")");
 
             TempData["OK"] = "Proveedor registrado correctamente.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = vm.Page });
         }
 
         [HttpPost]
@@ -171,7 +179,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("EDITAR_PROVEEDOR", "Proveedor editado: " + prov.NOMBRE + " (ID: " + prov.ID_PROVEEDOR + ")");
 
             TempData["OK"] = "Proveedor actualizado correctamente.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page = vm.Page });
         }
 
         [HttpPost]
@@ -194,16 +202,16 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             foreach (var mat in materialesExclusivos)
             {
                 // Verificar si este material solo tiene este proveedor (es exclusivo)
-                // Como la relación es 1-a-muchos (un material tiene un proveedor), si ID_PROVEEDOR == id, es exclusivo
+                // Como la relaci?n es 1-a-muchos (un material tiene un proveedor), si ID_PROVEEDOR == id, es exclusivo
                 mat.ID_ESTADO = inactivoId;
             }
 
             db.SaveChanges();
 
-            RegistrarBitacora("DESACTIVAR_PROVEEDOR", "Proveedor desactivado: " + prov.NOMBRE + " (ID: " + id + "). Materiales exclusivos también desactivados: " + materialesExclusivos.Count);
+            RegistrarBitacora("DESACTIVAR_PROVEEDOR", "Proveedor desactivado: " + prov.NOMBRE + " (ID: " + id + "). Materiales exclusivos tambi?n desactivados: " + materialesExclusivos.Count);
 
-            TempData["OK"] = "Proveedor desactivado correctamente. " + materialesExclusivos.Count + " material(es) exclusivo(s) también desactivado(s).";
-            return RedirectToAction("Index");
+            TempData["OK"] = "Proveedor desactivado correctamente. " + materialesExclusivos.Count + " material(es) exclusivo(s) tambi?n desactivado(s).";
+            return RedirectToAction("Index", new { page = 1 });
         }
 
         public ActionResult GetMaterialesByProveedor(int id)
@@ -233,7 +241,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             }
             catch
             {
-                // No bloquear operación si falla la bitácora
+                // No bloquear operaci?n si falla la bit?cora
             }
         }
 

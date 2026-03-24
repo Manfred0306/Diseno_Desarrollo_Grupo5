@@ -1,4 +1,4 @@
-@model Proyecto_Diseno_Desarrollo_Grupo5.Models.MaterialCrudVM
+ï»¿@model Proyecto_Diseno_Desarrollo_Grupo5.Models.MaterialCrudVM
 @{
     ViewBag.Title = "Materiales";
     Layout = "~/Views/Shared/_LayoutCliente.cshtml";
@@ -14,11 +14,11 @@
     <div class="lp-wrap">
         <div class="hero" style="grid-template-columns: 1fr;">
             <div class="hero__left" style="padding: 34px 34px;">
-                <span class="hero__kicker">Módulo</span>
+                <span class="hero__kicker">MÃ³dulo</span>
                 <h1>Materiales</h1>
                 <p>
                     Registrar, editar, eliminar y consultar existencias de materiales.
-                    Seleccioná una fila para editar, eliminar o ajustar stock.
+                    SeleccionÃ¡ una fila para editar, eliminar o ajustar stock.
                 </p>
 
                 <div class="hero__cta">
@@ -46,14 +46,13 @@
             <div class="alert alert-warning" style="margin-bottom:12px;">@TempData["Mensaje"]</div>
         }
 
-        <!-- FORMULARIO DE REGISTRO / EDICIÓN -->
+        <!-- FORMULARIO DE REGISTRO / EDICIÃ“N -->
         <div class="panel p-panel" id="panel-form">
             <div class="p-head">
                 <div class="p-title">
                     <h2 id="formTitle">Registro de material</h2>
                     <span class="muted">Click en una fila para cargar datos y editar.</span>
                 </div>
-                <span class="p-chip">CRUD</span>
             </div>
 
             <div class="p-search">
@@ -65,11 +64,12 @@
                 @Html.AntiForgeryToken()
 
                 <input type="hidden" id="ID_MATERIAL" name="ID_MATERIAL" value="0" />
+                <input type="hidden" name="Page" value="@Model.Page" />
 
                 <div class="p-form" style="grid-template-columns: 1fr 1fr 1fr;">
                     <div class="p-field">
-                        <label>Nombre (Código)</label>
-                        <input id="NOMBRE" name="NOMBRE" required placeholder="Ej: Mármol Carrara" />
+                        <label>Nombre (CÃ³digo)</label>
+                        <input id="NOMBRE" name="NOMBRE" required placeholder="Ej: MÃ¡rmol Carrara" />
                     </div>
 
                     <div class="p-field">
@@ -77,10 +77,10 @@
                         <select id="TIPO" name="TIPO" required>
                             <option value="">-- Seleccione tipo --</option>
                             <option value="Granito">Granito</option>
-                            <option value="Mármol">Mármol</option>
+                            <option value="MÃ¡rmol">MÃ¡rmol</option>
                             <option value="Cuarzo">Cuarzo</option>
                             <option value="Piedra Natural">Piedra Natural</option>
-                            <option value="Cerámica">Cerámica</option>
+                            <option value="CerÃ¡mica">CerÃ¡mica</option>
                             <option value="Porcelanato">Porcelanato</option>
                             <option value="Herramienta">Herramienta</option>
                             <option value="Insumo">Insumo</option>
@@ -91,8 +91,8 @@
                     <div class="p-field">
                         <label>Unidad de medida</label>
                         <select id="UNIDAD_MEDIDA" name="UNIDAD_MEDIDA">
-                            <option value="m²">m² (metro cuadrado)</option>
-                            <option value="m³">m³ (metro cúbico)</option>
+                            <option value="mÂ²">mÂ² (metro cuadrado)</option>
+                            <option value="mÂ³">mÂ³ (metro cÃºbico)</option>
                         </select>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                     </div>
 
                     <div class="p-field">
-                        <label>Costo unitario ? </label>
+                        <label>Costo unitario (â‚¡) </label>
                         <input id="COSTO_UNITARIO" name="COSTO_UNITARIO" type="number" step="0.01" min="0" required />
                     </div>
 
@@ -167,7 +167,7 @@
                     </div>
 
                     <div class="p-field">
-                        <label>Observación del ajuste</label>
+                        <label>ObservaciÃ³n del ajuste</label>
                         <input id="AJUSTE_OBSERVACION" name="AJUSTE_OBSERVACION" placeholder="Motivo del ajuste..." />
                     </div>
                 </div>
@@ -186,7 +186,7 @@
                     <h2>Existencias y lista general</h2>
                     <span class="muted">Se actualiza al guardar, editar o eliminar. Filas en rojo indican stock bajo.</span>
                 </div>
-                <span class="p-chip">@Model.Materiales.Count registros</span>
+                <span class="p-chip">@Model.TotalItems registros</span>
             </div>
 
             <div class="p-tableWrap">
@@ -219,7 +219,7 @@
                                 <td class="colNombre">@m.NOMBRE</td>
                                 <td class="colTipo">@m.TIPO</td>
                                 <td style="@(m.STOCK_BAJO ? "color:#dc3545;font-weight:950;" : "")">@m.STOCK</td>
-                                <td>?@m.COSTO_UNITARIO.ToString("N2")</td>
+                                <td>@m.COSTO_UNITARIO.ToString("N2")</td>
                                 <td class="colProveedor">@m.PROVEEDOR</td>
                                 <td>@m.ESTADO</td>
                                 <td>
@@ -245,6 +245,35 @@
             }
         </div>
 
+        <!-- PAGINACIÃ“N -->
+        <div class="p-pagination" style="margin-top:12px;">
+            <nav aria-label="PaginaciÃ³n" class="mt-3">
+                <ul class="pagination">
+                    @{
+                        var current = Model.Page;
+                        var total = Model.TotalPages;
+                        int start = Math.Max(1, current - 2);
+                        int end = Math.Min(total, current + 2);
+                    }
+
+                    <li class="page-item @(current == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = current - 1 })">Anterior</a>
+                    </li>
+
+                    @for (int i = start; i <= end; i++)
+                    {
+                        <li class="page-item @(i == current ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(current >= total ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = current + 1 })">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
     </div>
 </section>
 
@@ -252,7 +281,7 @@
     var txtBuscar = document.getElementById("txtBuscar");
     var filas = function () { return document.querySelectorAll("#tblMateriales tbody tr"); };
 
-    // Búsqueda en tiempo real
+    // BÃºsqueda en tiempo real
     txtBuscar.addEventListener("keyup", function () {
         var q = txtBuscar.value.toLowerCase().trim();
 
@@ -322,7 +351,7 @@
         });
     });
 
-    // Validación del formulario
+    // ValidaciÃ³n del formulario
     frm.addEventListener("submit", function (e) {
         var nombre = document.getElementById("NOMBRE").value.trim();
         var tipo = document.getElementById("TIPO").value;
@@ -342,18 +371,18 @@
         }
     });
 
-    // Eliminar con confirmación
+    // Eliminar con confirmaciÃ³n
     btnEliminar.addEventListener("click", function () {
         var id = document.getElementById("ID_MATERIAL").value;
         if (id == 0) return;
 
-        if (confirm("¿Está seguro que desea eliminar este material?\n\nSolo se puede eliminar si NO está asociado a transacciones activas.")) {
+        if (confirm("Â¿EstÃ¡ seguro que desea eliminar este material?\n\nSolo se puede eliminar si NO estÃ¡ asociado a transacciones activas.")) {
             document.getElementById("deleteId").value = id;
             document.getElementById("frmDelete").submit();
         }
     });
 
-    // Validación del ajuste
+    // ValidaciÃ³n del ajuste
     document.getElementById("frmAjuste").addEventListener("submit", function (e) {
         var cant = document.getElementById("AJUSTE_CANTIDAD").value;
         if (!cant || parseFloat(cant) === 0) {
@@ -362,9 +391,52 @@
             return false;
         }
 
-        if (!confirm("¿Confirma el ajuste de " + cant + " unidades en el stock de este material?")) {
+        if (!confirm("Â¿Confirma el ajuste de " + cant + " unidades en el stock de este material?")) {
             e.preventDefault();
             return false;
         }
     });
+
+    // LÃ³gica de paginaciÃ³n
+    var currentPage = @Model.Page;
+    var totalPages = @Model.TotalPages;
+
+    function updatePaginationButtons() {
+        document.getElementById("btnFirstPage").style.display = (currentPage === 1) ? "none" : "inline-block";
+        document.getElementById("btnPrevPage").style.display = (currentPage === 1) ? "none" : "inline-block";
+        document.getElementById("btnNextPage").style.display = (currentPage === totalPages) ? "none" : "inline-block";
+        document.getElementById("btnLastPage").style.display = (currentPage === totalPages) ? "none" : "inline-block";
+    }
+
+    document.getElementById("btnFirstPage").addEventListener("click", function () {
+        currentPage = 1;
+        // LÃ³gica para cargar la primera pÃ¡gina de resultados
+        // Por ejemplo, hacer una nueva peticiÃ³n AJAX para obtener los materiales de la pÃ¡gina 1
+        updatePaginationButtons();
+    });
+
+    document.getElementById("btnPrevPage").addEventListener("click", function () {
+        if (currentPage > 1) {
+            currentPage--;
+            // Cargar la pÃ¡gina anterior de resultados
+            updatePaginationButtons();
+        }
+    });
+
+    document.getElementById("btnNextPage").addEventListener("click", function () {
+        if (currentPage < totalPages) {
+            currentPage++;
+            // Cargar la siguiente pÃ¡gina de resultados
+            updatePaginationButtons();
+        }
+    });
+
+    document.getElementById("btnLastPage").addEventListener("click", function () {
+        currentPage = totalPages;
+        // LÃ³gica para cargar la Ãºltima pÃ¡gina de resultados
+        updatePaginationButtons();
+    });
+
+    // Inicializar botones de paginaciÃ³n
+    updatePaginationButtons();
 </script>
