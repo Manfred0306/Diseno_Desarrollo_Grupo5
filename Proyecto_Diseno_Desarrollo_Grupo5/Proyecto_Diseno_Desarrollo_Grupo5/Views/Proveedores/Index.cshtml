@@ -73,34 +73,13 @@
                     </div>
 
                     <div class="p-field">
-                        <label>Datos fiscales / Contacto</label>
+                        <label>Nombre de Contacto</label>
                         <input id="CONTACTO" name="CONTACTO" required placeholder="Cédula jurídica, razón social..." />
                     </div>
 
                     <div class="p-field">
                         <label>Teléfono</label>
                         <input id="TELEFONO" name="TELEFONO" required placeholder="Ej: 2222-3333" />
-                    </div>
-                </div>
-
-                <div class="p-form" style="grid-template-columns: 1fr; margin-top:0;">
-                    <div class="p-field">
-                        <label>Productos / Materiales asociados <span style="color:#dc3545;font-weight:700;">*</span></label>
-                        <div id="materialesCheckboxContainer" style="display:flex;flex-wrap:wrap;gap:10px;padding:10px 0;">
-                            @foreach (var m in Model.MaterialesDisponibles)
-                            {
-                                <label style="display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:13px;cursor:pointer;padding:6px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(26,29,40,.60);color:var(--text);">
-                                    <input type="checkbox" class="chkMaterial" value="@m.Value" />
-                                    @m.Text
-                                </label>
-                            }
-                            @if (!Model.MaterialesDisponibles.Any())
-                            {
-                                <span style="color:var(--muted);font-weight:700;font-size:13px;">No hay materiales registrados aún. Registre materiales primero.</span>
-                            }
-                        </div>
-                        <input type="hidden" id="PRODUCTOS_ASOCIADOS" name="PRODUCTOS_ASOCIADOS" />
-                        <span id="msgProductos" style="display:none;color:#dc3545;font-weight:700;font-size:12px;">Debe asociar al menos un producto/material.</span>
                     </div>
                 </div>
 
@@ -124,19 +103,6 @@
             }
         </div>
 
-        <!-- PANEL DE PRODUCTOS ASOCIADOS (visible al seleccionar proveedor) -->
-        <div class="panel p-panel" style="margin-top:12px; display:none;" id="panel-productos">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2>Productos asociados al proveedor</h2>
-                    <span class="muted" id="prodProvNombre"></span>
-                </div>
-                <span class="p-chip" id="prodProvCount">0 productos</span>
-            </div>
-            <div id="listadoProductos" style="padding:10px 0;">
-            </div>
-        </div>
-
         <!-- TABLA DE PROVEEDORES -->
         <div class="panel p-panel" style="margin-top:12px;">
             <div class="p-head">
@@ -152,7 +118,7 @@
                     <thead>
                         <tr>
                             <th>Nombre</th>
-                            <th>Contacto / Datos fiscales</th>
+                            <th>Nombre de Contacto</th>
                             <th>Teléfono</th>
                             <th>Materiales</th>
                             <th>Estado</th>
@@ -229,7 +195,6 @@
 
     var frm = document.getElementById("frmProveedor");
     var btnDesactivar = document.getElementById("btnDesactivar");
-    var panelProductos = document.getElementById("panel-productos");
 
     function limpiar() {
         document.getElementById("ID_PROVEEDOR").value = 0;
@@ -237,18 +202,12 @@
         document.getElementById("CONTACTO").value = "";
         document.getElementById("TELEFONO").value = "";
         document.getElementById("ID_ESTADO").value = "1";
-        document.getElementById("PRODUCTOS_ASOCIADOS").value = "";
-
-        // Desmarcar checkboxes
-        document.querySelectorAll(".chkMaterial").forEach(function (cb) { cb.checked = false; });
 
         frm.action = "@Url.Action("Create", "Proveedores")";
         btnDesactivar.disabled = true;
 
         document.getElementById("estadoContainer").style.display = "none";
         document.getElementById("formTitle").innerText = "Registro de proveedor";
-        document.getElementById("msgProductos").style.display = "none";
-        panelProductos.style.display = "none";
 
         filas().forEach(function (x) { x.classList.remove("p-selected"); });
     }
@@ -273,43 +232,6 @@
 
             document.getElementById("estadoContainer").style.display = "grid";
             document.getElementById("formTitle").innerText = "Editar proveedor #" + provId;
-
-            // Cargar materiales asociados
-            document.querySelectorAll(".chkMaterial").forEach(function (cb) { cb.checked = false; });
-
-            // Mostrar panel de productos asociados
-            panelProductos.style.display = "block";
-            document.getElementById("prodProvNombre").innerText = "Proveedor: " + tr.dataset.nombre;
-
-            // Obtener materiales del proveedor vía AJAX
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "@Url.Action("GetMaterialesByProveedor", "Proveedores")?id=" + provId, true);
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    var materiales = JSON.parse(xhr.responseText);
-                    var html = "";
-                    var ids = [];
-
-                    materiales.forEach(function (m) {
-                        html += '<div style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:10px;border:1px solid rgba(16,185,129,.18);background:rgba(16,185,129,.08);color:#6ee7b7;font-weight:750;font-size:13px;margin:4px;">' + m.NOMBRE + '</div>';
-                        ids.push(m.ID_MATERIAL);
-
-                        // Marcar checkbox correspondiente
-                        document.querySelectorAll(".chkMaterial").forEach(function (cb) {
-                            if (cb.value == m.ID_MATERIAL.toString()) cb.checked = true;
-                        });
-                    });
-
-                    if (materiales.length === 0) {
-                        html = '<span style="color:#94a3b8;font-weight:700;font-size:13px;">Sin productos asociados.</span>';
-                    }
-
-                    document.getElementById("listadoProductos").innerHTML = html;
-                    document.getElementById("prodProvCount").innerText = materiales.length + " producto(s)";
-                    document.getElementById("PRODUCTOS_ASOCIADOS").value = ids.join(",");
-                }
-            };
-            xhr.send();
         });
     });
 
@@ -321,25 +243,9 @@
 
         if (!nombre || !contacto || !telefono) {
             e.preventDefault();
-            alert("Todos los campos son requeridos: nombre, datos fiscales/contacto y teléfono.");
+            alert("Todos los campos son requeridos: nombre, nombre de contacto y teléfono.");
             return false;
         }
-
-        // Recopilar materiales seleccionados
-        var seleccionados = [];
-        document.querySelectorAll(".chkMaterial:checked").forEach(function (cb) {
-            seleccionados.push(cb.value);
-        });
-        document.getElementById("PRODUCTOS_ASOCIADOS").value = seleccionados.join(",");
-
-        if (seleccionados.length === 0) {
-            e.preventDefault();
-            document.getElementById("msgProductos").style.display = "block";
-            alert("Debe asociar al menos un producto/material al proveedor para completar el registro.");
-            return false;
-        }
-
-        document.getElementById("msgProductos").style.display = "none";
     });
 
     // Desactivar con confirmación

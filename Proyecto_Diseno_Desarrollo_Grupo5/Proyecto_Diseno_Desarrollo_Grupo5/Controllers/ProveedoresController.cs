@@ -85,14 +85,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         {
             if (string.IsNullOrWhiteSpace(vm.NOMBRE) || string.IsNullOrWhiteSpace(vm.CONTACTO) || string.IsNullOrWhiteSpace(vm.TELEFONO))
             {
-                TempData["Mensaje"] = "Todos los campos son requeridos: nombre, contacto (datos fiscales) y teléfono.";
-                return RedirectToAction("Index");
-            }
-
-            // Validar que tenga al menos un producto/material asociado
-            if (string.IsNullOrWhiteSpace(vm.PRODUCTOS_ASOCIADOS))
-            {
-                TempData["Mensaje"] = "Debe asociar al menos un producto/material al proveedor para completar el registro.";
+                TempData["Mensaje"] = "Todos los campos son requeridos: nombre, contacto (datos fiscales) y tel?fono.";
                 return RedirectToAction("Index");
             }
 
@@ -109,21 +102,24 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             db.PROVEEDORES.Add(prov);
             db.SaveChanges();
 
-            // Asociar materiales al proveedor
-            var idsStr = vm.PRODUCTOS_ASOCIADOS.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var idStr in idsStr)
+            // Asociar materiales al proveedor solo si se seleccionaron
+            if (!string.IsNullOrWhiteSpace(vm.PRODUCTOS_ASOCIADOS))
             {
-                int matId;
-                if (int.TryParse(idStr.Trim(), out matId))
+                var idsStr = vm.PRODUCTOS_ASOCIADOS.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var idStr in idsStr)
                 {
-                    var material = db.MATERIALES.Find(matId);
-                    if (material != null)
+                    int matId;
+                    if (int.TryParse(idStr.Trim(), out matId))
                     {
-                        material.ID_PROVEEDOR = prov.ID_PROVEEDOR;
+                        var material = db.MATERIALES.Find(matId);
+                        if (material != null)
+                        {
+                            material.ID_PROVEEDOR = prov.ID_PROVEEDOR;
+                        }
                     }
                 }
+                db.SaveChanges();
             }
-            db.SaveChanges();
 
             RegistrarBitacora("CREAR_PROVEEDOR", "Proveedor registrado: " + prov.NOMBRE + " (ID: " + prov.ID_PROVEEDOR + ")");
 
