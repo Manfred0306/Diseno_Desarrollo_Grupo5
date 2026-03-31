@@ -1,4 +1,4 @@
-@using System.Web
+Ôªø@using System.Web
 @model Proyecto_Diseno_Desarrollo_Grupo5.Models.ProveedorCrudVM
 @{
     ViewBag.Title = "Proveedores";
@@ -13,7 +13,7 @@
     <div class="d-flex justify-content-between align-items-start mb-3">
         <div>
             <h2 class="page-title">Control de Proveedores</h2>
-            <div class="page-subtitle">GestiÛn de proveedores (crear, editar, inactivar)</div>
+            <div class="page-subtitle">Gesti√≥n de proveedores (crear, editar, inactivar)</div>
         </div>
 
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
@@ -36,10 +36,10 @@
             <div class="row g-2 align-items-end">
                 <div class="col-md-9">
                     <label class="form-label" style="font-weight:600;">Buscar</label>
-                    <input type="text" name="q" value="@Model.Q" class="form-control" placeholder="Nombre, contacto o telÈfono" />
+                    <input type="text" name="q" value="@Model.Q" class="form-control" placeholder="Nombre, contacto o tel√©fono" />
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-dark w-100" style="height:44px; border-radius:10px; font-weight:600;">?? Buscar</button>
+                    <button type="submit" class="btn btn-dark w-100" style="height:44px; border-radius:10px; font-weight:600;">üîç Buscar</button>
                 </div>
             </div>
         }
@@ -52,7 +52,7 @@
                     <tr>
                         <th>Empresa</th>
                         <th>Contacto</th>
-                        <th>TelÈfono</th>
+                        <th>Tel√©fono</th>
                         <th>Materiales</th>
                         <th>Estado</th>
                         <th style="width:220px; text-align:right;">Acciones</th>
@@ -85,7 +85,7 @@
                                     <input type="hidden" name="id" value="@p.ID_PROVEEDOR" />
                                     <input type="hidden" name="page" value="@Model.Page" />
                                     <input type="hidden" name="q" value="@Model.Q" />
-                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('øInactivar este proveedor?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¬øInactivar este proveedor?');">
                                         <i class="bi bi-x-circle"></i>
                                     </button>
                                 }
@@ -96,7 +96,7 @@
             </table>
         </div>
 
-        <nav aria-label="PaginaciÛn" class="mt-3">
+        <nav aria-label="Paginaci√≥n" class="mt-3">
             <ul class="pagination">
                 @{
                     var current = Model.Page;
@@ -146,7 +146,7 @@
                         <input class="form-control" name="CONTACTO" required />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">TelÈfono</label>
+                        <label class="form-label">Tel√©fono</label>
                         <input class="form-control" name="TELEFONO" required />
                     </div>
                 </div>
@@ -182,7 +182,7 @@
                         <input class="form-control" name="CONTACTO" id="edit_CONTACTO" required />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">TelÈfono</label>
+                        <label class="form-label">Tel√©fono</label>
                         <input class="form-control" name="TELEFONO" id="edit_TELEFONO" required />
                     </div>
                     <div class="mb-2">

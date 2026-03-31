@@ -58,28 +58,53 @@
     }
 
 
-.table-wrap {
-    overflow-x: auto;
-    border-radius: 16px;
+/* ===============================
+   Tabla Ventas (igual a Productos)
+   Usamos las clases p-tableWrap / p-table
+================================= */
+.p-tableWrap {
+    margin-top: 10px;
+    overflow: auto;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(26,29,40,.40);
 }
 
-.table {
-    color: #f8fafc;
+.p-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 780px;
 }
 
-    .table thead th {
-        font-weight: 900;
-        font-size: 13px;
-        border-bottom: 1px solid rgba(255,255,255,.08) !important;
-        background: rgba(255,255,255,.05);
-        color: rgba(241,245,249,.78);
-    }
+.p-table thead th {
+    text-align: left;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--muted);
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(26,29,40,.60);
+}
 
-    .table tbody td {
-        border-top: 1px solid rgba(255,255,255,.06) !important;
-        font-size: 14px;
-        color: rgba(241,245,249,.92);
-    }
+.p-table tbody td {
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 750;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.p-table tbody tr:hover {
+    background: rgba(16,185,129,.06);
+}
+
+/* Evitar reglas viejas de .table/.table-wrap dentro de Ventas */
+.table-wrap,
+.table,
+.table thead th,
+.table tbody td {
+    all: unset;
+}
 
 
 .badge-pill {

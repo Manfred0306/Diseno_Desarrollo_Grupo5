@@ -66,10 +66,15 @@ const nodeListMenu = document.querySelectorAll('.card');
 const nodeListBlog = document.querySelectorAll('.entry');
 const nodeListBooking = document.querySelectorAll('.btn__place');
 
-ScrollReveal().reveal(nodeArrayLeft, slideLeft);
-ScrollReveal().reveal(nodeArrayRight, slideRight);
-ScrollReveal().reveal(nodeSlideUp, slideUp);
-ScrollReveal().reveal(nodeListMenu, slideUp);
-ScrollReveal().reveal(nodeListBlog, slideUp);
-ScrollReveal().reveal(nodeListBooking, slideUp);
-ScrollReveal().reveal('.footer__copyright', slideUpCopyRight);
+// Si la página marca que no quiere animaciones (por ejemplo Usuarios / Roles), no inicializar.
+if (document.querySelector('[data-no-reveal="true"]')) {
+  // no-op
+} else {
+  ScrollReveal().reveal(nodeArrayLeft, slideLeft);
+  ScrollReveal().reveal(nodeArrayRight, slideRight);
+  ScrollReveal().reveal(nodeSlideUp, slideUp);
+  ScrollReveal().reveal(nodeListMenu, slideUp);
+  ScrollReveal().reveal(nodeListBlog, slideUp);
+  ScrollReveal().reveal(nodeListBooking, slideUp);
+  ScrollReveal().reveal('.footer__copyright', slideUpCopyRight);
+}
