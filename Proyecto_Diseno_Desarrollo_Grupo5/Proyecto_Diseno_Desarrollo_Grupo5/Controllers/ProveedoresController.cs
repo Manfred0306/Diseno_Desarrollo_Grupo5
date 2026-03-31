@@ -13,11 +13,19 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
-        public ActionResult Index(int page = 1, int pageSize = 10)
+        public ActionResult Index(string q = null, int page = 1, int pageSize = 10)
         {
             try
             {
-                var query = db.PROVEEDORES.OrderBy(p => p.NOMBRE).AsQueryable();
+                q = (q ?? "").Trim();
+                var query = db.PROVEEDORES.AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(q))
+                {
+                    query = query.Where(p => p.NOMBRE.Contains(q) || p.CONTACTO.Contains(q) || p.TELEFONO.Contains(q));
+                }
+
+                query = query.OrderBy(p => p.NOMBRE);
 
                 var total = query.Count();
                 var skip = (Math.Max(page, 1) - 1) * pageSize;
@@ -25,6 +33,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
                 var vm = new ProveedorCrudVM
                 {
+                    Q = q,
                     Page = page,
                     PageSize = pageSize,
                     TotalItems = total,
@@ -62,7 +71,6 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
                         .ToList()
                 };
 
-                // Obtener nombres de materiales para cada proveedor mostrado
                 foreach (var prov in vm.Proveedores)
                 {
                     var materiales = db.MATERIALES
@@ -94,7 +102,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (string.IsNullOrWhiteSpace(vm.NOMBRE) || string.IsNullOrWhiteSpace(vm.CONTACTO) || string.IsNullOrWhiteSpace(vm.TELEFONO))
             {
                 TempData["Mensaje"] = "Todos los campos son requeridos: nombre, contacto (datos fiscales) y tel?fono.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
             }
 
             var estadoActivo = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Activo");
@@ -132,7 +140,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("CREAR_PROVEEDOR", "Proveedor registrado: " + prov.NOMBRE + " (ID: " + prov.ID_PROVEEDOR + ")");
 
             TempData["OK"] = "Proveedor registrado correctamente.";
-            return RedirectToAction("Index", new { page = vm.Page });
+            return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
         }
 
         [HttpPost]
@@ -140,12 +148,12 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         public ActionResult Edit(ProveedorCrudVM vm)
         {
             var prov = db.PROVEEDORES.Find(vm.ID_PROVEEDOR);
-            if (prov == null) return RedirectToAction("Index");
+            if (prov == null) return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
 
             if (string.IsNullOrWhiteSpace(vm.NOMBRE) || string.IsNullOrWhiteSpace(vm.CONTACTO) || string.IsNullOrWhiteSpace(vm.TELEFONO))
             {
                 TempData["Mensaje"] = "Todos los campos son requeridos.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
             }
 
             prov.NOMBRE = vm.NOMBRE.Trim();
@@ -179,15 +187,15 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("EDITAR_PROVEEDOR", "Proveedor editado: " + prov.NOMBRE + " (ID: " + prov.ID_PROVEEDOR + ")");
 
             TempData["OK"] = "Proveedor actualizado correctamente.";
-            return RedirectToAction("Index", new { page = vm.Page });
+            return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Deactivate(int id)
+        public ActionResult Deactivate(int id, int page = 1, string q = null)
         {
             var prov = db.PROVEEDORES.Find(id);
-            if (prov == null) return RedirectToAction("Index");
+            if (prov == null) return RedirectToAction("Index", new { page, q });
 
             var estadoInactivo = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Inactivo");
             var inactivoId = estadoInactivo != null ? estadoInactivo.ID_ESTADO : 2;
@@ -211,7 +219,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             RegistrarBitacora("DESACTIVAR_PROVEEDOR", "Proveedor desactivado: " + prov.NOMBRE + " (ID: " + id + "). Materiales exclusivos tambi?n desactivados: " + materialesExclusivos.Count);
 
             TempData["OK"] = "Proveedor desactivado correctamente. " + materialesExclusivos.Count + " material(es) exclusivo(s) tambi?n desactivado(s).";
-            return RedirectToAction("Index", new { page = 1 });
+            return RedirectToAction("Index", new { page, q });
         }
 
         public ActionResult GetMaterialesByProveedor(int id)

@@ -1,80 +1,165 @@
-﻿@model Proyecto_Diseno_Desarrollo_Grupo5.Models.MaterialCrudVM
+﻿@using System.Web
+@model Proyecto_Diseno_Desarrollo_Grupo5.Models.MaterialCrudVM
 @{
     ViewBag.Title = "Materiales";
     Layout = "~/Views/Shared/_LayoutCliente.cshtml";
 }
 
-@section styles {
-    <link rel="stylesheet" href="~/StaticFiles/css/Index.css" />
-    <link rel="stylesheet" href="~/StaticFiles/css/Footer.css" />
-    <link rel="stylesheet" href="~/StaticFiles/css/Productos.css" />
+@section styles{
+    <link rel="stylesheet" href="~/StaticFiles/css/Cliente.css" />
 }
 
-<section class="page-hero">
-    <div class="lp-wrap">
-        <div class="hero" style="grid-template-columns: 1fr;">
-            <div class="hero__left" style="padding: 34px 34px;">
-                <span class="hero__kicker">Módulo</span>
-                <h1>Materiales</h1>
-                <p>
-                    Registrar, editar, eliminar y consultar existencias de materiales.
-                    Seleccioná una fila para editar, eliminar o ajustar stock.
-                </p>
-
-                <div class="hero__cta">
-                    <a class="lp-btn" href="@Url.Action("Index","Home")">
-                        Volver al inicio
-                    </a>
-                    <a class="btn2" href="#panel-form">
-                        Ir al formulario
-                    </a>
-                </div>
-            </div>
+<div class="container" style="max-width:1200px; padding-top:30px;">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="page-title">Control de Materiales</h2>
+            <div class="page-subtitle">Gestión de materiales (crear, editar, eliminar y ajustar stock)</div>
         </div>
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+            + Nuevo Material
+        </button>
     </div>
-</section>
 
-<section class="lp-section">
-    <div class="lp-wrap">
+    @if (TempData["OK"] != null)
+    {
+        <div class="alert alert-success cardx" style="padding:12px 14px;">@TempData["OK"]</div>
+    }
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-warning cardx" style="padding:12px 14px;">@TempData["Mensaje"]</div>
+    }
 
-        @if (TempData["OK"] != null)
+    <div class="page-section mb-3">
+        @using (Html.BeginForm("Index", "Materiales", FormMethod.Get))
         {
-            <div class="alert alert-success" style="margin-bottom:12px;">@TempData["OK"]</div>
-        }
-        @if (TempData["Mensaje"] != null)
-        {
-            <div class="alert alert-warning" style="margin-bottom:12px;">@TempData["Mensaje"]</div>
-        }
-
-        <!-- FORMULARIO DE REGISTRO / EDICIÓN -->
-        <div class="panel p-panel" id="panel-form">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2 id="formTitle">Registro de material</h2>
-                    <span class="muted">Click en una fila para cargar datos y editar.</span>
+            <div class="row g-2 align-items-end">
+                <div class="col-md-9">
+                    <label class="form-label" style="font-weight:600;">Buscar</label>
+                    <input type="text" name="q" value="@Model.Q" class="form-control" placeholder="Nombre, tipo o proveedor" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-dark w-100" style="height:44px; border-radius:10px; font-weight:600;">🔎 Buscar</button>
                 </div>
             </div>
+        }
+    </div>
 
-            <div class="p-search">
-                <input id="txtBuscar" placeholder="Buscar por nombre o tipo..." />
+    <div class="page-section mt-3">
+        <div class="cardx table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Stock</th>
+                        <th>Costo Unit.</th>
+                        <th>Proveedor</th>
+                        <th>Estado</th>
+                        <th>Alerta</th>
+                        <th style="width:260px; text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model.Materiales)
+                    {
+                        <tr>
+                            <td>@m.NOMBRE</td>
+                            <td>@m.TIPO</td>
+                            <td>@m.STOCK</td>
+                            <td>₡@m.COSTO_UNITARIO.ToString("N2")</td>
+                            <td>@m.PROVEEDOR</td>
+                            <td>@m.ESTADO</td>
+                            <td>
+                                @if (m.STOCK_BAJO)
+                                {
+                                    <span style="color:#dc3545;font-weight:800;">Stock bajo</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#198754;font-weight:800;">OK</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-outline-primary btn-sm me-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEditar"
+                                        onclick="cargarMaterialEditar('@m.ID_MATERIAL', '@Html.Raw(HttpUtility.JavaScriptStringEncode(m.NOMBRE ?? ""))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(m.TIPO ?? ""))', '@m.STOCK', '@m.COSTO_UNITARIO', '@m.ID_PROVEEDOR', '@m.ID_ESTADO')">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                <button class="btn btn-outline-secondary btn-sm me-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalAjuste"
+                                        onclick="cargarAjuste('@m.ID_MATERIAL', '@Html.Raw(HttpUtility.JavaScriptStringEncode(m.NOMBRE ?? ""))', '@m.STOCK')">
+                                    <i class="bi bi-sliders"></i>
+                                </button>
+
+                                @using (Html.BeginForm("Delete", "Materiales", FormMethod.Post, new { style = "display:inline;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@m.ID_MATERIAL" />
+                                    <input type="hidden" name="page" value="@Model.Page" />
+                                    <input type="hidden" name="q" value="@Model.Q" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar este material?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Paginación" class="mt-3">
+            <ul class="pagination">
+                @{
+                    var current = Model.Page;
+                    var total = Model.TotalPages;
+                    int start = Math.Max(1, current - 2);
+                    int end = Math.Min(total, current + 2);
+                }
+
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = current - 1 })">Anterior</a>
+                </li>
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = i })">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(current >= total ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = current + 1 })">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Nuevo material</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            @using (Html.BeginForm("Create", "Materiales", FormMethod.Post, new { id = "frmMaterial" }))
+            @using (Html.BeginForm("Create", "Materiales", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-
-                <input type="hidden" id="ID_MATERIAL" name="ID_MATERIAL" value="0" />
                 <input type="hidden" name="Page" value="@Model.Page" />
-
-                <div class="p-form" style="grid-template-columns: 1fr 1fr 1fr;">
-                    <div class="p-field">
-                        <label>Nombre (Código)</label>
-                        <input id="NOMBRE" name="NOMBRE" required placeholder="Ej: Mármol Carrara" />
+                <input type="hidden" name="Q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" name="NOMBRE" required />
                     </div>
-
-                    <div class="p-field">
-                        <label>Tipo de material</label>
-                        <select id="TIPO" name="TIPO" required>
+                    <div class="mb-2">
+                        <label class="form-label">Tipo de material</label>
+                        <select class="form-select" name="TIPO" required>
                             <option value="">-- Seleccione tipo --</option>
                             <option value="Granito">Granito</option>
                             <option value="Mármol">Mármol</option>
@@ -87,30 +172,24 @@
                             <option value="Otro">Otro</option>
                         </select>
                     </div>
-
-                    <div class="p-field">
-                        <label>Unidad de medida</label>
-                        <select id="UNIDAD_MEDIDA" name="UNIDAD_MEDIDA">
+                    <div class="mb-2">
+                        <label class="form-label">Unidad de medida</label>
+                        <select class="form-select" name="UNIDAD_MEDIDA">
                             <option value="m²">m² (metro cuadrado)</option>
                             <option value="m³">m³ (metro cúbico)</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="p-form" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 0;">
-                    <div class="p-field">
-                        <label>Stock actual</label>
-                        <input id="STOCK" name="STOCK" type="number" step="0.01" min="0" value="0" required />
+                    <div class="mb-2">
+                        <label class="form-label">Stock actual</label>
+                        <input class="form-control" name="STOCK" type="number" step="0.01" min="0" value="0" required />
                     </div>
-
-                    <div class="p-field">
-                        <label>Costo unitario (₡) </label>
-                        <input id="COSTO_UNITARIO" name="COSTO_UNITARIO" type="number" step="0.01" min="0" required />
+                    <div class="mb-2">
+                        <label class="form-label">Costo unitario (₡)</label>
+                        <input class="form-control" name="COSTO_UNITARIO" type="number" step="0.01" min="0" required />
                     </div>
-
-                    <div class="p-field">
-                        <label>Proveedor</label>
-                        <select id="ID_PROVEEDOR" name="ID_PROVEEDOR" required>
+                    <div class="mb-2">
+                        <label class="form-label">Proveedor</label>
+                        <select class="form-select" name="ID_PROVEEDOR" required>
                             <option value="">-- Seleccione --</option>
                             @foreach (var p in Model.Proveedores)
                             {
@@ -119,11 +198,67 @@
                         </select>
                     </div>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Guardar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
-                <div class="p-form" style="grid-template-columns: 1fr; margin-top: 0; display: none;" id="estadoContainer">
-                    <div class="p-field">
-                        <label>Estado</label>
-                        <select id="ID_ESTADO" name="ID_ESTADO" required>
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Editar material</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @using (Html.BeginForm("Edit", "Materiales", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ID_MATERIAL" id="edit_ID_MATERIAL" />
+                <input type="hidden" name="Page" value="@Model.Page" />
+                <input type="hidden" name="Q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" name="NOMBRE" id="edit_NOMBRE" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Tipo de material</label>
+                        <select class="form-select" name="TIPO" id="edit_TIPO" required>
+                            <option value="Granito">Granito</option>
+                            <option value="Mármol">Mármol</option>
+                            <option value="Cuarzo">Cuarzo</option>
+                            <option value="Piedra Natural">Piedra Natural</option>
+                            <option value="Cerámica">Cerámica</option>
+                            <option value="Porcelanato">Porcelanato</option>
+                            <option value="Herramienta">Herramienta</option>
+                            <option value="Insumo">Insumo</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Stock actual</label>
+                        <input class="form-control" name="STOCK" id="edit_STOCK" type="number" step="0.01" min="0" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Costo unitario (₡)</label>
+                        <input class="form-control" name="COSTO_UNITARIO" id="edit_COSTO_UNITARIO" type="number" step="0.01" min="0" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Proveedor</label>
+                        <select class="form-select" name="ID_PROVEEDOR" id="edit_ID_PROVEEDOR" required>
+                            @foreach (var p in Model.Proveedores)
+                            {
+                                <option value="@p.Value">@p.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" name="ID_ESTADO" id="edit_ID_ESTADO" required>
                             @foreach (var e in Model.Estados)
                             {
                                 <option value="@e.Value">@e.Text</option>
@@ -131,312 +266,64 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="p-actions">
-                    <button type="submit" id="btnGuardar" class="lp-btn">Guardar</button>
-                    <button type="button" id="btnCancelar" class="btn2">Cancelar</button>
-                    <button type="button" id="btnEliminar" class="lp-btn p-danger" disabled>Eliminar</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Guardar cambios</button>
                 </div>
             }
         </div>
-
-        <!-- PANEL AJUSTE DE STOCK -->
-        <div class="panel p-panel" style="margin-top:12px; display:none;" id="panel-ajuste">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2>Ajuste manual de existencias</h2>
-                    <span class="muted">Seleccione un material de la tabla para ajustar su stock.</span>
-                </div>
-                <span class="p-chip">AJUSTE</span>
-            </div>
-
-            @using (Html.BeginForm("AjustarStock", "Materiales", FormMethod.Post, new { id = "frmAjuste" }))
-            {
-                @Html.AntiForgeryToken()
-                <input type="hidden" id="ajuste_ID_MATERIAL" name="ID_MATERIAL" value="0" />
-
-                <div class="p-form" style="grid-template-columns: 1fr 1fr 2fr;">
-                    <div class="p-field">
-                        <label>Material seleccionado</label>
-                        <input id="ajuste_nombre" readonly style="background:rgba(0,0,0,.04);" />
-                    </div>
-
-                    <div class="p-field">
-                        <label>Cantidad de ajuste (+/-)</label>
-                        <input id="AJUSTE_CANTIDAD" name="AJUSTE_CANTIDAD" type="number" step="0.01" required placeholder="Ej: 5 o -3" />
-                    </div>
-
-                    <div class="p-field">
-                        <label>Observación del ajuste</label>
-                        <input id="AJUSTE_OBSERVACION" name="AJUSTE_OBSERVACION" placeholder="Motivo del ajuste..." />
-                    </div>
-                </div>
-
-                <div class="p-actions">
-                    <button type="submit" class="lp-btn">Aplicar ajuste</button>
-                    <button type="button" id="btnCerrarAjuste" class="btn2">Cerrar</button>
-                </div>
-            }
-        </div>
-
-        <!-- TABLA DE MATERIALES / EXISTENCIAS -->
-        <div class="panel p-panel" style="margin-top:12px;">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2>Existencias y lista general</h2>
-                    <span class="muted">Se actualiza al guardar, editar o eliminar. Filas en rojo indican stock bajo.</span>
-                </div>
-                <span class="p-chip">@Model.TotalItems registros</span>
-            </div>
-
-            <div class="p-tableWrap">
-                <table id="tblMateriales" class="p-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Tipo</th>
-                            <th>Stock</th>
-                            <th>Costo Unit.</th>
-                            <th>Proveedor</th>
-                            <th>Estado</th>
-                            <th>Alerta</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var m in Model.Materiales)
-                        {
-                            <tr class="rowMat"
-                                data-id="@m.ID_MATERIAL"
-                                data-nombre="@m.NOMBRE"
-                                data-tipo="@m.TIPO"
-                                data-stock="@m.STOCK"
-                                data-costo="@m.COSTO_UNITARIO"
-                                data-proveedor="@m.ID_PROVEEDOR"
-                                data-estado="@m.ID_ESTADO"
-                                data-stockbajo="@m.STOCK_BAJO.ToString().ToLower()"
-                                style="@(m.STOCK_BAJO ? "background:rgba(220,53,69,.08);" : "")">
-
-                                <td class="colNombre">@m.NOMBRE</td>
-                                <td class="colTipo">@m.TIPO</td>
-                                <td style="@(m.STOCK_BAJO ? "color:#dc3545;font-weight:950;" : "")">@m.STOCK</td>
-                                <td>@m.COSTO_UNITARIO.ToString("N2")</td>
-                                <td class="colProveedor">@m.PROVEEDOR</td>
-                                <td>@m.ESTADO</td>
-                                <td>
-                                    @if (m.STOCK_BAJO)
-                                    {
-                                        <span style="color:#dc3545;font-weight:950;font-size:12px;">? Stock bajo</span>
-                                    }
-                                    else
-                                    {
-                                        <span style="color:#28a745;font-size:12px;">? OK</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            @using (Html.BeginForm("Delete", "Materiales", FormMethod.Post, new { id = "frmDelete" }))
-            {
-                @Html.AntiForgeryToken()
-                <input type="hidden" id="deleteId" name="id" value="0" />
-            }
-        </div>
-
-        <!-- PAGINACIÓN -->
-        <div class="p-pagination" style="margin-top:12px;">
-            <nav aria-label="Paginación" class="mt-3">
-                <ul class="pagination">
-                    @{
-                        var current = Model.Page;
-                        var total = Model.TotalPages;
-                        int start = Math.Max(1, current - 2);
-                        int end = Math.Min(total, current + 2);
-                    }
-
-                    <li class="page-item @(current == 1 ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = current - 1 })">Anterior</a>
-                    </li>
-
-                    @for (int i = start; i <= end; i++)
-                    {
-                        <li class="page-item @(i == current ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
-                        </li>
-                    }
-
-                    <li class="page-item @(current >= total ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = current + 1 })">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-
     </div>
-</section>
+</div>
+
+<div class="modal fade" id="modalAjuste" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Ajuste manual de stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @using (Html.BeginForm("AjustarStock", "Materiales", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ID_MATERIAL" id="ajuste_ID_MATERIAL" />
+                <input type="hidden" name="page" value="@Model.Page" />
+                <input type="hidden" name="q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Material seleccionado</label>
+                        <input class="form-control" id="ajuste_nombre" readonly />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Cantidad de ajuste (+/-)</label>
+                        <input class="form-control" name="AJUSTE_CANTIDAD" type="number" step="0.01" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Observación</label>
+                        <input class="form-control" name="AJUSTE_OBSERVACION" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Aplicar ajuste</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 <script>
-    var txtBuscar = document.getElementById("txtBuscar");
-    var filas = function () { return document.querySelectorAll("#tblMateriales tbody tr"); };
-
-    // Búsqueda en tiempo real
-    txtBuscar.addEventListener("keyup", function () {
-        var q = txtBuscar.value.toLowerCase().trim();
-
-        filas().forEach(function (tr) {
-            var id = (tr.dataset.id || "").toLowerCase();
-            var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
-            var tipo = (tr.querySelector(".colTipo") ? tr.querySelector(".colTipo").innerText : "").toLowerCase();
-
-            tr.style.display = (id.indexOf(q) >= 0 || nombre.indexOf(q) >= 0 || tipo.indexOf(q) >= 0) ? "" : "none";
-        });
-    });
-
-    var frm = document.getElementById("frmMaterial");
-    var btnEliminar = document.getElementById("btnEliminar");
-    var panelAjuste = document.getElementById("panel-ajuste");
-
-    function limpiar() {
-        document.getElementById("ID_MATERIAL").value = 0;
-        document.getElementById("NOMBRE").value = "";
-        document.getElementById("TIPO").value = "";
-        document.getElementById("STOCK").value = "0";
-        document.getElementById("COSTO_UNITARIO").value = "";
-        document.getElementById("ID_PROVEEDOR").value = "";
-        document.getElementById("ID_ESTADO").value = "1";
-
-        frm.action = "@Url.Action("Create", "Materiales")";
-        btnEliminar.disabled = true;
-
-        document.getElementById("estadoContainer").style.display = "none";
-        document.getElementById("formTitle").innerText = "Registro de material";
-
-        panelAjuste.style.display = "none";
-
-        filas().forEach(function (x) { x.classList.remove("p-selected"); });
+    function cargarMaterialEditar(id, nombre, tipo, stock, costo, idProveedor, idEstado) {
+        document.getElementById("edit_ID_MATERIAL").value = id;
+        document.getElementById("edit_NOMBRE").value = nombre;
+        document.getElementById("edit_TIPO").value = tipo;
+        document.getElementById("edit_STOCK").value = stock;
+        document.getElementById("edit_COSTO_UNITARIO").value = costo;
+        document.getElementById("edit_ID_PROVEEDOR").value = idProveedor;
+        document.getElementById("edit_ID_ESTADO").value = idEstado;
     }
 
-    document.getElementById("btnCancelar").addEventListener("click", limpiar);
-    document.getElementById("btnCerrarAjuste").addEventListener("click", function () {
-        panelAjuste.style.display = "none";
-    });
-
-    filas().forEach(function (tr) {
-        tr.addEventListener("click", function () {
-            filas().forEach(function (x) { x.classList.remove("p-selected"); });
-            tr.classList.add("p-selected");
-
-            document.getElementById("ID_MATERIAL").value = tr.dataset.id;
-            document.getElementById("NOMBRE").value = tr.dataset.nombre;
-            document.getElementById("TIPO").value = tr.dataset.tipo;
-            document.getElementById("STOCK").value = tr.dataset.stock;
-            document.getElementById("COSTO_UNITARIO").value = tr.dataset.costo;
-            document.getElementById("ID_PROVEEDOR").value = tr.dataset.proveedor;
-            document.getElementById("ID_ESTADO").value = tr.dataset.estado;
-
-            frm.action = "@Url.Action("Edit", "Materiales")";
-            btnEliminar.disabled = false;
-
-            document.getElementById("estadoContainer").style.display = "grid";
-            document.getElementById("formTitle").innerText = "Editar material #" + tr.dataset.id;
-
-            // Mostrar panel de ajuste
-            panelAjuste.style.display = "block";
-            document.getElementById("ajuste_ID_MATERIAL").value = tr.dataset.id;
-            document.getElementById("ajuste_nombre").value = tr.dataset.nombre + " (Stock actual: " + tr.dataset.stock + ")";
-            document.getElementById("AJUSTE_CANTIDAD").value = "";
-            document.getElementById("AJUSTE_OBSERVACION").value = "";
-        });
-    });
-
-    // Validación del formulario
-    frm.addEventListener("submit", function (e) {
-        var nombre = document.getElementById("NOMBRE").value.trim();
-        var tipo = document.getElementById("TIPO").value;
-        var costo = document.getElementById("COSTO_UNITARIO").value;
-        var proveedor = document.getElementById("ID_PROVEEDOR").value;
-
-        if (!nombre || !tipo || !costo || !proveedor) {
-            e.preventDefault();
-            alert("Todos los campos son requeridos. Complete nombre, tipo, costo unitario y proveedor.");
-            return false;
-        }
-
-        if (parseFloat(costo) < 0) {
-            e.preventDefault();
-            alert("El costo unitario no puede ser negativo.");
-            return false;
-        }
-    });
-
-    // Eliminar con confirmación
-    btnEliminar.addEventListener("click", function () {
-        var id = document.getElementById("ID_MATERIAL").value;
-        if (id == 0) return;
-
-        if (confirm("¿Está seguro que desea eliminar este material?\n\nSolo se puede eliminar si NO está asociado a transacciones activas.")) {
-            document.getElementById("deleteId").value = id;
-            document.getElementById("frmDelete").submit();
-        }
-    });
-
-    // Validación del ajuste
-    document.getElementById("frmAjuste").addEventListener("submit", function (e) {
-        var cant = document.getElementById("AJUSTE_CANTIDAD").value;
-        if (!cant || parseFloat(cant) === 0) {
-            e.preventDefault();
-            alert("La cantidad de ajuste no puede ser cero.");
-            return false;
-        }
-
-        if (!confirm("¿Confirma el ajuste de " + cant + " unidades en el stock de este material?")) {
-            e.preventDefault();
-            return false;
-        }
-    });
-
-    // Lógica de paginación
-    var currentPage = @Model.Page;
-    var totalPages = @Model.TotalPages;
-
-    function updatePaginationButtons() {
-        document.getElementById("btnFirstPage").style.display = (currentPage === 1) ? "none" : "inline-block";
-        document.getElementById("btnPrevPage").style.display = (currentPage === 1) ? "none" : "inline-block";
-        document.getElementById("btnNextPage").style.display = (currentPage === totalPages) ? "none" : "inline-block";
-        document.getElementById("btnLastPage").style.display = (currentPage === totalPages) ? "none" : "inline-block";
+    function cargarAjuste(id, nombre, stock) {
+        document.getElementById("ajuste_ID_MATERIAL").value = id;
+        document.getElementById("ajuste_nombre").value = nombre + " (Stock actual: " + stock + ")";
     }
-
-    document.getElementById("btnFirstPage").addEventListener("click", function () {
-        currentPage = 1;
-        // Lógica para cargar la primera página de resultados
-        // Por ejemplo, hacer una nueva petición AJAX para obtener los materiales de la página 1
-        updatePaginationButtons();
-    });
-
-    document.getElementById("btnPrevPage").addEventListener("click", function () {
-        if (currentPage > 1) {
-            currentPage--;
-            // Cargar la página anterior de resultados
-            updatePaginationButtons();
-        }
-    });
-
-    document.getElementById("btnNextPage").addEventListener("click", function () {
-        if (currentPage < totalPages) {
-            currentPage++;
-            // Cargar la siguiente página de resultados
-            updatePaginationButtons();
-        }
-    });
-
-    document.getElementById("btnLastPage").addEventListener("click", function () {
-        currentPage = totalPages;
-        // Lógica para cargar la última página de resultados
-        updatePaginationButtons();
-    });
-
-    // Inicializar botones de paginación
-    updatePaginationButtons();
 </script>

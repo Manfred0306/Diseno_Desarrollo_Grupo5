@@ -12,11 +12,19 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
     {
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
-        public ActionResult Index(int page = 1, int pageSize = 10)
+        public ActionResult Index(string q = null, int page = 1, int pageSize = 10)
         {
             try
             {
-                var query = db.CATEGORIAS.OrderBy(c => c.NOMBRE).AsQueryable();
+                q = (q ?? "").Trim();
+                var query = db.CATEGORIAS.AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(q))
+                {
+                    query = query.Where(c => c.NOMBRE.Contains(q) || c.DESCRIPCION.Contains(q));
+                }
+
+                query = query.OrderBy(c => c.NOMBRE);
 
                 var total = query.Count();
                 var skip = (Math.Max(page, 1) - 1) * pageSize;
@@ -24,6 +32,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
                 var vm = new CategoriaCrudVM
                 {
+                    Q = q,
                     Page = page,
                     PageSize = pageSize,
                     TotalItems = total,
@@ -77,7 +86,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             if (existe)
             {
                 TempData["Mensaje"] = "Ya existe una categoría con ese nombre.";
-                return RedirectToAction("Index", new { page = vm.Page });
+                return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
             }
 
             var estadoActivo = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Activo");
@@ -93,7 +102,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             db.SaveChanges();
 
             TempData["OK"] = "Categoría registrada correctamente.";
-            return RedirectToAction("Index", new { page = vm.Page });
+            return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
         }
 
         [HttpPost]
@@ -101,19 +110,19 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         public ActionResult Edit(CategoriaCrudVM vm)
         {
             var cat = db.CATEGORIAS.Find(vm.ID_CATEGORIA);
-            if (cat == null) return RedirectToAction("Index");
+            if (cat == null) return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
 
             if (string.IsNullOrWhiteSpace(vm.NOMBRE))
             {
                 TempData["Mensaje"] = "El nombre es requerido.";
-                return RedirectToAction("Index", new { page = vm.Page });
+                return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
             }
 
             var existe = db.CATEGORIAS.Any(c => c.NOMBRE == vm.NOMBRE.Trim() && c.ID_CATEGORIA != vm.ID_CATEGORIA);
             if (existe)
             {
                 TempData["Mensaje"] = "Ya existe otra categoría con ese nombre.";
-                return RedirectToAction("Index", new { page = vm.Page });
+                return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
             }
 
             cat.NOMBRE = vm.NOMBRE.Trim();
@@ -123,15 +132,15 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             db.SaveChanges();
 
             TempData["OK"] = "Categoría actualizada correctamente.";
-            return RedirectToAction("Index", new { page = vm.Page });
+            return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Deactivate(int id)
+        public ActionResult Deactivate(int id, int page = 1, string q = null)
         {
             var cat = db.CATEGORIAS.Find(id);
-            if (cat == null) return RedirectToAction("Index");
+            if (cat == null) return RedirectToAction("Index", new { page, q });
 
             var estadoInactivo = db.ESTADO.FirstOrDefault(e => e.NOMBRE == "Inactivo");
             cat.ID_ESTADO = estadoInactivo != null ? estadoInactivo.ID_ESTADO : 2;
@@ -139,7 +148,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             db.SaveChanges();
 
             TempData["OK"] = "Categoría puesta como Inactiva.";
-            return RedirectToAction("Index", new { page = 1 });
+            return RedirectToAction("Index", new { page, q });
         }
 
         public ActionResult GetActiveCategories()

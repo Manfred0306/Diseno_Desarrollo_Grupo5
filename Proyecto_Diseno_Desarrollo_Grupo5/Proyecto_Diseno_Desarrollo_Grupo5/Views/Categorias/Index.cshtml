@@ -1,84 +1,181 @@
+@using System.Web
 @model Proyecto_Diseno_Desarrollo_Grupo5.Models.CategoriaCrudVM
 @{
     ViewBag.Title = "Categorías";
     Layout = "~/Views/Shared/_LayoutCliente.cshtml";
 }
 
-@section styles {
-    <link rel="stylesheet" href="~/StaticFiles/css/Index.css" />
-    <link rel="stylesheet" href="~/StaticFiles/css/Footer.css" />
-    <link rel="stylesheet" href="~/StaticFiles/css/Productos.css" />
+@section styles{
+    <link rel="stylesheet" href="~/StaticFiles/css/Cliente.css" />
 }
 
-<section class="page-hero">
-    <div class="lp-wrap">
-        <div class="hero" style="grid-template-columns: 1fr;">
-            <div class="hero__left" style="padding: 34px 34px;">
-                <span class="hero__kicker">Módulo</span>
-                <h1>Categorías</h1>
-                <p>
-                    Registrar, editar y desactivar categorías rápidamente.
-                    Seleccioná una fila para editar o desactivar.
-                </p>
-
-                <div class="hero__cta">
-                    <a class="lp-btn" href="@Url.Action("Index","Home")">
-                        Volver al inicio
-                    </a>
-                    <a class="btn2" href="#panel-form">
-                        Ir al formulario
-                    </a>
-                </div>
-            </div>
+<div class="container" style="max-width:1100px; padding-top:30px;">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="page-title">Control de Categorías</h2>
+            <div class="page-subtitle">Gestión de categorías (crear, editar, inactivar)</div>
         </div>
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+            + Nueva Categoría
+        </button>
     </div>
-</section>
 
-<section class="lp-section">
-    <div class="lp-wrap">
+    @if (TempData["OK"] != null)
+    {
+        <div class="alert alert-success cardx" style="padding:12px 14px;">@TempData["OK"]</div>
+    }
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-warning cardx" style="padding:12px 14px;">@TempData["Mensaje"]</div>
+    }
 
-        @if (TempData["OK"] != null)
+    <div class="page-section mb-3">
+        @using (Html.BeginForm("Index", "Categorias", FormMethod.Get))
         {
-            <div class="alert alert-success" style="margin-bottom:12px;">@TempData["OK"]</div>
-        }
-        @if (TempData["Mensaje"] != null)
-        {
-            <div class="alert alert-warning" style="margin-bottom:12px;">@TempData["Mensaje"]</div>
-        }
-
-        <div class="panel p-panel" id="panel-form">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2>Registro y mantenimiento</h2>
-                    <span class="muted">Click en una fila para cargar datos y editar.</span>
+            <div class="row g-2 align-items-end">
+                <div class="col-md-9">
+                    <label class="form-label" style="font-weight:600;">Buscar</label>
+                    <input type="text" name="q" value="@Model.Q" class="form-control" placeholder="Nombre o descripción" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-dark w-100" style="height:44px; border-radius:10px; font-weight:600;">?? Buscar</button>
                 </div>
             </div>
+        }
+    </div>
 
-            <div class="p-search">
-                <input id="txtBuscar" placeholder="Buscar por nombre o descripción..." />
+    <div class="page-section mt-3">
+        <div class="cardx table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th style="width:220px; text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.Categorias)
+                    {
+                        <tr>
+                            <td>@c.NOMBRE</td>
+                            <td>@c.DESCRIPCION</td>
+                            <td>
+                                <span class="badge-pill @(c.ID_ESTADO == 1 ? "badge-ok" : "badge-off")">
+                                    @(c.ID_ESTADO == 1 ? "ACTIVO" : "INACTIVO")
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-outline-primary btn-sm me-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEditar"
+                                        onclick="cargarCategoriaEditar('@c.ID_CATEGORIA', '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.NOMBRE ?? ""))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(c.DESCRIPCION ?? ""))', '@c.ID_ESTADO')">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                @using (Html.BeginForm("Deactivate", "Categorias", FormMethod.Post, new { style = "display:inline;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@c.ID_CATEGORIA" />
+                                    <input type="hidden" name="page" value="@Model.Page" />
+                                    <input type="hidden" name="q" value="@Model.Q" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Inactivar esta categoría?');">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Paginación" class="mt-3">
+            <ul class="pagination">
+                @{
+                    var current = Model.Page <= 0 ? 1 : Model.Page;
+                    var total = Model.TotalPages <= 0 ? 1 : Model.TotalPages;
+                    int start = Math.Max(1, current - 2);
+                    int end = Math.Min(total, current + 2);
+                }
+
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = current - 1 })">Anterior</a>
+                </li>
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = i })">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(current >= total ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = current + 1 })">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Nueva categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            @using (Html.BeginForm("Create", "Categorias", FormMethod.Post, new { id = "frmCategoria" }))
+            @using (Html.BeginForm("Create", "Categorias", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-
-                <input type="hidden" id="ID_CATEGORIA" name="ID_CATEGORIA" value="0" />
                 <input type="hidden" name="Page" value="@Model.Page" />
-
-                <div class="p-form" style="grid-template-columns: 1.2fr 2fr 1fr;">
-                    <div class="p-field">
-                        <label>Nombre</label>
-                        <input id="NOMBRE" name="NOMBRE" required />
+                <input type="hidden" name="Q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" name="NOMBRE" required />
                     </div>
-
-                    <div class="p-field">
-                        <label>Descripción</label>
-                        <input id="DESCRIPCION" name="DESCRIPCION" />
+                    <div class="mb-2">
+                        <label class="form-label">Descripción</label>
+                        <input class="form-control" name="DESCRIPCION" />
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Guardar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
-                    <div class="p-field">
-                        <label>Estado</label>
-                        <select id="ID_ESTADO" name="ID_ESTADO" required>
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Editar categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @using (Html.BeginForm("Edit", "Categorias", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ID_CATEGORIA" id="edit_ID_CATEGORIA" />
+                <input type="hidden" name="Page" value="@Model.Page" />
+                <input type="hidden" name="Q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" name="NOMBRE" id="edit_NOMBRE" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Descripción</label>
+                        <input class="form-control" name="DESCRIPCION" id="edit_DESCRIPCION" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" name="ID_ESTADO" id="edit_ID_ESTADO" required>
                             @foreach (var e in Model.Estados)
                             {
                                 <option value="@e.Value">@e.Text</option>
@@ -86,143 +183,20 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="p-actions">
-                    <button type="submit" id="btnGuardar" class="lp-btn">Guardar</button>
-                    <button type="button" id="btnCancelar" class="btn2">Cancelar</button>
-                    <button type="button" id="btnDesactivar" class="lp-btn p-danger" disabled>Desactivar</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Guardar cambios</button>
                 </div>
             }
         </div>
-
-        <div class="panel p-panel" style="margin-top:12px;">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2>Lista general</h2>
-                    <span class="muted">Se actualiza cuando guardás, editás o desactivás.</span>
-                </div>
-                <span class="p-chip">@Model.TotalItems registros</span>
-            </div>
-
-            <div class="p-tableWrap">
-                <table id="tblCategorias" class="p-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Descripción</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var c in Model.Categorias)
-                        {
-                            <tr class="rowCat"
-                                data-id="@c.ID_CATEGORIA"
-                                data-nombre="@c.NOMBRE"
-                                data-descripcion="@c.DESCRIPCION"
-                                data-estado="@c.ID_ESTADO">
-
-                                <td class="colNombre">@c.NOMBRE</td>
-                                <td class="colDescripcion">@c.DESCRIPCION</td>
-                                <td>@c.ESTADO</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            @{
-                var current = Model.Page <= 0 ? 1 : Model.Page;
-                var total = Model.TotalPages <= 0 ? 1 : Model.TotalPages;
-                int start = System.Math.Max(1, current - 2);
-                int end = System.Math.Min(total, current + 2);
-            }
-
-            <nav aria-label="Paginación" class="mt-3">
-                <ul class="pagination">
-                    <li class="page-item @(current == 1 ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = current - 1 })">Anterior</a>
-                    </li>
-
-                    @for (int i = start; i <= end; i++)
-                    {
-                        <li class="page-item @(i == current ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
-                        </li>
-                    }
-
-                    <li class="page-item @(current >= total ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = current + 1 })">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
-
-            @using (Html.BeginForm("Deactivate", "Categorias", FormMethod.Post, new { id = "frmDeactivate" }))
-            {
-                @Html.AntiForgeryToken()
-                <input type="hidden" id="deactivateId" name="id" value="0" />
-            }
-        </div>
-
     </div>
-</section>
+</div>
 
 <script>
-    var txtBuscar = document.getElementById("txtBuscar");
-    var filas = function() { return document.querySelectorAll("#tblCategorias tbody tr"); };
-
-    txtBuscar.addEventListener("keyup", function () {
-        var q = txtBuscar.value.toLowerCase().trim();
-
-        filas().forEach(function(tr) {
-            var id = (tr.dataset.id || "").toLowerCase();
-            var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
-            var desc = (tr.querySelector(".colDescripcion") ? tr.querySelector(".colDescripcion").innerText : "").toLowerCase();
-
-            tr.style.display = (id.indexOf(q) >= 0 || nombre.indexOf(q) >= 0 || desc.indexOf(q) >= 0) ? "" : "none";
-        });
-    });
-
-    var frm = document.getElementById("frmCategoria");
-    var btnDesactivar = document.getElementById("btnDesactivar");
-
-    function limpiar() {
-        document.getElementById("ID_CATEGORIA").value = 0;
-        document.getElementById("NOMBRE").value = "";
-        document.getElementById("DESCRIPCION").value = "";
-        document.getElementById("ID_ESTADO").value = "1";
-
-        frm.action = "@Url.Action("Create", "Categorias")";
-        btnDesactivar.disabled = true;
-
-        filas().forEach(function(x) { x.classList.remove("p-selected"); });
+    function cargarCategoriaEditar(id, nombre, descripcion, idEstado) {
+        document.getElementById("edit_ID_CATEGORIA").value = id;
+        document.getElementById("edit_NOMBRE").value = nombre;
+        document.getElementById("edit_DESCRIPCION").value = descripcion;
+        document.getElementById("edit_ID_ESTADO").value = idEstado;
     }
-
-    document.getElementById("btnCancelar").addEventListener("click", limpiar);
-
-    filas().forEach(function(tr) {
-        tr.addEventListener("click", function () {
-            filas().forEach(function(x) { x.classList.remove("p-selected"); });
-            tr.classList.add("p-selected");
-
-            document.getElementById("ID_CATEGORIA").value = tr.dataset.id;
-            document.getElementById("NOMBRE").value = tr.dataset.nombre;
-            document.getElementById("DESCRIPCION").value = tr.dataset.descripcion;
-            document.getElementById("ID_ESTADO").value = tr.dataset.estado;
-
-            frm.action = "@Url.Action("Edit", "Categorias")";
-            btnDesactivar.disabled = false;
-        });
-    });
-
-    btnDesactivar.addEventListener("click", function () {
-        var id = document.getElementById("ID_CATEGORIA").value;
-        if (id == 0) return;
-
-        if (confirm("¿Confirma desactivar esta categoría? Esta acción la pondrá como Inactiva.")) {
-            document.getElementById("deactivateId").value = id;
-            document.getElementById("frmDeactivate").submit();
-        }
-    });
 </script>

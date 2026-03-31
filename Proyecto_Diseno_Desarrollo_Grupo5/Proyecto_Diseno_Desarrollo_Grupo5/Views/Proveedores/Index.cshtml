@@ -1,92 +1,193 @@
+@using System.Web
 @model Proyecto_Diseno_Desarrollo_Grupo5.Models.ProveedorCrudVM
 @{
     ViewBag.Title = "Proveedores";
     Layout = "~/Views/Shared/_LayoutCliente.cshtml";
 }
 
-@section styles {
-    <link rel="stylesheet" href="~/StaticFiles/css/Index.css" />
-    <link rel="stylesheet" href="~/StaticFiles/css/Footer.css" />
-    <link rel="stylesheet" href="~/StaticFiles/css/Productos.css" />
+@section styles{
+    <link rel="stylesheet" href="~/StaticFiles/css/Cliente.css" />
 }
 
-<section class="page-hero">
-    <div class="lp-wrap">
-        <div class="hero" style="grid-template-columns: 1fr;">
-            <div class="hero__left" style="padding: 34px 34px;">
-                <span class="hero__kicker">Módulo</span>
-                <h1>Gestión de Proveedores</h1>
-                <p>
-                    Registrar, editar, desactivar y filtrar proveedores.
-                    Seleccioná una fila para editar o desactivar.
-                </p>
-
-                <div class="hero__cta">
-                    <a class="lp-btn" href="@Url.Action("Index","Home")">
-                        Volver al inicio
-                    </a>
-                    <a class="btn2" href="#panel-form">
-                        Ir al formulario
-                    </a>
-                </div>
-            </div>
+<div class="container" style="max-width:1100px; padding-top:30px;">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="page-title">Control de Proveedores</h2>
+            <div class="page-subtitle">Gestión de proveedores (crear, editar, inactivar)</div>
         </div>
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+            + Nuevo Proveedor
+        </button>
     </div>
-</section>
 
-<section class="lp-section">
-    <div class="lp-wrap">
+    @if (TempData["OK"] != null)
+    {
+        <div class="alert alert-success cardx" style="padding:12px 14px;">@TempData["OK"]</div>
+    }
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-warning cardx" style="padding:12px 14px;">@TempData["Mensaje"]</div>
+    }
 
-        @if (TempData["OK"] != null)
+    <div class="page-section mb-3">
+        @using (Html.BeginForm("Index", "Proveedores", FormMethod.Get))
         {
-            <div class="alert alert-success" style="margin-bottom:12px;">@TempData["OK"]</div>
-        }
-        @if (TempData["Mensaje"] != null)
-        {
-            <div class="alert alert-warning" style="margin-bottom:12px;">@TempData["Mensaje"]</div>
-        }
-
-        <!-- FORMULARIO DE REGISTRO / EDICIÓN -->
-        <div class="panel p-panel" id="panel-form">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2 id="formTitle">Registro de proveedor</h2>
-                    <span class="muted">Click en una fila para cargar datos y editar.</span>
+            <div class="row g-2 align-items-end">
+                <div class="col-md-9">
+                    <label class="form-label" style="font-weight:600;">Buscar</label>
+                    <input type="text" name="q" value="@Model.Q" class="form-control" placeholder="Nombre, contacto o teléfono" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-dark w-100" style="height:44px; border-radius:10px; font-weight:600;">?? Buscar</button>
                 </div>
             </div>
+        }
+    </div>
 
-            <div class="p-search">
-                <input id="txtBuscar" placeholder="Filtrar proveedores por nombre..." />
+    <div class="page-section mt-3">
+        <div class="cardx table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th>Contacto</th>
+                        <th>Teléfono</th>
+                        <th>Materiales</th>
+                        <th>Estado</th>
+                        <th style="width:220px; text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Proveedores)
+                    {
+                        <tr>
+                            <td>@p.NOMBRE</td>
+                            <td>@p.CONTACTO</td>
+                            <td>@p.TELEFONO</td>
+                            <td>@p.CANTIDAD_MATERIALES</td>
+                            <td>
+                                <span class="badge-pill @(p.ID_ESTADO == 1 ? "badge-ok" : "badge-off")">
+                                    @(p.ID_ESTADO == 1 ? "ACTIVO" : "INACTIVO")
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-outline-primary btn-sm me-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEditar"
+                                        onclick="cargarProveedorEditar('@p.ID_PROVEEDOR', '@Html.Raw(HttpUtility.JavaScriptStringEncode(p.NOMBRE ?? ""))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(p.CONTACTO ?? ""))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(p.TELEFONO ?? ""))', '@p.ID_ESTADO')">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                @using (Html.BeginForm("Deactivate", "Proveedores", FormMethod.Post, new { style = "display:inline;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.ID_PROVEEDOR" />
+                                    <input type="hidden" name="page" value="@Model.Page" />
+                                    <input type="hidden" name="q" value="@Model.Q" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Inactivar este proveedor?');">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Paginación" class="mt-3">
+            <ul class="pagination">
+                @{
+                    var current = Model.Page;
+                    var total = Model.TotalPages;
+                    int start = Math.Max(1, current - 2);
+                    int end = Math.Min(total, current + 2);
+                }
+
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = current - 1 })">Anterior</a>
+                </li>
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = i })">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(current >= total ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = current + 1 })">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Nuevo proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            @using (Html.BeginForm("Create", "Proveedores", FormMethod.Post, new { id = "frmProveedor" }))
+            @using (Html.BeginForm("Create", "Proveedores", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-
-                <input type="hidden" id="ID_PROVEEDOR" name="ID_PROVEEDOR" value="0" />
                 <input type="hidden" name="Page" value="@Model.Page" />
-
-                <div class="p-form" style="grid-template-columns: 1fr 1fr 1fr;">
-                    <div class="p-field">
-                        <label>Nombre de la empresa</label>
-                        <input id="NOMBRE" name="NOMBRE" required placeholder="Ej: Mármoles del Sur S.A." />
+                <input type="hidden" name="Q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre de empresa</label>
+                        <input class="form-control" name="NOMBRE" required />
                     </div>
-
-                    <div class="p-field">
-                        <label>Nombre de Contacto</label>
-                        <input id="CONTACTO" name="CONTACTO" required placeholder="Nombre del encargado" />
+                    <div class="mb-2">
+                        <label class="form-label">Nombre de contacto</label>
+                        <input class="form-control" name="CONTACTO" required />
                     </div>
-
-                    <div class="p-field">
-                        <label>Teléfono</label>
-                        <input id="TELEFONO" name="TELEFONO" required placeholder="Ej: 2222-3333" />
+                    <div class="mb-2">
+                        <label class="form-label">Teléfono</label>
+                        <input class="form-control" name="TELEFONO" required />
                     </div>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Guardar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
-                <div class="p-form" style="grid-template-columns: 1fr; margin-top: 0; display: none;" id="estadoContainer">
-                    <div class="p-field">
-                        <label>Estado</label>
-                        <select id="ID_ESTADO" name="ID_ESTADO" required>
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Editar proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @using (Html.BeginForm("Edit", "Proveedores", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ID_PROVEEDOR" id="edit_ID_PROVEEDOR" />
+                <input type="hidden" name="Page" value="@Model.Page" />
+                <input type="hidden" name="Q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre de empresa</label>
+                        <input class="form-control" name="NOMBRE" id="edit_NOMBRE" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Nombre de contacto</label>
+                        <input class="form-control" name="CONTACTO" id="edit_CONTACTO" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Teléfono</label>
+                        <input class="form-control" name="TELEFONO" id="edit_TELEFONO" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" name="ID_ESTADO" id="edit_ID_ESTADO" required>
                             @foreach (var e in Model.Estados)
                             {
                                 <option value="@e.Value">@e.Text</option>
@@ -94,195 +195,21 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="p-actions">
-                    <button type="submit" id="btnGuardar" class="lp-btn">Guardar</button>
-                    <button type="button" id="btnCancelar" class="btn2">Cancelar</button>
-                    <button type="button" id="btnDesactivar" class="lp-btn p-danger" disabled>Desactivar</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Guardar cambios</button>
                 </div>
             }
         </div>
-
-        <!-- TABLA DE PROVEEDORES -->
-        <div class="panel p-panel" style="margin-top:12px;">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2>Lista general de proveedores</h2>
-                    <span class="muted">Se actualiza al guardar, editar o desactivar.</span>
-                </div>
-                <span class="p-chip">@Model.TotalItems registros</span>
-            </div>
-
-            <div class="p-tableWrap">
-                <table id="tblProveedores" class="p-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Nombre de Contacto</th>
-                            <th>Teléfono</th>
-                            <th>Materiales</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var p in Model.Proveedores)
-                        {
-                            <tr class="rowProv"
-                                data-id="@p.ID_PROVEEDOR"
-                                data-nombre="@p.NOMBRE"
-                                data-contacto="@p.CONTACTO"
-                                data-telefono="@p.TELEFONO"
-                                data-estado="@p.ID_ESTADO"
-                                data-estadonombre="@p.ESTADO"
-                                data-materiales="@p.MATERIALES_NOMBRES">
-
-                                <td class="colNombre">@p.NOMBRE</td>
-                                <td>@p.CONTACTO</td>
-                                <td>@p.TELEFONO</td>
-                                <td>
-                                    <span class="p-chip" style="font-size:10.5px;">@p.CANTIDAD_MATERIALES material(es)</span>
-                                </td>
-                                <td>
-                                    @if (p.ESTADO == "Activo")
-                                    {
-                                        <span style="color:#28a745;font-weight:950;">@p.ESTADO</span>
-                                    }
-                                    else
-                                    {
-                                        <span style="color:#dc3545;font-weight:950;">@p.ESTADO</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Paginación" class="mt-3">
-                <ul class="pagination">
-                    @{
-                        var current = Model.Page;
-                        var total = Model.TotalPages;
-                        int start = Math.Max(1, current - 2);
-                        int end = Math.Min(total, current + 2);
-                    }
-
-                    <li class="page-item @(current == 1 ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = current - 1 })">Anterior</a>
-                    </li>
-
-                    @for (int i = start; i <= end; i++)
-                    {
-                        <li class="page-item @(i == current ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
-                        </li>
-                    }
-
-                    <li class="page-item @(current >= total ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = current + 1 })">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
-
-            @using (Html.BeginForm("Deactivate", "Proveedores", FormMethod.Post, new { id = "frmDeactivate" }))
-            {
-                @Html.AntiForgeryToken()
-                <input type="hidden" id="deactivateId" name="id" value="0" />
-            }
-        </div>
-
     </div>
-</section>
+</div>
 
 <script>
-    var txtBuscar = document.getElementById("txtBuscar");
-    var filas = function () { return document.querySelectorAll("#tblProveedores tbody tr"); };
-
-    // HU4 - Filtrar proveedores activos en tiempo real
-    txtBuscar.addEventListener("keyup", function () {
-        var q = txtBuscar.value.toLowerCase().trim();
-
-        filas().forEach(function (tr) {
-            var id = (tr.dataset.id || "").toLowerCase();
-            var nombre = (tr.querySelector(".colNombre") ? tr.querySelector(".colNombre").innerText : "").toLowerCase();
-            var estadoNombre = (tr.dataset.estadonombre || "").toLowerCase();
-
-            // Mostrar solo proveedores activos que coincidan con la búsqueda
-            var esActivo = estadoNombre === "activo";
-            var coincide = (id.indexOf(q) >= 0 || nombre.indexOf(q) >= 0);
-
-            if (q === "") {
-                tr.style.display = "";
-            } else {
-                tr.style.display = (esActivo && coincide) ? "" : "none";
-            }
-        });
-    });
-
-    var frm = document.getElementById("frmProveedor");
-    var btnDesactivar = document.getElementById("btnDesactivar");
-
-    function limpiar() {
-        document.getElementById("ID_PROVEEDOR").value = 0;
-        document.getElementById("NOMBRE").value = "";
-        document.getElementById("CONTACTO").value = "";
-        document.getElementById("TELEFONO").value = "";
-        document.getElementById("ID_ESTADO").value = "1";
-
-        frm.action = "@Url.Action("Create", "Proveedores")";
-        btnDesactivar.disabled = true;
-
-        document.getElementById("estadoContainer").style.display = "none";
-        document.getElementById("formTitle").innerText = "Registro de proveedor";
-
-        filas().forEach(function (x) { x.classList.remove("p-selected"); });
+    function cargarProveedorEditar(id, nombre, contacto, telefono, idEstado) {
+        document.getElementById("edit_ID_PROVEEDOR").value = id;
+        document.getElementById("edit_NOMBRE").value = nombre;
+        document.getElementById("edit_CONTACTO").value = contacto;
+        document.getElementById("edit_TELEFONO").value = telefono;
+        document.getElementById("edit_ID_ESTADO").value = idEstado;
     }
-
-    document.getElementById("btnCancelar").addEventListener("click", limpiar);
-
-    filas().forEach(function (tr) {
-        tr.addEventListener("click", function () {
-            filas().forEach(function (x) { x.classList.remove("p-selected"); });
-            tr.classList.add("p-selected");
-
-            var provId = tr.dataset.id;
-
-            document.getElementById("ID_PROVEEDOR").value = provId;
-            document.getElementById("NOMBRE").value = tr.dataset.nombre;
-            document.getElementById("CONTACTO").value = tr.dataset.contacto;
-            document.getElementById("TELEFONO").value = tr.dataset.telefono;
-            document.getElementById("ID_ESTADO").value = tr.dataset.estado;
-
-            frm.action = "@Url.Action("Edit", "Proveedores")";
-            btnDesactivar.disabled = false;
-
-            document.getElementById("estadoContainer").style.display = "grid";
-            document.getElementById("formTitle").innerText = "Editar proveedor #" + provId;
-        });
-    });
-
-    // Validación del formulario
-    frm.addEventListener("submit", function (e) {
-        var nombre = document.getElementById("NOMBRE").value.trim();
-        var contacto = document.getElementById("CONTACTO").value.trim();
-        var telefono = document.getElementById("TELEFONO").value.trim();
-
-        if (!nombre || !contacto || !telefono) {
-            e.preventDefault();
-            alert("Todos los campos son requeridos: nombre, nombre de contacto y teléfono.");
-            return false;
-        }
-    });
-
-    // Desactivar con confirmación
-    btnDesactivar.addEventListener("click", function () {
-        var id = document.getElementById("ID_PROVEEDOR").value;
-        if (id == 0) return;
-
-        if (confirm("¿Confirma desactivar este proveedor?\n\nLos productos/materiales asociados exclusivamente a este proveedor también se desactivarán.\n\n(El registro no se elimina, solo cambia a estado inactivo.)")) {
-            document.getElementById("deactivateId").value = id;
-            document.getElementById("frmDeactivate").submit();
-        }
-    });
 </script>

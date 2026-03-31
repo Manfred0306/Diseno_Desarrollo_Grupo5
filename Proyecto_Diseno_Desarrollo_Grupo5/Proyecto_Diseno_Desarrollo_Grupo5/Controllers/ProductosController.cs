@@ -12,9 +12,17 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
         private DBGRUPO5Entities db = new DBGRUPO5Entities();
 
         [RolAuthorize(1,2)]
-        public ActionResult Index(int page = 1, int pageSize = 10)
+        public ActionResult Index(string q = null, int page = 1, int pageSize = 10)
         {
-            var query = db.PRODUCTOS.OrderBy(p => p.NOMBRE).AsQueryable();
+            q = (q ?? "").Trim();
+            var query = db.PRODUCTOS.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                query = query.Where(p => p.NOMBRE.Contains(q) || p.CATEGORIAS.NOMBRE.Contains(q));
+            }
+
+            query = query.OrderBy(p => p.NOMBRE);
 
             var total = query.Count();
             var skip = (Math.Max(page,1) - 1) * pageSize;
@@ -22,6 +30,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
             var vm = new ProductoCrudVM
             {
+                Q = q,
                 Page = page,
                 PageSize = pageSize,
                 TotalItems = total,
@@ -80,7 +89,7 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
 
             db.PRODUCTOS.Add(p);
             db.SaveChanges();
-            return RedirectToAction("Index", new { page = vm.Page });
+            return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
         }
 
         [RolAuthorize(1)]
@@ -97,20 +106,20 @@ namespace Proyecto_Diseno_Desarrollo_Grupo5.Controllers
             p.ID_ESTADO = vm.ID_ESTADO;
 
             db.SaveChanges();
-            return RedirectToAction("Index", new { page = vm.Page });
+            return RedirectToAction("Index", new { page = vm.Page, q = vm.Q });
         }
 
         [RolAuthorize(1)]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int id, int page = 1, string q = null)
         {
             var p = db.PRODUCTOS.Find(id);
-            if (p == null) return RedirectToAction("Index");
+            if (p == null) return RedirectToAction("Index", new { page, q });
 
             db.PRODUCTOS.Remove(p);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { page, q });
         }
     }
 }

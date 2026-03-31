@@ -1,72 +1,147 @@
-﻿@model Proyecto_Diseno_Desarrollo_Grupo5.Models.ProductoCrudVM
+﻿@using System.Web
+@model Proyecto_Diseno_Desarrollo_Grupo5.Models.ProductoCrudVM
 @{
     ViewBag.Title = "Productos";
     Layout = "~/Views/Shared/_LayoutCliente.cshtml";
 }
 
 @section styles {
-    <link rel="stylesheet" href="~/StaticFiles/css/Index.css" />
-    <link rel="stylesheet" href="~/StaticFiles/css/Footer.css" />
-    <link rel="stylesheet" href="~/StaticFiles/css/Productos.css" />
+    <link rel="stylesheet" href="~/StaticFiles/css/Cliente.css" />
 }
 
-<section class="page-hero">
-    <div class="lp-wrap">
-        <div class="hero" style="grid-template-columns: 1fr;">
-            <div class="hero__left" style="padding: 34px 34px;">
-                <span class="hero__kicker">Módulo</span>
-                <h1>Productos</h1>
-                <p>
-                    Registrar, editar, eliminar y buscar productos rápidamente.
-                    Seleccioná una fila para editar o eliminar.
-                </p>
-
-                <div class="hero__cta">
-                    <a class="lp-btn" href="@Url.Action("Index","Home")">Volver al inicio</a>
-                    <a class="btn2" href="#panel-form">Ir al formulario</a>
-                </div>
-            </div>
+<div class="container" style="max-width:1100px; padding-top:30px;">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="page-title">Control de Productos</h2>
+            <div class="page-subtitle">Gestión de productos (crear, editar, eliminar)</div>
         </div>
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+            + Nuevo Producto
+        </button>
     </div>
-</section>
 
-<section class="lp-section">
-    <div class="lp-wrap">
+    @if (TempData["OK"] != null)
+    {
+        <div class="alert alert-success cardx" style="padding:12px 14px;">@TempData["OK"]</div>
+    }
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-warning cardx" style="padding:12px 14px;">@TempData["Mensaje"]</div>
+    }
 
-        <div class="panel p-panel" id="panel-form">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2>Registro y mantenimiento</h2>
-                    <span class="muted">Click en una fila para cargar datos y editar.</span>
+    <div class="page-section mb-3">
+        @using (Html.BeginForm("Index", "Productos", FormMethod.Get))
+        {
+            <div class="row g-2 align-items-end">
+                <div class="col-md-9">
+                    <label class="form-label" style="font-weight:600;">Buscar</label>
+                    <input type="text" name="q" value="@Model.Q" class="form-control" placeholder="Nombre o categoría" />
                 </div>
-                <!-- p-chip con texto CRUD eliminado -->
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-dark w-100" style="height:44px; border-radius:10px; font-weight:600;">🔎 Buscar</button>
+                </div>
             </div>
+        }
+    </div>
 
-            <div class="p-search">
-                <input id="txtBuscar" placeholder="Buscar por nombre o categoría..." />
+    <div class="page-section mt-3">
+        <div class="cardx table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Estado</th>
+                        <th style="width:220px; text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Productos)
+                    {
+                        <tr>
+                            <td>@p.NOMBRE</td>
+                            <td>₡@p.PRECIO_VENTA.ToString("N2")</td>
+                            <td>@p.CATEGORIA</td>
+                            <td>@p.ESTADO</td>
+                            <td class="text-end">
+                                <button class="btn btn-outline-primary btn-sm me-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEditar"
+                                        onclick="cargarProductoEditar('@p.ID_PRODUCTO', '@Html.Raw(HttpUtility.JavaScriptStringEncode(p.NOMBRE ?? ""))', '@p.PRECIO_VENTA', '@p.ID_CATEGORIA', '@p.ID_ESTADO')">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                @using (Html.BeginForm("Delete", "Productos", FormMethod.Post, new { style = "display:inline;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.ID_PRODUCTO" />
+                                    <input type="hidden" name="page" value="@Model.Page" />
+                                    <input type="hidden" name="q" value="@Model.Q" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar este producto?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Paginación" class="mt-3">
+            <ul class="pagination">
+                @{
+                    var current = Model.Page;
+                    var total = Model.TotalPages;
+                    int start = Math.Max(1, current - 2);
+                    int end = Math.Min(total, current + 2);
+                }
+
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = current - 1 })">Anterior</a>
+                </li>
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = i })">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(current >= total ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { q = Model.Q, page = current + 1 })">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Nuevo producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            @using (Html.BeginForm("Create", "Productos", FormMethod.Post, new { id = "frmProducto" }))
+            @using (Html.BeginForm("Create", "Productos", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-
-                <input type="hidden" id="ID_PRODUCTO" name="ID_PRODUCTO" value="0" />
                 <input type="hidden" name="Page" value="@Model.Page" />
-
-                <div class="p-form">
-                    <div class="p-field">
-                        <label>Nombre</label>
-                        <input id="NOMBRE" name="NOMBRE" required />
+                <input type="hidden" name="Q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" name="NOMBRE" required />
                     </div>
-
-                    <div class="p-field">
-                        <label>Precio Venta</label>
-                        <input id="PRECIO_VENTA" name="PRECIO_VENTA" type="number" step="0.01" min="0" required />
+                    <div class="mb-2">
+                        <label class="form-label">Precio de venta</label>
+                        <input class="form-control" name="PRECIO_VENTA" type="number" step="0.01" min="0" required />
                     </div>
-
-                    <div class="p-field">
-                        <label>Categoría</label>
-                        <select id="ID_CATEGORIA" name="ID_CATEGORIA" required>
+                    <div class="mb-2">
+                        <label class="form-label">Categoría</label>
+                        <select class="form-select" name="ID_CATEGORIA" required>
                             <option value="">-- Seleccione --</option>
                             @foreach (var c in Model.Categorias)
                             {
@@ -74,10 +149,9 @@
                             }
                         </select>
                     </div>
-
-                    <div class="p-field">
-                        <label>Estado</label>
-                        <select id="ID_ESTADO" name="ID_ESTADO" required>
+                    <div class="mb-2">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" name="ID_ESTADO" required>
                             @foreach (var e in Model.Estados)
                             {
                                 <option value="@e.Value">@e.Text</option>
@@ -85,143 +159,71 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="p-actions">
-                    <button type="submit" id="btnGuardar" class="lp-btn">Guardar</button>
-                    <button type="button" id="btnCancelar" class="btn2">Cancelar</button>
-                    <button type="button" id="btnEliminar" class="lp-btn p-danger" disabled>Eliminar</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Guardar</button>
                 </div>
             }
         </div>
-
-        <div class="panel p-panel" style="margin-top:12px;">
-            <div class="p-head">
-                <div class="p-title">
-                    <h2>Lista general</h2>
-                    <span class="muted">Se actualiza cuando guardás, editás o eliminás.</span>
-                </div>
-                <span class="p-chip">@Model.Productos.Count registros</span>
-            </div>
-
-            <div class="p-tableWrap">
-                <table id="tblProductos" class="p-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Precio</th>
-                            <th>Categoría</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var p in Model.Productos)
-                        {
-                            <tr class="rowProd"
-                                data-id="@p.ID_PRODUCTO"
-                                data-nombre="@p.NOMBRE"
-                                data-precio="@p.PRECIO_VENTA"
-                                data-categoria="@p.ID_CATEGORIA"
-                                data-estado="@p.ID_ESTADO">
-
-                                <td class="colNombre">@p.NOMBRE</td>
-                                <td>@p.PRECIO_VENTA</td>
-                                <td class="colCategoria">@p.CATEGORIA</td>
-                                <td>@p.ESTADO</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Paginación" class="mt-3">
-                <ul class="pagination">
-                    @{
-                        var current = Model.Page;
-                        var total = Model.TotalPages;
-                        int start = Math.Max(1, current - 2);
-                        int end = Math.Min(total, current + 2);
-                    }
-
-                    <li class="page-item @(current == 1 ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = current - 1 })">Anterior</a>
-                    </li>
-
-                    @for (int i = start; i <= end; i++)
-                    {
-                        <li class="page-item @(i == current ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
-                        </li>
-                    }
-
-                    <li class="page-item @(current >= total ? "disabled" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = current + 1 })">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
-
-        </div>
-
     </div>
-</section>
+</div>
+
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:900;">Editar producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @using (Html.BeginForm("Edit", "Productos", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ID_PRODUCTO" id="edit_ID_PRODUCTO" />
+                <input type="hidden" name="Page" value="@Model.Page" />
+                <input type="hidden" name="Q" value="@Model.Q" />
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" name="NOMBRE" id="edit_NOMBRE" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Precio de venta</label>
+                        <input class="form-control" name="PRECIO_VENTA" id="edit_PRECIO_VENTA" type="number" step="0.01" min="0" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Categoría</label>
+                        <select class="form-select" name="ID_CATEGORIA" id="edit_ID_CATEGORIA" required>
+                            @foreach (var c in Model.Categorias)
+                            {
+                                <option value="@c.Value">@c.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" name="ID_ESTADO" id="edit_ID_ESTADO" required>
+                            @foreach (var e in Model.Estados)
+                            {
+                                <option value="@e.Value">@e.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-primary-pill">Guardar cambios</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 <script>
-    const txtBuscar = document.getElementById("txtBuscar");
-    const filas = () => document.querySelectorAll("#tblProductos tbody tr");
-
-    txtBuscar.addEventListener("keyup", function () {
-        const q = txtBuscar.value.toLowerCase().trim();
-
-        filas().forEach(tr => {
-            const id = (tr.dataset.id || "").toLowerCase();
-            const nombre = (tr.querySelector(".colNombre")?.innerText || "").toLowerCase();
-            const categoria = (tr.querySelector(".colCategoria")?.innerText || "").toLowerCase();
-
-            tr.style.display = (id.includes(q) || nombre.includes(q) || categoria.includes(q)) ? "" : "none";
-        });
-    });
-
-    const frm = document.getElementById("frmProducto");
-    const btnEliminar = document.getElementById("btnEliminar");
-
-    function limpiar() {
-        document.getElementById("ID_PRODUCTO").value = 0;
-        document.getElementById("NOMBRE").value = "";
-        document.getElementById("PRECIO_VENTA").value = "";
-        document.getElementById("ID_CATEGORIA").value = "";
-        document.getElementById("ID_ESTADO").value = "1";
-
-        frm.action = "@Url.Action("Create", "Productos")";
-        btnEliminar.disabled = true;
-
-        filas().forEach(x => x.classList.remove("p-selected"));
+    function cargarProductoEditar(id, nombre, precio, idCategoria, idEstado) {
+        document.getElementById("edit_ID_PRODUCTO").value = id;
+        document.getElementById("edit_NOMBRE").value = nombre;
+        document.getElementById("edit_PRECIO_VENTA").value = precio;
+        document.getElementById("edit_ID_CATEGORIA").value = idCategoria;
+        document.getElementById("edit_ID_ESTADO").value = idEstado;
     }
-
-    document.getElementById("btnCancelar").addEventListener("click", limpiar);
-
-    filas().forEach(tr => {
-        tr.addEventListener("click", function () {
-            filas().forEach(x => x.classList.remove("p-selected"));
-            tr.classList.add("p-selected");
-
-            document.getElementById("ID_PRODUCTO").value = tr.dataset.id;
-            document.getElementById("NOMBRE").value = tr.dataset.nombre;
-            document.getElementById("PRECIO_VENTA").value = tr.dataset.precio;
-            document.getElementById("ID_CATEGORIA").value = tr.dataset.categoria;
-            document.getElementById("ID_ESTADO").value = tr.dataset.estado;
-
-            frm.action = "@Url.Action("Edit", "Productos")";
-            btnEliminar.disabled = false;
-        });
-    });
-
-    btnEliminar.addEventListener("click", function () {
-        const id = document.getElementById("ID_PRODUCTO").value;
-        if (id == 0) return;
-
-        if (confirm("¿Seguro que deseas eliminar este producto?")) {
-            document.getElementById("deleteId").value = id;
-            document.getElementById("frmDelete").submit();
-        }
-    });
 </script>
