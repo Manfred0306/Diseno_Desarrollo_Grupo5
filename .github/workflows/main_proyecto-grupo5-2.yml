@@ -18,13 +18,13 @@ jobs:
         uses: microsoft/setup-msbuild@v1.3.1
 
       - name: Restore NuGet packages
-        run: nuget restore ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.sln
+        run: nuget restore ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj
 
-      - name: Build solution
-        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.sln /p:Configuration=Release
+      - name: Build
+        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj /p:Configuration=Release /p:OutputPath=bin\Release\
 
       - name: Publish
-        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishUrl=${{github.workspace}}\publish
+        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishUrl=${{github.workspace}}\publish
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
