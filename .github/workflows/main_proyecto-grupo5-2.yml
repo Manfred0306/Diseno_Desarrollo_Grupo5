@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - proyecto-grupo5
+name: Build and deploy ASP.Net app to Azure Web App - proyecto-grupo5
 
 on:
   push:
@@ -16,37 +16,35 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.3.1
 
-      - name: Build
-        run: dotnet build ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj --configuration Release
+      - name: Build with MSBuild
+        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj /p:Configuration=Release
 
-      - name: Publish
-        run: dotnet publish ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      - name: Publish with MSBuild
+        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishUrl=${{github.workspace}}\publish
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: app
+          path: ${{github.workspace}}\publish
 
   deploy:
     runs-on: windows-latest
     needs: build
-    
+
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
-      
+          name: app
+
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'proyecto-grupo5'
