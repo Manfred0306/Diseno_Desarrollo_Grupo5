@@ -22,8 +22,11 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.3.1
 
+      - name: Clean project
+        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj /t:Clean
+
       - name: Build with MSBuild
-        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj /p:Configuration=Release
+        run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj /p:Configuration=Release /p:Platform="Any CPU"
 
       - name: Publish with MSBuild
         run: msbuild ./Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5/Proyecto_Diseno_Desarrollo_Grupo5.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishUrl=${{github.workspace}}\publish
